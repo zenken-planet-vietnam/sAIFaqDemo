@@ -1,22 +1,24 @@
 <template lang="">
-    <li class="nav-item has-sub" :class="{'open': item.isOpen,}">
+    <li class="nav-item has-sub" :class="[ item.isOpen?'open':'close']">
     <b-link
       @click="() => updateGroupOpen(!item.isOpen)"
       class="group-title d-flex align-items-center"
+      :class="{'close':!item.isOpen}"
        
     >
       <span class="menu-title text-truncate">{{ item.label }}</span>
     </b-link>
     <b-collapse
+      v-if="item.childs&&item.childs.length>0"
       v-model="item.isOpen"
       class="menu-content"
       tag="ul"
     >
       <component
-      :is="resolveNavItemComponent(item)"
-      v-for="item in item.childs"
-      :key="item.id"
-      :item="item"
+      :is="resolveNavItemComponent(childItem)"
+      v-for="childItem in item.childs"
+      :key="childItem.id"
+      :item="childItem"
     />
     </b-collapse>
   </li>
@@ -25,6 +27,7 @@
 import VerticalNavLink from "./VerticalNavLink.vue";
 import { BCollapse, BLink } from "bootstrap-vue";
 export default {
+  name: "VerticalNavGroup",
   components: {
     VerticalNavLink,
     BCollapse,
@@ -73,13 +76,12 @@ export default {
         position: absolute;
         right: 20px;
         background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6b7b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-right'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
-        // background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6b7b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
       }
     }
     &.open {
-      a {
+      :not(.close) {
         &::after {
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6b7b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+          -webkit-transform: rotate(90deg);
         }
       }
     }

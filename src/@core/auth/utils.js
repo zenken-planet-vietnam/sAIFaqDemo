@@ -11,9 +11,8 @@ export const isUserLoggedIn = () => {
 }
 // can navigate
 export const canNavigate = (route) => {
-  return route.meta&&route.meta.layout==='full'
+  return route.meta && route.meta.layout === 'full'
 }
 
 
-export const getUserData = () => JSON.parse(localStorage.getItem('userData'))
 

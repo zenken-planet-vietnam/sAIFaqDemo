@@ -22,7 +22,8 @@ export default {
   },
   computed: {},
   created() {
-    this.$store.dispatch("category/getCategory");
+    // get all menu
+    this.$store.dispatch("category/getCategory", { all: true });
   },
   methods: {
     // eslint-disable-next-line no-unused-vars

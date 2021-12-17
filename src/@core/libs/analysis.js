@@ -4,7 +4,7 @@ import tinySegmenter from "./tinySegmenter";
 import synonym from './synonymDictionary'
 export class analysis {
 
-    // phân tích dữ liệu
+    // analys data
     analysisData(questions) {
         let tagPackage = {
             questions: questions,
@@ -12,7 +12,7 @@ export class analysis {
         }
         return tagPackage
     }
-
+    // get invertedindex from list of question
     invertedIndex(questions) {
         let invertedDatas = {}
         questions.forEach(element => {
@@ -31,6 +31,7 @@ export class analysis {
                 }
             });
         });
+        // get synonym
         for (let element in invertedDatas) {
             invertedDatas[element].synonyms = this.getSynonym(element)
         }

@@ -10,8 +10,9 @@ export class FullTextSearch extends BaseSearch {
         this.scriptData = scriptData
         this.levenWords = []
     }
+    // query: text input for search
+    //tags : keyword for search
     search(query = '', tags = []) {
-        let score = []
         if (query.length < 1 && tags.length === 0) {
             return {
                 questions: this.scriptData.questions,
@@ -37,11 +38,6 @@ export class FullTextSearch extends BaseSearch {
             const element = words[i];
             for (let word in this.scriptData.invertedIndex) {
                 let invertedData = this.scriptData.invertedIndex[word]
-                if (word === 'ticket') {
-                    let a = invertedData.synonyms
-
-                    this.checkSynonym(element, invertedData.synonyms, word)
-                }
                 let isSynonym = this.checkSynonym(element, invertedData.synonyms, word)
                 if (word.includes(element) || isSynonym || this.levenshteinDistance(word, element)) {
                     if (!results[i]) {
@@ -57,6 +53,7 @@ export class FullTextSearch extends BaseSearch {
         }
         return this.getGeneralItem(results)
     }
+    //get documemt contains all text
     getGeneralItem(items) {
         if (items.length === 0) return []
         if (items.length === 1) return items[0]
@@ -75,7 +72,7 @@ export class FullTextSearch extends BaseSearch {
         }
         return results
     }
-
+    //levenshteinDistance algorithm copy right 
     levenshteinDistance(str1 = '', str2 = '') {
         const track = Array(str2.length + 1).fill(null).map(() =>
             Array(str1.length + 1).fill(null));
@@ -103,7 +100,8 @@ export class FullTextSearch extends BaseSearch {
         return false
     }
 
-    checkSynonym(text, synonyms, word) {
+    // check synonym with text
+    checkSynonym(text, synonyms) {
         if (synonyms.length < 1) return false
         if (synonyms.indexOf(text) !== -1) {
             synonyms.forEach(element => {
