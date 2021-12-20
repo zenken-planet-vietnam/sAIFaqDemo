@@ -38,6 +38,7 @@ export class FullTextSearch extends BaseSearch {
             const element = words[i];
             for (let word in this.scriptData.invertedIndex) {
                 let invertedData = this.scriptData.invertedIndex[word]
+                // check synonym and add synonym to list search
                 let isSynonym = this.checkSynonym(element, invertedData.synonyms, word)
                 if (word.includes(element) || isSynonym || this.levenshteinDistance(word, element)) {
                     if (!results[i]) {

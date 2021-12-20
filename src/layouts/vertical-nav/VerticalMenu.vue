@@ -39,5 +39,8 @@ export default {
 .vertical-menu {
   list-style-type: none;
   padding: 1rem 0 0 0;
+  ul {
+    padding-left: 0;
+  }
 }
 </style>

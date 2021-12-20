@@ -3,7 +3,7 @@
     <b-link
       @click="() => updateGroupOpen(!item.isOpen)"
       class="group-title d-flex align-items-center"
-      :class="{'close':!item.isOpen}"
+      :class="{'close':!item.isOpen,'active':item.isOpen}"
        
     >
       <span class="menu-title text-truncate">{{ item.label }}</span>
@@ -67,6 +67,12 @@ export default {
     }
   }
   &.has-sub {
+    ul {
+      li {
+        padding-left: 1rem;
+        position: relative;
+      }
+    }
     a {
       &::after {
         content: "";
@@ -76,6 +82,12 @@ export default {
         position: absolute;
         right: 20px;
         background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6b7b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-right'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
+      }
+      &.active {
+        font-weight: bold;
+      }
+      &:hover {
+        background: #f5f5f5;
       }
     }
     &.open {

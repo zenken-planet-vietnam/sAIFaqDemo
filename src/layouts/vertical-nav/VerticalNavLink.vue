@@ -3,9 +3,10 @@
     class="nav-item no-sub"
   >
     <b-link
+      @click="selectedMenu"
+      :class="{'selected':item.isSelected}"
       class="d-flex align-items-center"
     >
-      <!-- <feather-icon :icon="'CircleIcon'" /> -->
       <span class="menu-title text-truncate">{{ item.label }}</span>
     </b-link>
   </li>
@@ -16,6 +17,11 @@ export default {
     item: {
       type: Object,
       default: () => {},
+    },
+  },
+  methods: {
+    selectedMenu() {
+      this.$store.dispatch("category/selectedCategory", this.item.id);
     },
   },
 };
@@ -38,6 +44,10 @@ export default {
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     transition: all 0.5s ease;
+    &.selected {
+      font-weight: bold;
+      color: #7367f0;
+    }
   }
 }
 </style>

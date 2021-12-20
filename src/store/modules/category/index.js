@@ -15,18 +15,29 @@ const recursiveOpenMenu = (data, value) => {
     }
     return false
 }
+
 // recursive close menu
 const recursiveCloseMenu = (data, value) => {
-    if (data.id === value.id) {
-        data.isOpen = false
-        return
-    }
-    if (!data.childs || data.childs.length < 1) return
-    for (let i = 0; i < data.childs.length; i++) {
-        const element = data.childs[i];
-        if (element.isOpen === true) {
-            recursiveCloseMenu(element, value)
+    for (let i = 0; i < data.length; i++) {
+        const element = data[i];
+        if (element.id === value.id) {
+            element.isOpen = false
+            return
         }
+        if (!element.childs || element.childs.length < 1) continue
+        recursiveCloseMenu(element.childs, value)
+    }
+}
+
+const recursiveSelectedMenu = (data, value) => {
+    for (let i = 0; i < data.length; i++) {
+        const element = data[i];
+        if (element.childs.length > 0)
+            recursiveSelectedMenu(element.childs, value)
+        else {
+            element.isSelected = value === element.id
+        }
+
     }
 }
 // no using
@@ -81,31 +92,32 @@ export default {
             }
             // close menu
             else {
-                for (let i = 0; i < state.categories.length; i++) {
-                    const element = state.categories[i];
-                    if (element.isOpen === true)
-                        recursiveCloseMenu(element, payload)
-                }
+                recursiveCloseMenu(state.categories, payload)
             }
 
+        },
+        UPDTATE_SELECTED_MENU(state, payload) {
+            recursiveSelectedMenu(state.categories, payload)
         }
     },
     actions: {
         async getCategory(context, params) {
             const { data } = await axios.get("category/")
             // createMultilevel(data.data)
-            await context.dispatch('recursivrGetCategory', data.data)
+            await context.dispatch('recursiveGetCategory', data.data)
             context.commit("UPDATE_CATEGORIES", data)
         },
-        async recursivrGetCategory(context, data) {
+        async recursiveGetCategory(context, data) {
             if (data.length > 0) {
                 for (let i = 0; i < data.length; i++) {
                     const element = data[i];
                     const child = await context.dispatch('getChildCategory', { parent_id: element.id })
                     element.childs = child.data
                     element.isOpen = false
-                    if (element.childs.length > 0)
-                        context.dispatch('recursivrGetCategory', element.childs)
+                    if (element.childs.length > 0) {
+                        await context.dispatch('recursiveGetCategory', element.childs)
+                    }
+                    else element.isSelected = false
                 }
             }
         },
@@ -115,6 +127,9 @@ export default {
         },
         async updateGroupOpen(context, value) {
             context.commit("UPDTATE_OPEN_GROUP", value)
+        },
+        selectedCategory(context, id) {
+            context.commit("UPDTATE_SELECTED_MENU", id)
         }
     }
 }
