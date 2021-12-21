@@ -13,7 +13,6 @@ class Expression {
         let stack = [];
         let top = ""
         let tokens = this.lex(exp);
-        debugger
         tokens.forEach(token => {
             if (this.isOperand(token)) {
                 postfix.push(token);
@@ -128,7 +127,6 @@ export class BooleanSearch extends FullTextSearch {
             if (token === '&') {
                 left = stack.pop();
                 right = stack.pop();
-                debugger
                 if (this.isString(left)) {
                     left = this.checkTextIncludeWords(this.splitText(left));
                 } else
@@ -151,7 +149,6 @@ export class BooleanSearch extends FullTextSearch {
                 if (token === '|') {
                     left = stack.pop();
                     right = stack.pop();
-                    debugger
                     if (this.isString(left)) {
                         left = this.checkTextIncludeWords(this.splitText(left));
                     }
