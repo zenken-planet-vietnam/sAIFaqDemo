@@ -3,6 +3,7 @@
 import axios from "@axios"
 import { analysis } from "@core/libs/analysis"
 import { FullTextSearch } from "@core/libs/search"
+import { BooleanSearch } from "@core/libs/boolean_search"
 export default {
     namespaced: true,
     state: {
@@ -74,7 +75,8 @@ export default {
         },
         UPDATE_QUESTIONS_FILTER(state, payload) {
             state.textSearch = payload
-            let search = new FullTextSearch(state.tagPakage)
+            // let search = new FullTextSearch(state.tagPakage)
+            let search = new BooleanSearch(state.tagPakage)
             let slectedTags = state.tags.filter(x => x.isSelected)
             let result = search.search(payload, slectedTags)
             state.searchResults = result.questions.map(obj => ({ ...obj, isSelected: false, answers: [] }))
