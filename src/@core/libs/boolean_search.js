@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 /* eslint-disable no-unused-vars */
 import { FullTextSearch } from "@core/libs/search";
 import tinySegmenter from "@core/libs/tinySegmenter";
@@ -7,7 +8,7 @@ class Expression {
     isEmpty(arr) {
         return arr.length === 0
     }
-
+    // split string to operation 
     toPostfix(exp) {
         let postfix = [];
         let stack = [];
@@ -37,53 +38,65 @@ class Expression {
         }
         postfix = postfix.filter(x => x.trim().length > 0)
         let operation = null, childOperation = null
-        for (let i = 0; i < postfix.length; i++) {
-            const element = postfix[i];
-            if (this.isOperator(element)) {
-                operation = {
-                    right: childOperation,
-                    operation: element,
-                }
-                if (childOperation === null) {
-                    if (element === '~') {
-                        if (postfix.length > 1) {
-                            operation.left = postfix[i - 1]
-                            postfix.splice(i - 1, 2)
-                            i -= 2
-                        }
-                    }
-                    else {
-                        if (postfix.length > 2) {
-                            operation.right = postfix[i - 1]
-                            operation.left = postfix[i - 2]
-                            postfix.splice(i - 2, 3)
-                            i -= 3
-                        }
-                    }
-                }
-                else {
-                    if (element === '~') {
-                        if (postfix.length > 0) {
-                            operation.left = childOperation
-                            postfix.splice(i, 1)
-                            i -= 1
-                        }
-                    }
-                    else {
-                        if (postfix.length > 1) {
-                            operation.left = postfix[i - 1]
-                            postfix.splice(i - 1, 2)
-                            i -= 2
-                        }
-                    }
-                }
-
-                childOperation = operation
+        // if postfix not contain operation (~,|,&) or lenght =1
+        // return operation | with left is postfix string
+        if (postfix.length === 1 || postfix.find(x => this.isOperation(x)) === undefined) {
+            operation = {
+                operation: '|',
+                left: postfix.join(' '),
             }
         }
+        // create binary tree operation
+        else
+            for (let i = 0; i < postfix.length; i++) {
+                const element = postfix[i];
+                if (this.isOperator(element)) {
+                    operation = {
+                        right: childOperation,
+                        operation: element,
+                    }
+                    // if child operation is null , need find value of left and right 
+                    if (childOperation === null) {
+                        if (element === '~') {
+                            if (postfix.length > 1) {
+                                operation.left = postfix[i - 1]
+                                postfix.splice(i - 1, 2)
+                                i -= 2
+                            }
+                        }
+                        else {
+                            if (postfix.length > 2) {
+                                operation.right = postfix[i - 1]
+                                operation.left = postfix[i - 2]
+                                postfix.splice(i - 2, 3)
+                                i -= 3
+                            }
+                        }
+                    }
+                    // if  child operation not null , need find value of left ,right value is child operation
+                    else {
+                        if (element === '~') {
+                            if (postfix.length > 0) {
+                                operation.left = childOperation
+                                postfix.splice(i, 1)
+                                i -= 1
+                            }
+                        }
+                        else {
+                            if (postfix.length > 1) {
+                                operation.left = postfix[i - 1]
+                                postfix.splice(i - 1, 2)
+                                i -= 2
+                            }
+                        }
+                    }
+
+                    childOperation = operation
+                }
+            }
         return operation;
     }
-
+    // check none operation
     isOperand(str) {
         return !((str === "|") || (str === "&") || (str === "~") ||
             (str === "(") || (str === ")"));
@@ -91,6 +104,9 @@ class Expression {
 
     isOperator(str) {
         return !this.isOperand(str);
+    }
+    isOperation(str) {
+        return (str === "|") || (str === "&") || (str === "~")
     }
 
     priority(operator) {
@@ -128,7 +144,6 @@ class Expression {
                 if (token) {
                     tokens.push(token);
                 }
-
                 tokens.push(string.charAt(i));
                 token = "";
             } else {
@@ -162,110 +177,49 @@ export class BooleanSearch extends FullTextSearch {
         });
         let expression = new Expression;
         let postfix = expression.toPostfix(query);
-
-        // // let postfix = ['ticket', '~', 'enough', '|']
-        // let stack = [], results = []
-
-        // let left = [], right = [], union = [], intersect = [], exclude = []
-        // console.log(postfix);
-        // postfix.forEach(token => {
-        //     if (token === '&') {
-        //         left = stack.pop();
-        //         right = stack.pop();
-        //         if (this.isString(left)) {
-        //             left = this.checkTextIncludeWords(this.splitText(left));
-        //         } else
-        //             left = []
-        //         let rightStr = right
-        //         if (this.isString(right)) {
-        //             right = this.checkTextIncludeWords(this.splitText(right))
-        //         }
-        //         else
-        //             right = []
-        //         // do intersection
-        //         let filteredArray = left.filter(value => right.includes(value));
-        //         if (rightStr === ' ') {
-        //             results = results.filter(x => filteredArray.includes(x))
-        //         }
-        //         else
-        //             results = [...results, ...filteredArray];
-
-        //     } else
-        //         if (token === '|') {
-        //             left = stack.pop();
-        //             right = stack.pop();
-        //             if (this.isString(left)) {
-        //                 left = this.checkTextIncludeWords(this.splitText(left));
-        //             }
-        //             if (this.isString(right)) {
-        //                 right = this.checkTextIncludeWords(this.splitText(right))
-        //             }
-        //             if (!left) {
-        //                 left = [];
-        //             }
-
-        //             if (!right) {
-        //                 right = [];
-        //             }
-        //             // debugger
-        //             //do union
-        //             let commonStack = [...left, ...right];
-        //             //filter common
-        //             commonStack = [...new Set(commonStack)];
-        //             results = [...results, ...commonStack];
-
-        //         } else
-        //             if (token === '~') {
-        //                 left = (stack.pop());
-        //                 if (this.isString(left)) {
-        //                     left = this.checkTextIncludeWords(this.splitText(left));
-        //                 }
-        //                 if (!(left)) {
-        //                     left = [];
-        //                 }
-        //                 results = results.filter(value => !left.includes(value));
-        //             } else {
-        //                 stack.push(token);
-        //             }
-        // })
-        // console.log(results);
-        // let unionQuestions = [], intersectQuestions = [], excludeQuestions = []
-        // if (exclude.length > 0)
-        //     excludeQuestions = this.scriptData.questions.filter(x => exclude.find(y => y === x.id) === undefined)
-        // if (intersect.length > 0)
-        //     intersectQuestions = this.scriptData.questions.filter(x => intersect.find(y => y === x.id) !== undefined)
-        // if (union.length > 0)
-        //     unionQuestions = this.scriptData.questions.filter(x => union.find(y => y === x.id) !== undefined)
-
         let results = this.recursiveSearch(postfix)
         return {
             // questions: [...new Set([...unionQuestions, ...intersectQuestions, ...excludeQuestions])],
             questions: this.scriptData.questions.filter(x => results.find(y => y === x.id) !== undefined),
-            words: [...words, ...this.levenWords]
+            words: [...words.map(x => x.replace(/[^a-zA-Z0-9]/g, '')).filter(y => y.length > 0), ...this.levenWords]
         }
     }
+    // recursive serch from child operation-> parent operation
     recursiveSearch(operationData) {
         let left = [], right = []
-        if (this.isString(operationData.left))
-            left = this.checkTextIncludeWords(this.splitText(operationData.left));
-        else left = this.recursiveSearch(operationData.left)
-        if (operationData.operation !== '~') {
+        if (operationData.left) {
+            // find questions with text if left is string
+            // left is result find question with text
+            if (this.isString(operationData.left))
+                left = this.checkTextIncludeWords(this.splitText(operationData.left));
+            //  rescursive search if left is operation
+            // left  is result of child operation 
+            else left = this.recursiveSearch(operationData.left)
+        }
+        if (operationData.operation !== '~' && operationData.right) {
+            // find questions with text if right is string
+            // right is result find question with text
             if (this.isString(operationData.right))
                 right = this.checkTextIncludeWords(this.splitText(operationData.right));
+            //  rescursive search if right is operation
+            // right  is result of child operation 
             else right = this.recursiveSearch(operationData.right)
         }
-
+        // result is left - right if '&' operation
         if (operationData.operation === '&') {
             return left.filter(value => right.includes(value));
-        } else
-            if (operationData.operation === '|') {
-                let commonStack = [...left, ...right];
-                //filter common
-                return [...new Set(commonStack)];
-            } else
-                if (operationData.operation === '~') {
-                    return this.scriptData.questions.map(x => x.id).filter(value => !left.includes(value));
-                }
+        }
+        // result is left +right if '|' operation
+        else if (operationData.operation === '|') {
+            let commonStack = [...left, ...right];
+            //filter common
+            return [...new Set(commonStack)];
+        }
+        // result is origin question -left if '~' opearation
+        else if (operationData.operation === '~') {
+            return this.scriptData.questions.map(x => x.id).filter(value => !left.includes(value));
+        }
+        return []
 
     }
     isString(obj) {
