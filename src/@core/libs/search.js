@@ -36,23 +36,26 @@ export class FullTextSearch extends BaseSearch {
         let results = []
         for (let i = 0; i < words.length; i++) {
             const element = words[i];
+            let result = []
             for (let word in this.scriptData.invertedIndex) {
                 let invertedData = this.scriptData.invertedIndex[word]
                 // check synonym and add synonym to list search
                 let isSynonym = this.checkSynonym(element, invertedData.synonyms, word)
                 if (word.includes(element) || isSynonym || this.levenshteinDistance(word, element)) {
-                    if (!results[i]) {
-                        results.push([...invertedData.ids])
-                    }
-                    else {
-                        invertedData.ids.forEach(id => {
-                            if (results[i].indexOf(id) === -1) results[i].push(id)
-                        });
-                    }
+                    invertedData.scripts.forEach(item => {
+                        let script = result.find(x => x.id === item.id)
+                        if (!script) result.push(item)
+                        else if (script.weight < item.weight) script.weight = item.weight
+                    });
                 }
             }
+            results.push(result)
         }
-        return this.getGeneralItem(results)
+        let expectResults = this.getGeneralItem(results)
+        expectResults.sort((a, b) => {
+            return b.weight - a.weight
+        })
+        return expectResults.map(x => x.id)
     }
     //get documemt contains all text
     getGeneralItem(items) {
@@ -64,7 +67,7 @@ export class FullTextSearch extends BaseSearch {
             let isContain = true
             for (let j = 1; j < items.length; j++) {
                 const item = items[j];
-                if (item.indexOf(element) === -1) {
+                if (item.find(x => x.id == element.id) === undefined) {
                     isContain = false
                     break;
                 }
