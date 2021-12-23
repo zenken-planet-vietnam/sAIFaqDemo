@@ -51,6 +51,7 @@ export class FullTextSearch extends BaseSearch {
             }
             results.push(result)
         }
+        // take the joint result part of all results
         let expectResults = this.getGeneralItem(results)
         expectResults.sort((a, b) => {
             return b.weight - a.weight

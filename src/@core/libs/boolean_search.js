@@ -38,6 +38,7 @@ class Expression {
         }
         postfix = postfix.filter(x => x.trim().length > 0)
         let operation = null, childOperation = null
+        console.log(postfix);
         // if postfix not contain operation (~,|,&) or lenght =1
         // return operation | with left is postfix string
         if (postfix.length === 1 || postfix.find(x => this.isOperation(x)) === undefined) {
@@ -47,6 +48,11 @@ class Expression {
             }
         }
         // create binary tree operation
+        // node:{
+        //     left: text or node,
+        //     right, text or node,
+        //     operatiop: |,&,~
+        // }
         else {
             for (let i = 0; i < postfix.length; i++) {
                 const element = postfix[i];
@@ -199,7 +205,7 @@ export class BooleanSearch extends FullTextSearch {
         if (node.operation !== '~' && node.right) {
             right = this.getNodeResult(node.right)
         }
-        // result is left - right if '&' operation
+        // result is left ∩ right if '&' operation
         if (node.operation === '&') {
             return left.filter(value => right.includes(value));
         }

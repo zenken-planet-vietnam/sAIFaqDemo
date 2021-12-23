@@ -31,26 +31,23 @@ export class analysis {
             });
             documents.push(document)
         });
-        // inverted_index and calculate weight tf-idf term in document
+        // inverted_index and calculate weight term in document using tf-idf 
         documents.forEach(document => {
             document.terms.forEach(word => {
+                let script = {
+                    id: document.id,
+                    weight: this.tf_idf(word, document, documents)
+                }
                 if (!invertedDatas[word])
                     invertedDatas[word] = {
                         text: word,
                         scripts: [
-                            {
-                                id: document.id,
-                                weight: this.tf_idf(word, document, documents)
-                            }
+                            script
                         ],
-
                     }
                 else {
                     invertedDatas[word].scripts.push(
-                        {
-                            id: document.id,
-                            weight: this.tf_idf(word, document, documents)
-                        }
+                        script
                     )
                 }
             });
