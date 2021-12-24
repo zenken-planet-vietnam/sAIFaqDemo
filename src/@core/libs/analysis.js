@@ -19,7 +19,7 @@ export class analysis {
         // create document from term of list question
         questions.forEach(element => {
             let document = {}
-            let words = tinySegmenter.segmentNoneSpace(element.label)
+            let words = tinySegmenter.removeStopWord(element.label)
             document.id = element.id
             document.terms = []
             words.forEach(word => {

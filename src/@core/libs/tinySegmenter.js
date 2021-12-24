@@ -1,3 +1,4 @@
+let sw = require('stopword')
 function TinySegmenter() {
     let patterns = {
         '[一二三四五六七八九十百千万億兆]': 'M',
@@ -1500,6 +1501,9 @@ TinySegmenter.prototype.segmentNoneSpace = function (input) {
         if (wordTrim.length > 0) results.push(wordTrim)
     });
     return results
+}
+TinySegmenter.prototype.removeStopWord = function (text) {
+    return sw.removeStopwords(text.split(' '))
 }
 export default tinySegmenter
 // # sourceMappingURL=tinySegmenter.js.map
