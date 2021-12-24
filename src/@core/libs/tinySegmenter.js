@@ -1503,7 +1503,7 @@ TinySegmenter.prototype.segmentNoneSpace = function (input) {
     return results
 }
 TinySegmenter.prototype.removeStopWord = function (text) {
-    return sw.removeStopwords(text.split(' '))
+    return sw.removeStopwords(this.segmentNoneSpace(text))
 }
 export default tinySegmenter
 // # sourceMappingURL=tinySegmenter.js.map
