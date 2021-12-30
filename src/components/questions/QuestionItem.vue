@@ -6,6 +6,7 @@
                     :icon="type==='result'?'HelpCircleIcon':'ClockIcon'"
                     size="18"
                   />
+                  <span>{{data.id}}-</span>
           <div v-if="type!=='result'">
             <span>{{data.label}}</span>
           </div>

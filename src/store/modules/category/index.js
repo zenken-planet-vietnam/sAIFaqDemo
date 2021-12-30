@@ -40,34 +40,6 @@ const recursiveSelectedMenu = (data, value) => {
 
     }
 }
-// no using
-// const createMultilevel = (data) => {
-//     let root = data.filter(x => x.parent_id === null)
-//     let childs = data.filter(x => x.parent_id !== null)
-//     debugger
-//     root.forEach(element => {
-//         recursiveGetMultiLevelMenu(element, childs)
-//     });
-//     debugger
-//     return root
-// }
-// const recursiveGetMultiLevelMenu = (item, data) => {
-//     item.childs = []
-//     item.isOpen = false
-//     for (let i = 0; i < data.length; i++) {
-//         const element = data[i];
-//         if (element.parent_id === item.id) {
-//             item.childs.push(element)
-//             data.splice(i, 1)
-//             i--
-//         }
-//     }
-//     if (item.childs.length > 0) {
-//         item.childs.forEach(element => {
-//             recursiveGetMultiLevelMenu(element, childs)
-//         });
-//     }
-// }
 
 export default {
     namespaced: true,
