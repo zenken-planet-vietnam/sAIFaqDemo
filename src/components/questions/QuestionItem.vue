@@ -54,7 +54,8 @@ export default {
   },
   methods: {
     getAnswerFromQuestion(id) {
-      this.$store.dispatch("page/getAnswerFromQuestion", id);
+      this.$store.dispatch("page/updateProcess", false);
+      this.$router.push({ name: "result-page", query: { id } });
     },
   },
 };

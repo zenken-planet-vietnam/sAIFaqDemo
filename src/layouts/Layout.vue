@@ -61,7 +61,7 @@
                   </b-navbar-nav>
             </b-navbar>
         </div>
-         <div class="search-modal" @click="closeSearch" v-if="searchProcess" />
+         <div class="search-modal" @click="closeSearch" v-if="searchProcess&&!config.SEARCH_BUTTON" />
         <div class="content">
           <div class="menu-bar">
             <vertical-menu/>
@@ -83,6 +83,7 @@ import {
   BDropdownDivider
 } from "bootstrap-vue";
 import searchDataMixin from "@core/mixins/searchDataMixin";
+import configMixin from "@core/mixins/configMixin"
 import VerticalMenu from "./vertical-nav/VerticalMenu.vue"
 export default {
   components: {
@@ -95,12 +96,16 @@ export default {
     BDropdownDivider,
     VerticalMenu
   },
-  mixins: [searchDataMixin],
+  mixins: [searchDataMixin,configMixin],
   data() {
     return {
       logo: require("@/assets/logo.png"),
       avatar: require("@/assets/imgs/avatar.jpeg"),
     };
+  },
+ async created () {
+    // fake data to store
+    await this.$store.dispatch("page/getQuestionsFaq");
   },
   methods: {
     closeSearch() {
@@ -166,9 +171,18 @@ height: calc(100% - 60px);
 }
 .page-content{
   flex: 1;
+    max-width: 1280px;
+  margin: auto;
+  padding: 50px 20px;
+  height: 100%
 }
 }
 
 }
 
+@media (max-width: 768px) {
+  .page-content {
+    padding: 10px 10px;
+  }
+}
 </style>

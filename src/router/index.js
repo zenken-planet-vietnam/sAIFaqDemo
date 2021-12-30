@@ -14,6 +14,11 @@ const router = new Router({
             component: () => import('@/components/SearchPage.vue')
         },
         {
+            path: '/result',
+            name: 'result-page',
+            component: () => import('@/components/ResultPage.vue')
+        },
+        {
             path: '/login',
             name: 'auth-login',
             component: () => import('@/components/Login.vue'),

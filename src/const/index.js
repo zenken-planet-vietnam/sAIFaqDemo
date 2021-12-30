@@ -1,3 +1,3 @@
 export default {
-    "SEARCH_BUTTON": false
+    "SEARCH_BUTTON": true
 }

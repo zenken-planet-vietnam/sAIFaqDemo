@@ -49,7 +49,8 @@ export default {
             state.faqQuestions = payload.data.map(obj => ({ ...obj, isSelected: false, answers: [] }))
         },
         UPDATE_ANSWERS(state, payload) {
-            let question = !state.searchProcess ? state.faqQuestions.find(x => x.id === payload.id) : state.searchResults.find(x => x.id === payload.id)
+            // let question = !state.searchProcess ? state.faqQuestions.find(x => x.id === payload.id) : state.searchResults.find(x => x.id === payload.id)
+            let question = state.questions.find(x => x.id === payload.id)
             if (question) {
                 question.answers = payload.answers
             }
@@ -100,10 +101,11 @@ export default {
         },
         // get lists answers from question id
         async getAnswerFromQuestion(context, id) {
-            let question = !context.state.searchProcess ? context.state.faqQuestions.find(x => x.id === id) : context.state.searchResults.find(x => x.id === id)
+            // let question = !context.state.searchProcess ? context.state.faqQuestions.find(x => x.id === id) : context.state.searchResults.find(x => x.id === id)
+            let question = context.state.questions.find(x => x.id === id)
             context.commit("UPDATE_ISESELECTED", id)
             if (question && question.answers.length > 0)
-                return
+                return question
             const { data } = await axios.get(`question/${id}/answer/`)
             if (data) {
                 const answersData = {
@@ -121,6 +123,7 @@ export default {
                 }
                 context.commit("UPDATE_ANSWERS", answersData)
             }
+            return question
         },
 
         // list faq questions
@@ -140,6 +143,6 @@ export default {
         updateTagFilter(context, tag) {
             context.commit("UPDATE_TAG_FILTER", tag)
             context.commit("UPDATE_QUESTIONS_FILTER", context.state.textSearch)
-        }
+        },
     }
 }

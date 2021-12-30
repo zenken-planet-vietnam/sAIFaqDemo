@@ -89,4 +89,14 @@ text-align: left;
 body{
     font-family: Montserrat,Helvetica,Arial,serif;
 }
+.none-background{
+    background: transparent !important;
+}
+.card {
+    background: #fff;
+    box-shadow: 0 5px 25px rgba(34, 41, 47, 0.1);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    border-width: 0px;
+  }
 

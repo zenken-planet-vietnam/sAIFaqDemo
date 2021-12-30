@@ -1,5 +1,5 @@
 <template lang="">
-    <div class="tags-container" :class="{'selected-tags-container':isSelectedTag}"> 
+    <div class="tags-container" :class="[isSelectedTag?'selected-tags-container':'', !isModal?'none-background':'' ]"> 
         <span v-if="!isSelectedTag">
             {{"Popular key words:"}}
         </span>
@@ -28,6 +28,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    isModal: {
+      type: Boolean,
+      default: true,
+    },
   },
   methods: {
     updateTagFilter(tag) {
@@ -40,23 +44,6 @@ export default {
 };
 </script>
 <style lang="scss">
-.bounce-enter-active {
-  animation: bounce-in 0.5s;
-}
-.bounce-leave-active {
-  animation: bounce-in 0.5s reverse;
-}
-@keyframes bounce-in {
-  0% {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.5);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
 .tags-container {
   padding: 10px 20px;
   background: #ebedef;

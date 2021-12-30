@@ -1,16 +1,18 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 <template lang="s">
-   <div class="search-page-container">
+   <div class="search-page-container" :class="{'card':config.SEARCH_BUTTON}">
      <search-form/>
-     <div class="mt-2">
+     <div v-if="!(searchProcess&&config.SEARCH_BUTTON)">
+      <div class="mt-2">
        <span class="font-weight-bold">
          {{"Frequently Asked Questions"}}
        </span>
-     </div>
+      </div>
        <div v-if="faqQuestions">
          <question-item v-for="item in faqQuestions" :key="item.id" :data="item"/>
        </div>
+     </div>
     </div>
    </div>
 </template>
@@ -19,11 +21,12 @@
 import { BFormInput, BFormGroup, BForm } from "bootstrap-vue";
 import SearchForm from "./questions/SearchForm.vue";
 import searchDataMixin from "@/@core/mixins/searchDataMixin";
+import configMixin from "@/@core/mixins/configMixin";
 export default {
   data() {
     return {};
   },
-  mixins: [searchDataMixin],
+  mixins: [searchDataMixin, configMixin],
   components: {
     QuestionItem: () => import("./questions/QuestionItem.vue"),
     BFormInput,
@@ -33,8 +36,18 @@ export default {
   },
 
   created() {
-    // fake data to store
-    this.$store.dispatch("page/getQuestionsFaq");
+    // const body = {
+    //   name: "adminhasacl",
+    //   password: "Hello123#",
+    // };
+    // const headers = {
+    //   type: "application/json",
+    // };
+    // // eslint-disable-next-line no-unused-vars
+    // const blob = new Blob([JSON.stringify(body)], headers);
+    // for (let i = 0; i < 1; i++) {
+    //   navigator.sendBeacon("http://localhost/api/admin/login/", blob);
+    // }
   },
   methods: {
     // ...mapActions(["page/updateQuestion", "page/getQuestionsFaq"]),
@@ -42,14 +55,4 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.search-page-container {
-  max-width: 1280px;
-  margin: auto;
-  padding: 50px 20px;
-}
-@media (max-width: 768px) {
-  .search-page-container {
-    padding: 10px 10px;
-  }
-}
 </style>
