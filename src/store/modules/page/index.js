@@ -75,13 +75,16 @@ export default {
             state.textSearch = payload
         },
         UPDATE_QUESTIONS_FILTER(state, payload) {
-            state.textSearch = payload
-            // let search = new FullTextSearch(state.tagPakage)
-            let search = new BooleanSearch(state.tagPakage)
-            let slectedTags = state.tags.filter(x => x.isSelected)
-            let result = search.search(payload, slectedTags)
-            state.searchResults = result.questions.map(obj => ({ ...obj, isSelected: false, answers: [] }))
-            state.searchWords = result.words
+            state.textSearch = payload.text
+            state.searchWords = payload.words
+            state.searchResults = payload.result
+            // state.textSearch = payload
+            // // let search = new FullTextSearch(state.tagPakage)
+            // let search = new BooleanSearch(state.tagPakage)
+            // let slectedTags = state.tags.filter(x => x.isSelected)
+            // let result = search.search(payload, slectedTags)
+            // state.searchResults = result.questions.map(obj => ({ ...obj, isSelected: false, answers: [] }))
+            // state.searchWords = result.words
         },
         UPDATE_TAG_FILTER(state, payload) {
             let tag = state.tags.find(x => x.text === payload.text)
@@ -138,11 +141,22 @@ export default {
         },
         // filter candidate question
         filterQuestions(context, query) {
-            context.commit("UPDATE_QUESTIONS_FILTER", query.toLowerCase().trim())
+            let text = query.toLowerCase().trim()
+            // let search = new FullTextSearch(state.tagPakage)
+            let search = new BooleanSearch(context.state.tagPakage)
+            let slectedTags = context.state.tags.filter(x => x.isSelected)
+            let result = search.search(text, slectedTags)
+            let data = {
+                result: result.questions.map(obj => ({ ...obj, isSelected: false, answers: [] })),
+                words: result.words,
+                text
+            }
+            context.commit("UPDATE_QUESTIONS_FILTER", data)
+            return data.result
         },
         updateTagFilter(context, tag) {
             context.commit("UPDATE_TAG_FILTER", tag)
-            context.commit("UPDATE_QUESTIONS_FILTER", context.state.textSearch)
+            return context.dispatch('filterQuestions', context.state.textSearch)
         },
     }
 }

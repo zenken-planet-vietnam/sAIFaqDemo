@@ -60,9 +60,6 @@ export default {
     },
     blur() {
       this.isFocused = false;
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ demo: 1 });
-      console.log(window.dataLayer);
     },
     setText(text) {
       this.text = text;

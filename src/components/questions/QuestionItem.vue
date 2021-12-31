@@ -12,7 +12,7 @@
           </div>
           <hight-light :text="data.label" :targets="getTargets" v-else/>
       </div>
-      <transition name="slide-fade">
+      <!-- <transition name="slide-fade">
        <div v-if="data.answers &&data.isSelected">
          <div class="answer-container">
            <span class="font-weight-bold">
@@ -24,11 +24,10 @@
          </div>
          
        </div>
-       </transition>
+       </transition> -->
     </div>
 </template>
 <script>
-import AnswerItem from "./AnswerItem.vue";
 import HightLight from "./HightLight.vue";
 import searchDataMixin from "@core/mixins/searchDataMixin";
 export default {
@@ -44,7 +43,6 @@ export default {
     },
   },
   components: {
-    AnswerItem,
     HightLight,
   },
   computed: {

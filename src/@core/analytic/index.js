@@ -1,9 +1,2 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-var Analytic = function () {
-    function init(config) {
-    }
-    function send() {
-
-    }
-}
+// eslint-disable-next-line no-unused-vars
+window.dataLayer = 'sdvdgasjdgkask'

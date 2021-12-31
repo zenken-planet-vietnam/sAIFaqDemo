@@ -4,7 +4,6 @@ import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import router from "@/router"
 import FeatherIcon from '@/components/questions/FeatherIcon.vue'
-
 Vue.component(FeatherIcon.name, FeatherIcon)
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 // require('@/assets/scss/app.scss')

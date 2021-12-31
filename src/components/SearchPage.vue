@@ -35,20 +35,7 @@ export default {
     SearchForm,
   },
 
-  created() {
-    // const body = {
-    //   name: "adminhasacl",
-    //   password: "Hello123#",
-    // };
-    // const headers = {
-    //   type: "application/json",
-    // };
-    // // eslint-disable-next-line no-unused-vars
-    // const blob = new Blob([JSON.stringify(body)], headers);
-    // for (let i = 0; i < 1; i++) {
-    //   navigator.sendBeacon("http://localhost/api/admin/login/", blob);
-    // }
-  },
+  created() {},
   methods: {
     // ...mapActions(["page/updateQuestion", "page/getQuestionsFaq"]),
   },

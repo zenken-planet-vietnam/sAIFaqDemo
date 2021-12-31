@@ -68,6 +68,7 @@ export default {
     submit() {
       this.$store.dispatch("page/updateProcess", true);
       this.$store.dispatch("page/filterQuestions", this.text);
+      // call api =>
     },
     onDeleteText(event) {
       if (event.target.value.length === 0) {
