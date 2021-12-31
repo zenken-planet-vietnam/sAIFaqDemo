@@ -1,9 +1,46 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-var Analytic = function () {
-    function init(config) {
-    }
-    function send() {
 
-    }
+
+try{
+    window.sa = (function (window) {
+        'use strict';
+
+        const init = (trackingID, config) => {
+            //    check trackingID validity
+
+        };
+
+        const config = (config) => {
+        }
+
+        const send = () => {
+
+        }
+
+        const checkUserCookie = () => {
+
+        }
+
+        const setCookie = () => {
+
+        }
+
+        const getUserAgent = () => {
+            return navigator.userAgent
+        }
+
+        const createUserID = () => {
+        }
+
+        return {
+            init: init,
+            config: config,
+            send: send
+        }
+
+    })(window);
+// eslint-disable-next-line no-empty
+} catch {
+
 }
