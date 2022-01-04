@@ -63,7 +63,7 @@ export default {
         window.sa.send(data);
       }
       this.$store.dispatch("page/updateProcess", false);
-      this.$router.push({ name: "result-page", query: { id } });
+      this.$router.push({ name: "result-page", query: { question_id: id } });
     },
   },
 };

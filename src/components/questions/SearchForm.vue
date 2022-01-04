@@ -76,7 +76,7 @@ export default {
         let data = {
           event_name: "searchFormSubmit",
           value: {
-            query: this.text.trim(),
+            query: this.text.toLowerCase().trim(),
             result: result.length,
           },
         };
