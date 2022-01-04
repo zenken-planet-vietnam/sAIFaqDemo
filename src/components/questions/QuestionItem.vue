@@ -52,6 +52,16 @@ export default {
   },
   methods: {
     getAnswerFromQuestion(id) {
+      // call analytics api
+      if (window.sa) {
+        let data = {
+          event_name: "questionClick",
+          value: {
+            id,
+          },
+        };
+        window.sa.send(data);
+      }
       this.$store.dispatch("page/updateProcess", false);
       this.$router.push({ name: "result-page", query: { id } });
     },

@@ -34,6 +34,9 @@ export default {
             )
           : [];
     },
+    value(newValue) {
+      if (newValue !== this.text) this.text = newValue;
+    },
   },
   data() {
     return {
@@ -62,8 +65,8 @@ export default {
       this.isFocused = false;
     },
     setText(text) {
-      this.text = text;
-      this.$emit("enter", this.text);
+      this.$emit("input", text);
+      this.$emit("enter");
     },
   },
 };

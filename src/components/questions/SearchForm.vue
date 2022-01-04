@@ -65,10 +65,23 @@ export default {
     onTextChange() {
       if (!this.config.SEARCH_BUTTON) this.submit();
     },
-    submit() {
+    async submit() {
       this.$store.dispatch("page/updateProcess", true);
-      this.$store.dispatch("page/filterQuestions", this.text);
-      // call api =>
+      let result = await this.$store.dispatch(
+        "page/filterQuestions",
+        this.text
+      );
+      // call analytics api
+      if (window.sa) {
+        let data = {
+          event_name: "searchFormSubmit",
+          value: {
+            query: this.text.trim(),
+            result: result.length,
+          },
+        };
+        window.sa.send(data);
+      }
     },
     onDeleteText(event) {
       if (event.target.value.length === 0) {
