@@ -57,13 +57,13 @@ export default {
         let data = {
           event_name: "questionClick",
           value: {
-            id,
+            question_id: id,
           },
         };
         window.sa.send(data);
       }
       this.$store.dispatch("page/updateProcess", false);
-      this.$router.push({ name: "result-page", query: { question_id: id } });
+      this.$router.push({ name: "result-page", query: { id } });
     },
   },
 };
