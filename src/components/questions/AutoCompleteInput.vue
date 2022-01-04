@@ -42,12 +42,12 @@ export default {
     return {
       isFocused: false,
       suggestText: [
-        // "ticket is",
-        // "ticket for",
-        // "ticket and train",
-        // "fare is",
-        // "what is fare",
-        // "enough is",
+        "ticket is",
+        "ticket for",
+        "ticket and train",
+        "fare is",
+        "what is fare",
+        "enough is",
       ],
       text: "",
       autoCompleteData: [],
