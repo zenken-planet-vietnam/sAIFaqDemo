@@ -46,7 +46,7 @@ export default {
     return {
       config: {
         allowInput: true,
-        dateFormat: "Y-m-d",
+        dateFormat: "Y/m/d",
       },
     };
   },

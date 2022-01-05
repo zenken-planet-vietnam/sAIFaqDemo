@@ -38,6 +38,11 @@ export default {
       value: 0,
     };
   },
+  watch: {
+    item(newItem) {
+      if (newItem) this.counterUp();
+    },
+  },
   methods: {
     counterUp() {
       this.value = 0;

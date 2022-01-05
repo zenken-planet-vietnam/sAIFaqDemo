@@ -2,19 +2,24 @@
     <div>
        <analytic-table-header :data="header"/>
        <div class ="table-content">
-        <b-table  responsive :fields="fields" :items="items">
+        <b-table  responsive :fields="fields" :items="items" show-empty>
+           <template #emptyfiltered="scope">
+         <h4>{{ scope.emptyFilteredText }}</h4>
+         </template>
           <template #table-colgroup="scope">
-            <col
-              v-for="field in scope.fields"
-              :key="field.key"
-              :style="{ width: field.key === 'action' ? '10px' : '' }"
-            >
-          </template>
-                    <template #cell(action)>
+  <col
+    v-for="field in scope.fields"
+    :key="field.key"
+    :style="{ width: field.key === 'action' ? '10px' : '' }"
+  />
+</template>
+            
+          <template #cell(action)>
   <div class="action">
     <feather-icon size="16" icon="EyeIcon" />
   </div>
 </template>
+
         </b-table>
         </div>
     </div>

@@ -26,15 +26,15 @@
                 <top-queries class="table-card" :items="overviewData.query.top_queries"/>
             </b-col>
             <b-col  md="6">
-                <top-question-click class="table-card" :items="overviewData.click.question_click.top_clicks"/>
+               <top-queries-no-result class="table-card" :items="overviewData.query.top_no_result_queries"/>
             </b-col>
        </b-row>
        <b-row class="mt-3">
           <b-col  md="6">
-                <recent-queries class="table-card" :items="overviewData.query.recent_queries"/>
+                <top-question-click class="table-card" :items="overviewData.click.question_click?overviewData.click.question_click.top_clicks:[]"/>
           </b-col>
           <b-col  md="6">
-                <top-queries-no-result class="table-card" :items="[]"/>
+                <recent-queries class="table-card" :items="overviewData.query.recent_queries"/> 
           </b-col>
        </b-row>
     </div>
@@ -84,7 +84,9 @@ export default {
             },
             {
               title: "Total questions clicked",
-              value: this.overviewData.click.question_click.total_click,
+              value: this.overviewData.click.question_click
+                ? this.overviewData.click.question_click.total_click
+                : 0,
               variant: "light-info",
               icon: "TrendingUpIcon",
             },
@@ -182,8 +184,8 @@ export default {
     },
     // submit filter
     submitFilter() {
-      this.start = this.filter.start;
-      this.end = this.filter.end;
+      this.start = new Date(this.filter.start);
+      this.end = new Date(this.filter.end);
       this.getData();
     },
     getData() {

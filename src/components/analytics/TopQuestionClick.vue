@@ -2,7 +2,7 @@
     <div>
        <analytic-table-header :data="header"/>
         <div class="table-content">
-          <b-table :fields="fields" :items="items">
+          <b-table :fields="fields" :items="items" show-empty>
           <template #table-colgroup="scope">
                 <col
                 v-for="field in scope.fields"
@@ -10,6 +10,9 @@
                 :style="{ width: field.key === 'count_click' ? '100px' : '' }"
                 >
            </template>
+            <template #emptyfiltered="scope">
+  <h4>{{ scope.emptyFilteredText }}</h4>
+</template>
         </b-table>
         </div>
     </div>
