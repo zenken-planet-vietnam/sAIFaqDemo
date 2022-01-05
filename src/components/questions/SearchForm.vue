@@ -74,7 +74,7 @@ export default {
       // call analytics api
       if (window.sa) {
         let data = {
-          event_name: "searchFormSubmit",
+          event_name: "question_query",
           value: {
             query: this.text.toLowerCase().trim(),
             result: result.length,

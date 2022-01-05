@@ -1,7 +1,7 @@
 <template lang="">
     <div v-if="overviewData" class="analytic card">
         <div class="title">
-            {{'Analytics'}}
+            {{'Statictics'}}
         </div>
         <b-row class="mt-2">
             <b-col md="4">
@@ -83,7 +83,7 @@ export default {
               icon: "BoxIcon",
             },
             {
-              title: "Total click to question",
+              title: "Total questions clicked",
               value: this.overviewData.click.question_click.total_click,
               variant: "light-info",
               icon: "TrendingUpIcon",
@@ -97,6 +97,9 @@ export default {
           chartOptions: {
             chart: {
               id: "overview-chart",
+              toolbar: {
+                show: false,
+              },
             },
             xaxis: {
               categories: this.getListDate(this.start, this.end),
@@ -120,7 +123,7 @@ export default {
               data: this.overviewData.query.queries_no_result_per_day,
             },
             {
-              name: "total click to question",
+              name: "total questions clicked",
               data: this.overviewData.click.question_click.click_per_day,
             },
           ],
@@ -144,8 +147,8 @@ export default {
     };
   },
   created() {
-    this.$store.dispatch("analytic/getOverviewData");
     this.setDefaultIFilter();
+    this.getData();
   },
   methods: {
     //   set default start time,end time
@@ -161,22 +164,33 @@ export default {
     getListDate(start, end) {
       if (!(start instanceof Date)) start = new Date(start);
       if (!(end instanceof Date)) end = new Date(end);
-      let items = [this.getDateFormat(start)];
+      let items = [this.getDateFormatForChart(start)];
       let newDate = new Date(start.getTime() + this.timeOfDay);
       while (newDate < end) {
-        items.push(this.getDateFormat(newDate));
+        items.push(this.getDateFormatForChart(newDate));
         newDate = new Date(newDate.getTime() + this.timeOfDay);
       }
       return items;
     },
     // get date format d/m
-    getDateFormat(date) {
+    getDateFormatForChart(date) {
       return `${date.getDate()}/${date.getMonth() + 1}`;
+    },
+    formatDate(date) {
+      if (!(date instanceof Date)) return date;
+      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
     },
     // submit filter
     submitFilter() {
       this.start = this.filter.start;
       this.end = this.filter.end;
+      this.getData();
+    },
+    getData() {
+      this.$store.dispatch("analytic/getOverviewData", {
+        start_date: this.formatDate(this.start),
+        end_date: this.formatDate(this.end),
+      });
     },
   },
 };

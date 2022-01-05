@@ -36,7 +36,7 @@ export default {
       ],
       header: {
         title: "Top Question Click",
-        description: "Gain insight into the most frequent questions",
+        description: "Frequently clicked questions",
         icon: "MousePointerIcon",
       },
     };

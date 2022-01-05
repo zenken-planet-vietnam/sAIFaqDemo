@@ -36,7 +36,7 @@ export default {
       ],
       header: {
         title: "Top Queries",
-        description: "Gain insight into the most frequent queries",
+        description: "Frequently searched queries",
         icon: "SearchIcon",
       },
     };

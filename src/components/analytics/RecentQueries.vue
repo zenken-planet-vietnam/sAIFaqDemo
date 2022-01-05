@@ -42,7 +42,7 @@ export default {
       ],
       header: {
         title: "Recent Queries",
-        description: "A view into queries happening right now.",
+        description: "Recently searched queries",
         icon: "ActivityIcon",
       },
     };

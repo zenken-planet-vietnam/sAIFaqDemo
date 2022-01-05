@@ -119,12 +119,13 @@ export default {
     },
     mutations: {
         UPDATE_ANALYTIC_DATA(state, payload) {
-            state.data = payload
+            state.data = payload.data
         }
     },
     actions: {
-        async getOverviewData(context) {
-            context.commit('UPDATE_ANALYTIC_DATA', overviewData)
+        async getOverviewData(context, params) {
+            const { data } = await axios.get('analytic/abcxyz/', { params })
+            context.commit('UPDATE_ANALYTIC_DATA', data)
         }
     }
 }

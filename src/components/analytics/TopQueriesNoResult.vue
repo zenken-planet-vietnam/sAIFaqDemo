@@ -32,8 +32,7 @@ export default {
       ],
       header: {
         title: "Top Queries with no result",
-        description:
-          "Gain insight into the most frequent queries with no result",
+        description: "No result queries",
         icon: "BoxIcon",
       },
     };
