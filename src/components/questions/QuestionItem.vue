@@ -1,5 +1,5 @@
 <template lang="">
-    <div @click="getAnswerFromQuestion(data.id)" class="question-item">
+    <div @click="getAnswerFromQuestion(data)" class="question-item">
       <div class="question-content">
             <feather-icon
                     class="icon"
@@ -51,19 +51,20 @@ export default {
     },
   },
   methods: {
-    getAnswerFromQuestion(id) {
+    getAnswerFromQuestion(data) {
       // call analytics api
       if (window.sa) {
-        let data = {
-          event_name: "questionClick",
+        let sendData = {
+          event_name: "question_click",
           value: {
-            question_id: id,
+            clicked_id: data.id,
+            clicked_text: data.label,
           },
         };
-        window.sa.send(data);
+        window.sa.send(sendData);
       }
       this.$store.dispatch("page/updateProcess", false);
-      this.$router.push({ name: "result-page", query: { id } });
+      this.$router.push({ name: "result-page", query: { id: data.id } });
     },
   },
 };
