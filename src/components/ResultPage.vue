@@ -4,11 +4,18 @@
        <search-form/>
     </div>
      <div v-if="!searchProcess &&question" class="qa card mt-2">
-       <div class="question-icon">
+       <!-- <div class="question-icon">
           <feather-icon
                     class="icon"
                     size="24"
                     icon="HelpCircleIcon"
+                  />
+       </div> -->
+       <div class="back-icon" @click="$router.push({name:'search-page'})">
+          <feather-icon
+                    class="icon"
+                    size="24"
+                    icon="ArrowLeftIcon"
                   />
        </div>
         <pin class="question-pin"/>
@@ -97,6 +104,26 @@ export default {
     top: -25px;
     left: 0px;
     background: #7367f0;
+  }
+  .back-icon {
+    top: 5px;
+    left: 5px;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background: rgba(0, 207, 232, 0.12);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    color: #00cfe8;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    &:hover {
+      background: rgba(0, 207, 232, 0.12);
+      width: 30px;
+      height: 30px;
+    }
   }
   .question-content {
     font-size: 21px;

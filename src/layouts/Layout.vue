@@ -168,16 +168,18 @@ height: calc(100% - 60px);
   width: 260px;
    box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.1);
    height: 100%;
+   max-height: 100%;
 }
 .page-content{
   flex: 1;
-    max-width: 1280px;
+  max-width: 1280px;
   margin: auto;
-  padding: 50px 20px;
-  height: 100%
+  padding: 30px 20px;
+  height: 100%;
+  max-height: 100%;
+  overflow: auto;
 }
 }
-
 }
 
 @media (max-width: 768px) {

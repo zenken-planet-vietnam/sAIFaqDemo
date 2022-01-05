@@ -26,6 +26,11 @@ const router = new Router({
                 layout: 'full'
             }
         },
+        {
+            path: '/analytic',
+            name: 'analytic',
+            component: () => import('@/components/Analytic.vue'),
+        },
     ]
 })
 

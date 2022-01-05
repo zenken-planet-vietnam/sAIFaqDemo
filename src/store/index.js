@@ -6,6 +6,7 @@ import auth from './modules/auth'
 import page from './modules/page'
 import category from "./modules/category"
 import config from "./modules/config"
+import analytic from "./modules/analytic"
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -13,7 +14,8 @@ export default new Vuex.Store({
     auth,
     page,
     category,
-    config
+    config,
+    analytic
   },
   strict: process.env.DEV,
 })
