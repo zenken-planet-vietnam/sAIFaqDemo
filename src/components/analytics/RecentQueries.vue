@@ -19,6 +19,11 @@
     <feather-icon size="16" icon="EyeIcon" />
   </div>
 </template>
+         <template #cell(created)="data">
+  <div>
+    {{ formatDate(data) }}
+  </div>
+</template>
 
         </b-table>
         </div>
@@ -42,6 +47,7 @@ export default {
     return {
       fields: [
         { key: "query", label: "Search term" },
+        { key: "created", label: "Date" },
         { key: "count_result", label: "Results" },
         { key: "action", label: "" },
       ],
@@ -51,6 +57,12 @@ export default {
         icon: "ActivityIcon",
       },
     };
+  },
+  methods: {
+    formatDate(date) {
+      const moment = require("moment");
+      return moment(date.item.created).format("DD-MM-YYYY HH:MM");
+    },
   },
 };
 </script>

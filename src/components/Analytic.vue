@@ -176,7 +176,7 @@ export default {
     },
     // get date format d/m
     getDateFormatForChart(date) {
-      return `${date.getDate()}/${date.getMonth() + 1}`;
+      return `${date.getMonth() + 1}/${date.getDate()}`;
     },
     formatDate(date) {
       if (!(date instanceof Date)) return date;
