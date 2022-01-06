@@ -35,7 +35,7 @@ export default {
     return {
       fields: [
         { key: "clicked_text", label: "Question Content" },
-        { key: "count_click", label: "Click" },
+        { key: "count_click", label: "Clicks" },
       ],
       header: {
         title: "Top Question Click",

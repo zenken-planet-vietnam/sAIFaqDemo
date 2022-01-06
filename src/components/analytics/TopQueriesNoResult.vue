@@ -28,7 +28,7 @@ export default {
     return {
       fields: [
         { key: "query", label: "Search term" },
-        { key: "count_query", label: "queries" },
+        { key: "count_query", label: "Queries" },
       ],
       header: {
         title: "Top Queries with no result",

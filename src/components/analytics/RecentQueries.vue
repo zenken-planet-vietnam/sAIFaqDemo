@@ -42,7 +42,7 @@ export default {
     return {
       fields: [
         { key: "query", label: "Search term" },
-        { key: "count_result", label: "results" },
+        { key: "count_result", label: "Results" },
         { key: "action", label: "" },
       ],
       header: {
