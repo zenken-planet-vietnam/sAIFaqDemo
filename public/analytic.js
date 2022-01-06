@@ -1,5 +1,34 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+var blobURL = URL.createObjectURL( new Blob([ '(',
+
+function(){
+    function buildHTTPRequestCall(data) {
+    let endpoint = data.endpoint
+    let http = new XMLHttpRequest()
+
+    if (data.method === "GET") {
+        http.open("GET", endpoint, true)
+        http.send()
+
+    }else if(data.method === "POST") {
+        http.open("POST", endpoint, true)
+        http.setRequestHeader("Content-type", "application/json")
+
+        http.send(JSON.stringify(data.payload))
+    }
+}
+
+onmessage = (e) => {
+    const message = e.data;
+    buildHTTPRequestCall(message)
+};
+
+}.toString(),
+
+')()' ], { type: 'application/javascript' }))
+
+
 try {
     window.sa = (function (window) {
         'use strict';
@@ -11,7 +40,7 @@ try {
         const endpoint = "http://localhost/api"
         const url = endpoint + "/analytic/"
         const healthcheck = endpoint + "/healthcheck/"
-        const worker = new Worker("worker.js")
+        const worker = new Worker(blobURL)
         let serviceOnline = true;
         // Init config
         const init = (trackingID) => {
