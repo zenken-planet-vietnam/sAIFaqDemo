@@ -79,10 +79,11 @@ export default {
             await context.dispatch('recursiveGetCategory', data.data)
             context.commit("UPDATE_CATEGORIES", data)
         },
-        async recursiveGetCategory(context, data) {
-            if (data.length > 0) {
-                for (let i = 0; i < data.length; i++) {
-                    const element = data[i];
+        //  recursive get child category
+        async recursiveGetCategory(context, categories) {
+            if (categories.length > 0) {
+                for (let i = 0; i < categories.length; i++) {
+                    const element = categories[i];
                     const child = await context.dispatch('getChildCategory', { parent_id: element.id })
                     element.childs = child.data
                     element.isOpen = false
@@ -93,13 +94,16 @@ export default {
                 }
             }
         },
+        // get child category
         async getChildCategory(context, params) {
             const { data } = await axios.get("category/", { params: params })
             return data
         },
+        // update open navbar group
         async updateGroupOpen(context, value) {
             context.commit("UPDTATE_OPEN_GROUP", value)
         },
+        // update seleted navbar link
         selectedCategory(context, id) {
             context.commit("UPDTATE_SELECTED_MENU", id)
         }

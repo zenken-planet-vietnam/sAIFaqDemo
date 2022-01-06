@@ -16,7 +16,7 @@ export class analysis {
     invertedIndex(questions) {
         let invertedDatas = {}
         let documents = []
-        // create document from term of list question
+        // create documents from term of list question
         questions.forEach(element => {
             let document = {}
             let words = tinySegmenter.removeStopWord(element.label)
@@ -44,18 +44,21 @@ export class analysis {
                         scripts: [
                             script
                         ],
+                        // get synonyms from word
+                        synonyms: this.getSynonym(word)
                     }
                 else {
                     invertedDatas[word].scripts.push(
                         script
                     )
                 }
+
             });
         });
         // get synonym
-        for (let element in invertedDatas) {
-            invertedDatas[element].synonyms = this.getSynonym(element)
-        }
+        // for (let element in invertedDatas) {
+        //     invertedDatas[element].synonyms = this.getSynonym(element)
+        // }
         return invertedDatas
     }
     // get synonym

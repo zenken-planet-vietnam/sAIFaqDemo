@@ -66,8 +66,8 @@ export default {
       if (!this.config.SEARCH_BUTTON) this.submit();
     },
     async submit() {
-      let text = this.text.toLowerCase().trim();
       this.$store.dispatch("page/updateProcess", true);
+      let text = this.text.toLowerCase().trim();
       let result = await this.$store.dispatch("page/filterQuestions", text);
       // call analytics api
       if (window.sa && text.length > 0) {

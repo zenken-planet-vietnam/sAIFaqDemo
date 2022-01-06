@@ -9,9 +9,10 @@
   </head>
 <script  src="./minify-analytic.js"></script>
 <script>
-  window.sa = window.sa || [];
-  window.sa.init('abcxyz')
-  window.sa.preSettings({page_view: true, page_hit: true})
+  if(window.sa){
+    window.sa.init('abcxyz')
+    window.sa.preSettings({page_view: true, page_hit: true})
+  }
 </script>
   <body>
     <noscript>
