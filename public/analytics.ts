@@ -1,49 +1,48 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-var blobURL = URL.createObjectURL( new Blob([ '(',
+const blobURL = URL.createObjectURL(new Blob(['(',
+    function () {
+        function buildHTTPRequestCall(data: any) {
+            let endpoint: string = data.endpoint
+            let http = new XMLHttpRequest()
 
-function(){
-    function buildHTTPRequestCall(data) {
-    let endpoint = data.endpoint
-    let http = new XMLHttpRequest()
+            if (data.method === "GET") {
+                http.open("GET", endpoint, true)
+                http.send()
 
-    if (data.method === "GET") {
-        http.open("GET", endpoint, true)
-        http.send()
+            } else if (data.method === "POST") {
+                http.open("POST", endpoint, true)
+                http.setRequestHeader("Content-type", "application/json")
 
-    }else if(data.method === "POST") {
-        http.open("POST", endpoint, true)
-        http.setRequestHeader("Content-type", "application/json")
+                http.send(JSON.stringify(data.payload))
+            }
+        }
 
-        http.send(JSON.stringify(data.payload))
-    }
-}
+        onmessage = (e) => {
+            const message = e.data;
+            buildHTTPRequestCall(message)
+        };
 
-onmessage = (e) => {
-    const message = e.data;
-    buildHTTPRequestCall(message)
-};
+    }.toString(),
 
-}.toString(),
-
-')()' ], { type: 'application/javascript' }))
+    ')()'], {type: 'application/javascript'}));
 
 
 try {
-    window.sa = (function (window) {
+    window["sa"] = (function (window) {
         'use strict';
         // user config
-        let config = {}
+        let config= {tracking_id: null, user_id: null}
         const CookieAlias = {
             user_id: '_saID'
         }
-        const endpoint = "http://localhost/api"
-        const url = endpoint + "/analytic/"
-        const healthcheck = endpoint + "/healthcheck/"
+        const endpoint: string = "http://localhost/api"
+        const url: string = endpoint + "/analytic/"
+        const healthcheck: string = endpoint + "/healthcheck/"
         const worker = new Worker(blobURL)
-        let serviceOnline = true;
+        let serviceOnline: boolean = true;
         // Init config
-        const init = (trackingID) => {
+        const init = (trackingID: string): void => {
             serviceOnline = healthCheck()
             if (serviceOnline) {
                 config.tracking_id = trackingID
@@ -66,7 +65,7 @@ try {
         // pageView: true,
         // pageHit: true,
         // }
-        const preSettings = (params) => {
+        const preSettings = (params: object): void => {
             Object.entries(params).forEach(([key, value]) => {
                 if(value) {
                     let payload = {
@@ -78,7 +77,7 @@ try {
             })
         }
 
-        const send = (data) => {
+        const send = (data: any): void => {
             if(!serviceOnline) {
                 console.log("Analytic system are currently not working!")
                 return
@@ -88,14 +87,14 @@ try {
             data.user_id = config.user_id
             // setTimeout(() => worker.postMessage(data), 5000);
             //send job to worker
-            let wrapper = {
+            let wrapper: object = {
                 "method": "POST",
                 "endpoint": url,
                 "payload": data
             }
             worker.postMessage(wrapper)
         }
-        const healthCheck = () => {
+        const healthCheck = (): boolean => {
             let http = new XMLHttpRequest()
 
             // http.onreadystatechange = function() {
@@ -108,36 +107,36 @@ try {
             return http.status === 200;
         }
         // create user ID from tracking ID
-        const createUserID = (trackingID) => {
-            let randomStr = Math.random().toString(36).substr(2, 5);
-            let uniqueID = trackingID + '.' + dateTimeFormat(new Date()) + '.' + randomStr
+        const createUserID = (trackingID: string): string => {
+            let randomStr: string = Math.random().toString(36).substr(2, 5);
+            let uniqueID: string = trackingID + '.' + dateTimeFormat(new Date()) + '.' + randomStr
             return btoa(uniqueID)
         }
 
         // append 0 front when n<10
-        function pad2(n) {
+        const pad2 = (n: number): number | string => {
             return n < 10 ? '0' + n : n
         }
 
         // gen datetime format "YYYYMMDDHHMMSS"
-        const dateTimeFormat = (date) => {
+        const dateTimeFormat = (date: Date): string => {
             return date.getFullYear().toString() + pad2(date.getMonth() + 1)
                 + pad2(date.getDate()) + pad2(date.getHours()) + pad2(date.getMinutes())
                 + pad2(date.getSeconds())
         }
         // Set a Cookie
-        const setCookie = (cName, cValue, expDays) => {
+        const setCookie = (cName: string, cValue: string, expDays: number): void => {
             let date = new Date();
             date.setTime(date.getTime() + (expDays * 24 * 60 * 60 * 1000));
             const expires = "expires=" + date.toUTCString();
             document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
         }
         // get Cookie
-        const getCookie = (cName) => {
-            const name = cName + "=";
+        const getCookie = (cName: string): string => {
+            const name: string = cName + "=";
             const cDecoded = decodeURIComponent(document.cookie); //to be careful
             const cArr = cDecoded.split('; ');
-            let res;
+            let res: string;
             cArr.forEach(val => {
                 if (val.indexOf(name) === 0) res = val.substring(name.length);
             })
