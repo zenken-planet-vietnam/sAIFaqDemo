@@ -1,29 +1,25 @@
 <template>
   <div id="app">
-    <!-- <Login /> -->
     <component :is="layout">
       <router-view />
     </component>
   </div>
 </template>
 
-<script>
-// import HelloWorld from './components/HelloWorld.vue'
-// import Login from '@/components/Login.vue'
-export default {
-  name: "App",
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+
+@Component({
   components: {
-    // HelloWorld,
-    // Login
     Layout: () => import("@/layouts/Layout.vue"),
     LayoutFull: () => import("@/layouts/LayoutFull.vue"),
   },
-  computed: {
-    layout() {
-      return this.$route.meta.layout ? "layout-full" : "layout";
-    },
-  },
-};
+})
+export default class App extends Vue {
+  get layout() {
+    return this.$route?.meta?.layout ? "layout-full" : "layout";
+  }
+}
 </script>
 
 <style>

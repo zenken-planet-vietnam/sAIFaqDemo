@@ -3,9 +3,8 @@
     <router-view />
   </div>
 </template>
-
-<script>
-export default {
-  components: {},
-};
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+@Component({})
+export default class LayoutFull extends Vue {}
 </script>

@@ -17,34 +17,29 @@
         </div>
     </div>
 </template>
-<script>
+<script lang="ts">
 import { BTable } from "bootstrap-vue";
 import AnalyticTableHeader from "./AnalyticTableHeader.vue";
-export default {
+import { Component, Vue, Prop } from "vue-property-decorator";
+@Component({
   components: {
     BTable,
     AnalyticTableHeader,
   },
-  props: {
-    items: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  data() {
-    return {
-      fields: [
-        { key: "clicked_text", label: "Question Content" },
-        { key: "count_click", label: "Clicks" },
-      ],
-      header: {
-        title: "Top Question Click",
-        description: "Frequently clicked questions",
-        icon: "MousePointerIcon",
-      },
-    };
-  },
-};
+})
+export default class TopQuestionClick extends Vue {
+  fields = [
+    { key: "clicked_text", label: "Question Content" },
+    { key: "count_click", label: "Clicks" },
+  ];
+  header = {
+    title: "Top Question Click",
+    description: "Frequently clicked questions",
+    icon: "MousePointerIcon",
+  };
+  @Prop({ default: null })
+  private items!: Array<any>;
+}
 </script>
 <style lang="">
 </style>

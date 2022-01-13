@@ -7,15 +7,14 @@
       </transition>
     </div>
 </template>
-<script>
-export default {
-  props: {
-    data: {
-      type: Object,
-      default: () => null,
-    },
-  },
-};
+<script lang="ts">
+import { Component, Vue, Prop } from "vue-property-decorator";
+
+@Component({})
+export default class AnswerItem extends Vue {
+  @Prop({ default: {} })
+  private data!: object;
+}
 </script>
 <style lang="scss">
 .answer-item {

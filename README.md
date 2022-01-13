@@ -1,6 +1,5 @@
-# saisearch
-# node-version
-node v16
+# vue2-ts
+
 ## Project setup
 ```
 yarn install

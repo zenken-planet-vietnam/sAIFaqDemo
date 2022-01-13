@@ -27,30 +27,26 @@
         </div>
     </div>
 </template>
-<script>
+<script lang="ts">
 import flatPickr from "vue-flatpickr-component";
 import { BButton } from "bootstrap-vue";
 import "flatpickr/dist/flatpickr.css";
-export default {
+import { Component, Vue, Prop } from "vue-property-decorator";
+@Component({
   components: {
     flatPickr,
     BButton,
   },
-  props: {
-    filter: {
-      type: Object,
-      default: null,
-    },
-  },
-  data() {
-    return {
-      config: {
-        allowInput: true,
-        dateFormat: "Y/m/d",
-      },
-    };
-  },
-};
+})
+export default class Filer extends Vue {
+  @Prop({ default: null })
+  private filter!: object;
+
+  config = {
+    allowInput: true,
+    dateFormat: "Y/m/d",
+  };
+}
 </script>
 <style lang="scss" scoped>
 .filter-container {

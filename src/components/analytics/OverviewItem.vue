@@ -17,50 +17,46 @@
        </div>
     </div>
 </template>
-<script>
+<script lang="ts">
 import { BBadge } from "bootstrap-vue";
 // eslint-disable-next-line no-unused-vars
-import $ from "jquery";
-export default {
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+@Component({
   components: {
     BBadge,
   },
-  props: {
-    item: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  data() {
-    return {
-      delay: 50,
-      time: 1000,
-      value: 0,
-    };
-  },
-  watch: {
-    item(newItem) {
-      if (newItem) this.counterUp();
-    },
-  },
-  methods: {
-    counterUp() {
-      this.value = 0;
-      let unit = Math.floor((this.item.value / this.time) * this.delay);
-      if (unit < 1) unit = 1;
-      setInterval(() => {
-        this.value += unit;
-        if (this.value >= this.item.value) {
-          this.value = this.item.value;
-          clearInterval();
-        }
-      }, this.delay);
-    },
-  },
+  // mounted(){
+  //   this.cou
+  // }
+})
+export default class OverviewItem extends Vue {
+  delay = 50;
+  time = 1000;
+  value = 0;
+
+  @Prop({ default: null })
+  private item!: any;
+  counterUp() {
+    this.value = 0;
+    let unit = Math.floor((this.item.value / this.time) * this.delay);
+    if (unit < 1) unit = 1;
+    setInterval(() => {
+      this.value += unit;
+      if (this.value >= this.item.value) {
+        this.value = this.item.value;
+        clearInterval();
+      }
+    }, this.delay);
+  }
+  @Watch("item")
+  onItemChange(newItem: object) {
+    if (newItem) this.counterUp();
+  }
+
   mounted() {
     this.counterUp();
-  },
-};
+  }
+}
 </script>
 <style lang="scss">
 .total-overview-item {

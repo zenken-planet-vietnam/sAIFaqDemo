@@ -11,14 +11,13 @@
         </div>
     </div>
 </template>
-<script>
-export default {
-  props: {
-    data: {
-      type: Object,
-    },
-  },
-};
+<script lang="ts">
+import {Component, Vue,Prop} from "vue-property-decorator"
+@Component({})
+export default class AnalyticTableHeader extends Vue {
+  @Prop({default:null})
+  private data!:object
+}
 </script>
 <style lang="scss">
 .table-header {

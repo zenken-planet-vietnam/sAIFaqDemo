@@ -23,40 +23,35 @@
     </b-collapse>
   </li>
 </template>
-<script>
+<script lang="ts">
 import VerticalNavLink from "./VerticalNavLink.vue";
 import { BCollapse, BLink } from "bootstrap-vue";
-export default {
+import { Component, Vue, Prop } from "vue-property-decorator";
+import { CategoryModule } from "@/store/modules/category";
+@Component({
   name: "VerticalNavGroup",
   components: {
     VerticalNavLink,
     BCollapse,
     BLink,
   },
-  data() {
-    return {};
-  },
-  props: {
-    item: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  methods: {
-    // eslint-disable-next-line no-unused-vars
-    resolveNavItemComponent(item) {
-      return item.childs && item.childs.length > 0
-        ? "vertical-nav-group"
-        : "vertical-nav-link";
-    },
-    updateGroupOpen(value) {
-      this.$store.dispatch("category/updateGroupOpen", {
-        id: this.item.id,
-        value,
-      });
-    },
-  },
-};
+})
+export default class VerticalNavGroup extends Vue {
+  @Prop({ default: {} })
+  private item!: any;
+  // eslint-disable-next-line no-unused-vars
+  resolveNavItemComponent(item: any) {
+    return item.childs && item.childs.length > 0
+      ? "vertical-nav-group"
+      : "vertical-nav-link";
+  }
+  updateGroupOpen(value: any) {
+    CategoryModule.updateGroupOpen({
+      id: this.item.id,
+      value,
+    });
+  }
+}
 </script>
 <style lang="scss" scoped>
 .nav-item {

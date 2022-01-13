@@ -16,30 +16,30 @@
         </div>
     </div>
 </template>
-<script>
+<script lang="ts">
+import { Component } from "vue-property-decorator";
 import VerticalNavLink from "./VerticalNavLink.vue";
 import VerticalNavGroup from "./VerticalNavGroup.vue";
-import categoryMixin from "@core/mixins/categoryMixin";
-export default {
-  mixins: [categoryMixin],
+import CategoryMixin from "@/@core/mixins/categoryMixin";
+import { CategoryModule } from "@/store/modules/category";
+import { mixins } from "vue-class-component";
+@Component({
   components: {
     VerticalNavLink,
     VerticalNavGroup,
   },
-  computed: {},
   created() {
     // get all menu
-    this.$store.dispatch("category/getCategory", { all: true });
+    CategoryModule.getCategory();
   },
-  methods: {
-    // eslint-disable-next-line no-unused-vars
-    resolveNavItemComponent(item) {
-      return item.childs && item.childs.length > 0
-        ? "vertical-nav-group"
-        : "vertical-nav-link";
-    },
-  },
-};
+})
+export default class VerticalMenu extends mixins(CategoryMixin) {
+  resolveNavItemComponent = (item: any) => {
+    return item.childs && item.childs.length > 0
+      ? "vertical-nav-group"
+      : "vertical-nav-link";
+  };
+}
 </script>
 <style lang="scss">
 .vertical-menu-container {

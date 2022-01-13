@@ -10,34 +10,29 @@
         </div>
     </div>
 </template>
-<script>
+<script lang="ts">
 import { BTable } from "bootstrap-vue";
 import AnalyticTableHeader from "./AnalyticTableHeader.vue";
-export default {
+import { Component, Vue, Prop } from "vue-property-decorator";
+@Component({
   components: {
     BTable,
     AnalyticTableHeader,
   },
-  props: {
-    items: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  data() {
-    return {
-      fields: [
-        { key: "query", label: "Search term" },
-        { key: "count_query", label: "Queries" },
-      ],
-      header: {
-        title: "Top Queries with no result",
-        description: "No result queries",
-        icon: "BoxIcon",
-      },
-    };
-  },
-};
+})
+export default class TopQueriesNoResult extends Vue {
+  fields = [
+    { key: "query", label: "Search term" },
+    { key: "count_query", label: "Queries" },
+  ];
+  header = {
+    title: "Top Queries with no result",
+    description: "No result queries",
+    icon: "BoxIcon",
+  };
+  @Prop({ default: [] })
+  private items!: Array<any>;
+}
 </script>
 <style lang="">
 </style>

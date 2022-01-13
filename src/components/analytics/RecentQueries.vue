@@ -29,42 +29,36 @@
         </div>
     </div>
 </template>
-<script>
+<script lang="ts">
 import { BTable } from "bootstrap-vue";
 import AnalyticTableHeader from "./AnalyticTableHeader.vue";
-export default {
+import { Component, Vue, Prop } from "vue-property-decorator";
+@Component({
   components: {
     BTable,
     AnalyticTableHeader,
   },
-  props: {
-    items: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  data() {
-    return {
-      fields: [
-        { key: "query", label: "Search term" },
-        { key: "created", label: "Date" },
-        { key: "count_result", label: "Results" },
-        { key: "action", label: "" },
-      ],
-      header: {
-        title: "Recent Queries",
-        description: "Recently searched queries",
-        icon: "ActivityIcon",
-      },
-    };
-  },
-  methods: {
-    formatDate(date) {
-      const moment = require("moment");
-      return moment(date.item.created).format("DD-MM-YYYY HH:MM");
-    },
-  },
-};
+})
+export default class RecentQueries extends Vue {
+  fields = [
+    { key: "query", label: "Search term" },
+    { key: "created", label: "Date" },
+    { key: "count_result", label: "Results" },
+    { key: "action", label: "" },
+  ];
+  header = {
+    title: "Recent Queries",
+    description: "Recently searched queries",
+    icon: "ActivityIcon",
+  };
+  @Prop({ default: [] })
+  private items!: Array<any>;
+
+  formatDate(date: any) {
+    const moment = require("moment");
+    return moment(date.item.created).format("DD-MM-YYYY HH:MM");
+  }
+}
 </script>
 <style lang="scss">
 .action {

@@ -18,83 +18,76 @@
 <script>
 import { BFormInput } from "bootstrap-vue";
 import SearchResult from "./SearchResult.vue";
-import searchDataMixin from "@/@core/mixins/searchDataMixin";
-import configMixin from "@/@core/mixins/configMixin";
+import PageMixin from "@/@core/mixins/searchDataMixin";
 import Tag from "./Tag.vue";
 import AutoCompleteInput from "./AutoCompleteInput.vue";
-export default {
+import { PageModule } from "@/store/modules/page";
+import { Component } from "vue-property-decorator";
+import { mixins } from "vue-class-component";
+@Component({
   components: {
-    // eslint-disable-next-line vue/no-unused-components
     BFormInput,
     SearchResult,
     Tag,
     AutoCompleteInput,
   },
-  mixins: [searchDataMixin, configMixin],
-  computed: {
-    selectedTags() {
-      return this.tags.filter((x) => x.isSelected == true);
-    },
-  },
-  data() {
-    return {
-      text: "",
-    };
-  },
   destroyed() {
-    this.$store.dispatch("page/updateProcess", false);
+    PageModule.updateProcess(false);
   },
-  methods: {
-    // input focus
-    // eslint-disable-next-line no-unused-vars
-    onInputFocus(event) {
+})
+export default class SearchForm extends mixins(PageMixin) {
+  text = "";
+  get selectedTags() {
+    return this.tags.filter((x) => x.isSelected == true);
+  }
+
+  onInputFocus(event) {
+    if (!this.config.SEARCH_BUTTON) {
+      PageModule.updateProcess(event.isTrusted);
       if (!this.config.SEARCH_BUTTON) {
-        this.$store.dispatch("page/updateProcess", event.isTrusted);
-        if (!this.config.SEARCH_BUTTON) {
-          let rect = this.$refs.input.$el.getBoundingClientRect();
-          // eslint-disable-next-line no-unused-vars
-          let maxHeight = document.body.clientHeight - rect.y;
-          this.$nextTick(() => {
-            this.$refs.result.$el.style.maxHeight =
-              maxHeight - rect.height - 10 + "px";
-          });
-        }
+        let rect = this.$refs.input.$el.getBoundingClientRect();
+        // eslint-disable-next-line no-unused-vars
+        let maxHeight = document.body.clientHeight - rect.y;
+        this.$nextTick(() => {
+          this.$refs.result.$el.style.maxHeight =
+            maxHeight - rect.height - 10 + "px";
+        });
       }
-    },
-    // filter question
-    onTextChange() {
-      if (!this.config.SEARCH_BUTTON) this.submit();
-    },
-    async submit() {
-      this.$store.dispatch("page/updateProcess", true);
-      let text = this.text.toLowerCase().trim();
-      let result = await this.$store.dispatch("page/filterQuestions", text);
-      // call analytics api
-      if (window.sa && text.length > 0) {
-        let data = {
-          event_name: "question_query",
-          value: {
-            query: text,
-            result: result.length,
-          },
-        };
-        window.sa.send(data);
+    }
+  }
+  // filter question
+  onTextChange() {
+    if (!this.config.SEARCH_BUTTON) this.submit();
+  }
+  async submit() {
+    let text = this.text.toLowerCase().trim();
+    PageModule.updateProcess(true);
+    let result = await PageModule.filterQuestions(text);
+    // call analytics api
+    if (window.sa && text.length > 0) {
+      let data = {
+        event_name: "question_query",
+        value: {
+          query: text,
+          result: result.length,
+        },
+      };
+      window.sa.send(data);
+    }
+  }
+  onDeleteText(event) {
+    if (event.target.value.length === 0) {
+      let selectedTags = this.tags.filter((x) => x.isSelected).reverse();
+      let lastSelectedTag = selectedTags.find((x) => x.isSelected);
+      if (lastSelectedTag) {
+        PageModule.updateTagFilter({
+          text: lastSelectedTag.text,
+          isSelected: false,
+        });
       }
-    },
-    onDeleteText(event) {
-      if (event.target.value.length === 0) {
-        let selectedTags = this.tags.filter((x) => x.isSelected).reverse();
-        let lastSelectedTag = selectedTags.find((x) => x.isSelected);
-        if (lastSelectedTag) {
-          this.$store.dispatch("page/updateTagFilter", {
-            text: lastSelectedTag.text,
-            isSelected: false,
-          });
-        }
-      }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 <style lang="scss">
 .search-form {

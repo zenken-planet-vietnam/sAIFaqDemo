@@ -7,26 +7,24 @@
         <question-item v-for="item in  searchResults" :key="item.id" :data="item" type="result"/>
     </div>
 </template>
-<script>
-import Tag from "./Tag.vue";
+<script lang="ts">
 import QuestionItem from "./QuestionItem.vue";
-import searchDataMixin from "@/@core/mixins/searchDataMixin";
-import configMixin from "@/@core/mixins/configMixin";
-export default {
+import { Tag } from "@/components/questions";
+// import Tag from "./Tag.vue";
+import PageMixin from "@/@core/mixins/searchDataMixin";
+import { Component } from "vue-property-decorator";
+import { mixins } from "vue-class-component";
+@Component({
   components: {
-    Tag,
     QuestionItem,
+    Tag,
   },
-  mixins: [searchDataMixin, configMixin],
-  data() {
-    return {};
-  },
-  computed: {
-    unSelectedTags() {
-      return this.tags.filter((x) => !x.isSelected);
-    },
-  },
-};
+})
+export default class SearchResult extends mixins(PageMixin) {
+  get unSelectedTags() {
+    return this.tags.filter((x) => !x.isSelected);
+  }
+}
 </script>
 <style lang="scss">
 .search-result {

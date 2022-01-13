@@ -17,31 +17,27 @@
         </div>
     </div>
 </template>
-<script>
-export default {
-  props: {
-    tags: {
-      type: Array,
-      default: () => [],
-    },
-    isSelectedTag: {
-      type: Boolean,
-      default: false,
-    },
-    isModal: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  methods: {
-    updateTagFilter(tag) {
-      this.$store.dispatch("page/updateTagFilter", {
-        text: tag.text,
-        isSelected: !this.isSelectedTag,
-      });
-    },
-  },
-};
+<script lang="ts">
+import { PageModule } from "@/store/modules/page";
+import { Component, Vue, Prop } from "vue-property-decorator";
+@Component({})
+export default class Tag extends Vue {
+  @Prop({ default: [] })
+  private tags!: Array<any>;
+
+  @Prop({ default: false })
+  private isSelectedTag!: Boolean;
+
+  @Prop({ default: true })
+  private isModal!: true;
+
+  updateTagFilter(tag: any) {
+    PageModule.updateTagFilter({
+      text: tag.text,
+      isSelected: !this.isSelectedTag,
+    });
+  }
+}
 </script>
 <style lang="scss">
 .tags-container {

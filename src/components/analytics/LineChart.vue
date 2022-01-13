@@ -3,37 +3,27 @@
      <apexchart height="300"  type="line" :options="data.chartOptions" :series="data.series"></apexchart>
    </div>
 </template>
-<script>
+<script lang="ts">
 import VueApexCharts from "vue-apexcharts";
-export default {
+import { Component, Vue, Prop } from "vue-property-decorator";
+@Component({
   components: {
     apexchart: VueApexCharts,
   },
-  props: {
-    data: {
-      type: Object,
-      default: () => null,
+})
+export default class LineChart extends Vue {
+  option = {
+    stroke: {
+      show: true,
+      curve: "smooth",
+      lineCap: "butt",
+      width: 2,
     },
-  },
+  };
 
-  //   computed: {
-  //     chartOptions() {
-  //       return this.data ? { ...this.data.chartOptions, ...this.option } : null;
-  //     },
-  //   },
-  data() {
-    return {
-      option: {
-        stroke: {
-          show: true,
-          curve: "smooth",
-          lineCap: "butt",
-          width: 2,
-        },
-      },
-    };
-  },
-};
+  @Prop({ default: null })
+  private data!: Object;
+}
 </script>
 <style lang="">
 </style>

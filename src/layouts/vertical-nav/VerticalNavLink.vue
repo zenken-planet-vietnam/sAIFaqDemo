@@ -11,20 +11,18 @@
     </b-link>
   </li>
 </template>
-<script>
-export default {
-  props: {
-    item: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  methods: {
-    selectedMenu() {
-      this.$store.dispatch("category/selectedCategory", this.item.id);
-    },
-  },
-};
+<script lang="ts">
+import { Component, Vue, Prop } from "vue-property-decorator";
+import { CategoryModule } from "@/store/modules/category";
+@Component({})
+export default class VerticalNavLink extends Vue {
+  @Prop({ default: {} })
+  private item!: any;
+  // select menu
+  selectedMenu() {
+    CategoryModule.selectedCategory(this.item.id);
+  }
+}
 </script>
 <style lang="scss">
 .nav-item {

@@ -3,25 +3,18 @@
           <feather-icon size="24" icon="StarIcon"/>
     </div>
 </template>
-<script>
-export default {
-  data() {
-    return {
-      isPin: false,
-    };
-  },
-  props: {
-    value: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  methods: {
-    pinChange() {
-      this.isPin = !this.isPin;
-    },
-  },
-};
+<script lang='ts'>
+import { Component, Vue, Prop } from "vue-property-decorator";
+@Component({})
+export default class Pin extends Vue {
+  isPin = false;
+  @Prop({ default: false })
+  private value!: Boolean;
+
+  pinChange() {
+    this.isPin = !this.isPin;
+  }
+}
 </script>
 <style lang="scss" scoped >
 .pin {

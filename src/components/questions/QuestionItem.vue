@@ -10,64 +10,48 @@
           <div v-if="type!=='result'">
             <span>{{data.label}}</span>
           </div>
-          <hight-light :text="data.label" :targets="getTargets" v-else/>
+          <high-light :text="data.label" :targets="getTargets" v-else/>
       </div>
-      <!-- <transition name="slide-fade">
-       <div v-if="data.answers &&data.isSelected">
-         <div class="answer-container">
-           <span class="font-weight-bold">
-             {{"Answers:"}}
-           </span>
-            <div class="ml-1">
-              <answer-item v-for="item in data.answers" :key="item.id" :data="item"/>
-            </div>
-         </div>
-         
-       </div>
-       </transition> -->
     </div>
 </template>
-<script>
-import HightLight from "./HightLight.vue";
-import searchDataMixin from "@core/mixins/searchDataMixin";
-export default {
-  mixins: [searchDataMixin],
-  props: {
-    data: {
-      type: Object,
-      default: () => null,
-    },
-    type: {
-      type: String,
-      default: "frequent",
-    },
-  },
+<script lang="ts">
+import HighLight from "./HighLight.vue";
+import PageMixin from "@/@core/mixins/searchDataMixin";
+import { PageModule } from "@/store/modules/page";
+import { Component, Prop } from "vue-property-decorator";
+import { mixins } from "vue-class-component";
+@Component({
   components: {
-    HightLight,
+    HighLight,
   },
-  computed: {
-    getTargets() {
-      return this.searchWords;
-    },
-  },
-  methods: {
-    getAnswerFromQuestion(data) {
-      // call analytics api
-      if (window.sa) {
-        let sendData = {
-          event_name: "question_click",
-          value: {
-            clicked_id: data.id,
-            clicked_text: data.label,
-          },
-        };
-        window.sa.send(sendData);
-      }
-      this.$store.dispatch("page/updateProcess", false);
-      this.$router.push({ name: "result-page", query: { id: data.id } });
-    },
-  },
-};
+})
+export default class QuestionItem extends mixins(PageMixin) {
+  @Prop({ default: null })
+  private data!: object;
+  @Prop({ default: "frequent" })
+  private type!: String;
+
+  get getTargets() {
+    return this?.searchWords;
+  }
+
+  getAnswerFromQuestion(data: any) {
+    // call analytics api
+    let sa = (window as any).sa;
+    if (sa) {
+      let sendData = {
+        event_name: "question_click",
+        value: {
+          clicked_id: data.id,
+          clicked_text: data.label,
+        },
+      };
+      sa.send(sendData);
+    }
+    PageModule.updateProcess(false);
+    this.$router.push({ name: "result-page", query: { id: data.id } });
+  }
+}
 </script>
 <style lang="scss">
 .question-item {

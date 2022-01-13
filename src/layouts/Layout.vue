@@ -72,7 +72,7 @@
         </div>
     </div>
 </template>
-<script>
+<script lang="ts">
 import {
   BNavbar,
   BNavItemDropdown,
@@ -82,11 +82,13 @@ import {
   BAvatar,
   BDropdownDivider
 } from "bootstrap-vue";
-import searchDataMixin from "@core/mixins/searchDataMixin";
-import configMixin from "@core/mixins/configMixin"
+import { Component, Vue } from "vue-property-decorator";
+// import searchDataMixin from "@core/mixins/searchDataMixin";
+// import configMixin from "@core/mixins/configMixin"
 import VerticalMenu from "./vertical-nav/VerticalMenu.vue"
-export default {
-  components: {
+import {PageModule} from "@/store/modules/page"
+@Component({
+components:{
     BNavbar,
     BNavbarBrand,
     BNavItemDropdown,
@@ -95,24 +97,25 @@ export default {
     BAvatar,
     BDropdownDivider,
     VerticalMenu
-  },
-  mixins: [searchDataMixin,configMixin],
-  data() {
-    return {
-      logo: require("@/assets/logo.png"),
-      avatar: require("@/assets/imgs/avatar.jpeg"),
-    };
-  },
- async created () {
-    // fake data to store
-    await this.$store.dispatch("page/getQuestionsFaq");
-  },
-  methods: {
-    closeSearch() {
-      this.$store.dispatch("page/updateProcess", false);
-    },
-  },
-};
+},
+
+})
+export default class Layout extends Vue {
+  logo= require("@/assets/logo.png")
+  avatar= require("@/assets/imgs/avatar.jpeg")
+  get searchProcess(){
+    return PageModule.searchProcess
+  }
+  closeSearch() {
+     PageModule.updateProcess(false)
+  }
+  get config(){
+    return  this.$store.state.config.data
+    }
+    created() {
+      PageModule.getQuestionsFaq()
+    }
+  }
 </script>
 <style lang="scss">
 .layout {

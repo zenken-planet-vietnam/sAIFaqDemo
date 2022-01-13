@@ -9,67 +9,60 @@
     </div>
     
 </template>
-<script>
+<script lang="ts">
 import { BFormInput } from "bootstrap-vue";
-export default {
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+@Component({
   components: {
     BFormInput,
   },
-  props: {
-    placeholder: {
-      type: String,
-      default: "",
-    },
-    value: {
-      type: String,
-      default: "",
-    },
-  },
-  watch: {
-    text() {
-      this.autoCompleteData =
-        this.text.length > 0
-          ? this.suggestText.filter(
-              (x) => x.includes(this.text) && x !== this.text
-            )
-          : [];
-    },
-    value(newValue) {
-      if (newValue !== this.text) this.text = newValue;
-    },
-  },
-  data() {
-    return {
-      isFocused: false,
-      suggestText: [
-        "ticket is",
-        "ticket for",
-        "ticket and train",
-        "fare is",
-        "what is fare",
-        "enough is",
-      ],
-      text: "",
-      autoCompleteData: [],
-    };
-  },
-  methods: {
-    onTextChange(event) {
-      this.$emit("input", event);
-    },
-    focus(event) {
-      this.isFocused = true;
-      this.$emit("focus", event);
-    },
-    blur() {
-      this.isFocused = false;
-    },
-    setText(text) {
-      this.$emit("input", text);
-      this.$emit("enter");
-    },
-  },
-};
+})
+export default class AutoCompleteInput extends Vue {
+  isFocused = false;
+  suggestText = [
+    "ticket is",
+    "ticket for",
+    "ticket and train",
+    "fare is",
+    "what is fare",
+    "enough is",
+  ];
+  text = "";
+  autoCompleteData: any = [];
+
+  @Prop({ default: "" })
+  private placeholder!: String;
+  @Prop({ default: "" })
+  private value!: String;
+  onTextChange(event: any) {
+    this.$emit("input", event);
+  }
+  focus(event: any) {
+    this.isFocused = true;
+    this.$emit("focus", event);
+  }
+  blur() {
+    this.isFocused = false;
+  }
+  setText(text: any) {
+    this.$emit("input", text);
+    this.$emit("enter");
+  }
+
+  @Watch("text")
+  private textChange() {
+    this.autoCompleteData =
+      this.text.length > 0
+        ? this.suggestText.filter(
+            (x) => x.includes(this.text) && x !== this.text
+          )
+        : [];
+  }
+  @Watch("value")
+  onValueChange(newValue: any) {
+    if (newValue != this.text) this.text = newValue;
+  }
+}
 </script>
 <style lang="scss">
 .auto-complete-container {
