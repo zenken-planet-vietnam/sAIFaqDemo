@@ -70,9 +70,9 @@ export default class SearchForm extends mixins(PageMixin) {
         value: {
           query: text,
           result: result.length,
-          core_value: text,
-          sub_value: result.length,
         },
+        core_value: text,
+        sub_value: result.length,
       };
       window.sa.send(data);
     }
