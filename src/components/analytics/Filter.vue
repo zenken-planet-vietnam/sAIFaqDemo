@@ -3,20 +3,18 @@
       <div class="input-wrapper">
            <b-row class="w-100">
                 <b-col md="6">
-                    <flat-pickr
-                        placeholder="Select date"
-                        class="form-control"
-                        :config="config"
-                        v-model="filter.start"
-                        />
+                   <b-form-datepicker 
+                     placeholder="Select date"
+                     v-model="filter.start"
+                      :date-format-options="dateFormat"
+                    />
                 </b-col>
                 <b-col md="6">
-                    <flat-pickr
-                        placeholder="Select date"
-                        class="form-control"
-                        :config="config"
-                        v-model="filter.end"
-                        />
+                    <b-form-datepicker 
+                     placeholder="Select date"
+                     v-model="filter.end"
+                     :date-format-options="dateFormat"
+                    />
                 </b-col>
             </b-row>
       </div>
@@ -28,24 +26,23 @@
     </div>
 </template>
 <script lang="ts">
-import flatPickr from "vue-flatpickr-component";
-import { BButton } from "bootstrap-vue";
-import "flatpickr/dist/flatpickr.css";
+import { BButton, BFormDatepicker } from "bootstrap-vue";
 import { Component, Vue, Prop } from "vue-property-decorator";
 @Component({
   components: {
-    flatPickr,
     BButton,
+    BFormDatepicker,
   },
 })
 export default class Filer extends Vue {
-  @Prop({ default: null })
-  private filter!: object;
-
+  dateFormat = { year: "numeric", month: "numeric", day: "numeric" };
   config = {
     allowInput: true,
     dateFormat: "Y/m/d",
   };
+
+  @Prop({ default: null })
+  private filter!: object;
 }
 </script>
 <style lang="scss" scoped>

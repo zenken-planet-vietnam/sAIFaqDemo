@@ -23,10 +23,10 @@
        </b-row>
        <b-row class="mt-3">
             <b-col md="6">
-                <top-queries class="table-card" :items="overviewData.query.top_queries"/>
+                <top-queries class="table-card" :items="overviewData.query.question_query.top_queries"/>
             </b-col>
             <b-col  md="6">
-               <top-queries-no-result class="table-card" :items="overviewData.query.top_no_result_queries"/>
+               <top-queries-no-result class="table-card" :items="overviewData.query.question_query.top_no_result_queries"/>
             </b-col>
        </b-row>
        <b-row class="mt-3">
@@ -34,7 +34,7 @@
                 <top-question-click class="table-card" :items="overviewData.click.question_click?overviewData.click.question_click.top_clicks:[]"/>
           </b-col>
           <b-col  md="6">
-                <recent-queries class="table-card" :items="overviewData.query.recent_queries"/> 
+                <recent-queries class="table-card" :items="overviewData.query.question_query.recent_queries"/> 
           </b-col>
        </b-row>
     </div>
@@ -83,21 +83,22 @@ export default class Analytic extends mixins(AnalyticMixin) {
       : [
           {
             title: "Total queries",
-            value: this.overviewData.query.total_queries,
+            value:
+              this.overviewData.query.question_query.total_queries[0].value,
             variant: "light-success",
             icon: "SearchIcon",
           },
           {
             title: "Total queries with no result",
-            value: this.overviewData.query.total_queries_no_results,
+            value:
+              this.overviewData.query.question_query.total_queries_no_results[0]
+                .value,
             variant: "light-danger",
             icon: "BoxIcon",
           },
           {
             title: "Total questions clicked",
-            value: this.overviewData.click.question_click
-              ? this.overviewData.click.question_click.total_click
-              : 0,
+            value: this.overviewData.click.question_click.total_clicks[0].value,
             variant: "light-info",
             icon: "TrendingUpIcon",
           },
@@ -129,15 +130,28 @@ export default class Analytic extends mixins(AnalyticMixin) {
         series: [
           {
             name: "total queries",
-            data: this.overviewData.query.queries_per_day,
+
+            data: this.getDataPerDate(
+              this.overviewData.query.question_query.queries_per_day,
+              this.start,
+              this.end
+            ),
           },
           {
             name: "total queries with no result",
-            data: this.overviewData.query.queries_no_result_per_day,
+            data: this.getDataPerDate(
+              this.overviewData.query.question_query.queries_no_result_per_day,
+              this.start,
+              this.end
+            ),
           },
           {
             name: "total questions clicked",
-            data: this.overviewData.click.question_click.click_per_day,
+            data: this.getDataPerDate(
+              this.overviewData.click.question_click.clicks_per_day,
+              this.start,
+              this.end
+            ),
           },
         ],
       };
@@ -162,8 +176,8 @@ export default class Analytic extends mixins(AnalyticMixin) {
   }
   // get list date from start to end date
   getListDate(start: Date, end: Date) {
-    if (!(start instanceof Date)) start = new Date(start);
-    if (!(end instanceof Date)) end = new Date(end);
+    // if (!(start instanceof Date)) start = new Date(start);
+    // if (!(end instanceof Date)) end = new Date(end);
     let items = [this.getDateFormatForChart(start)];
     let newDate = new Date(start.getTime() + this.timeOfDay);
     while (newDate < end) {
@@ -190,7 +204,22 @@ export default class Analytic extends mixins(AnalyticMixin) {
     AnalyticModule.getOverviewData({
       start_date: this.formatDate(this.start),
       end_date: this.formatDate(this.end),
+      size: 20,
     });
+  }
+  getDataPerDate(data: any, start: Date, end: Date) {
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+    let newDate = start;
+    let dataPerDate = [];
+    while (newDate <= end) {
+      const dataCurrentDate = data.find(
+        (x: any) => new Date(x.day).toDateString() === newDate.toDateString()
+      );
+      dataPerDate.push(dataCurrentDate ? dataCurrentDate.count : 0);
+      newDate = new Date(newDate.getTime() + this.timeOfDay);
+    }
+    return dataPerDate;
   }
 }
 </script>

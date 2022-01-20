@@ -28,13 +28,7 @@ import PageMixin from "@/@core/mixins/searchDataMixin";
     QuestionItem: () => import("@/components/questions/QuestionItem.vue"),
   },
 })
-export default class SearchPage extends mixins(PageMixin) {
-  get config() {
-    return {
-      SEARCH_BUTTON: true,
-    };
-  }
-}
+export default class SearchPage extends mixins(PageMixin) {}
 </script>
 <style lang="">
 </style>

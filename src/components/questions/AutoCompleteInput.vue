@@ -1,6 +1,6 @@
 <template lang="">
     <div class="auto-complete-container">
-        <b-form-input v-model="text" @keyup.enter="$emit('enter',$event)" autocomplete="true"  @keyup.delete="$emit('delete',$event)" ref="input" @blur="blur" @input="onTextChange" class="search-input" @focus="focus"  :placeholder="placeholder"/>
+        <b-form-input v-model="text" @keyup.enter="submit" autocomplete="true"  @keyup.delete="$emit('delete',$event)" ref="input" @blur="blur" @input="onTextChange" class="search-input" @focus="focus"  :placeholder="placeholder"/>
         <div v-if="isFocused&& autoCompleteData.length>0" class="auto-complete">
             <div class="auto-complete-item" v-for="item,index in autoCompleteData" :key="index" @mousedown="setText(item)">
                 <span>{{item}}</span>
@@ -47,6 +47,11 @@ export default class AutoCompleteInput extends Vue {
   setText(text: any) {
     this.$emit("input", text);
     this.$emit("enter");
+  }
+
+  submit(event: any) {
+    this.isFocused = false;
+    this.$emit("enter", event);
   }
 
   @Watch("text")

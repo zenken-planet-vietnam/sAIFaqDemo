@@ -45,6 +45,8 @@ export default class QuestionItem extends mixins(PageMixin) {
           clicked_id: data.id,
           clicked_text: data.label,
         },
+        core_value: data.id,
+        sub_value: data.label,
       };
       sa.send(sendData);
     }

@@ -43,7 +43,7 @@ export default class RecentQueries extends Vue {
   fields = [
     { key: "query", label: "Search term" },
     { key: "created", label: "Date" },
-    { key: "count_result", label: "Results" },
+    { key: "result", label: "Results" },
     { key: "action", label: "" },
   ];
   header = {

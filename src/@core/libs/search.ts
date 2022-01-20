@@ -6,7 +6,7 @@ class BaseSearch {
 
 export class FullTextSearch extends BaseSearch {
     scriptData: any
-    levenWords: any
+    levenWords: Array<string>
     constructor(scriptData: any) {
         super()
         this.scriptData = scriptData

@@ -42,7 +42,7 @@
 // eslint-disable-next-line no-unused-vars
 import { BFormInput, BFormGroup, BForm, BButton } from "bootstrap-vue";
 import { SearchForm, Pin } from "@/components/questions";
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
 import PageMixin from "@/@core/mixins/searchDataMixin";
 import { PageModule } from "@/store/modules/page";
@@ -56,17 +56,6 @@ import { PageModule } from "@/store/modules/page";
     BButton,
     Pin,
   },
-  watch: {
-    questions(newValue) {
-      if (newValue.length > 0) {
-        this.getQuestion();
-      }
-    },
-    $route(newValue) {
-      this.questionId = parseInt(newValue.query.id);
-      this.getQuestion();
-    },
-  },
   created() {
     this.questionId = parseInt(this.$route.query.id, 10);
     if (this.questions.length > 0) this.getQuestion();
@@ -78,6 +67,19 @@ export default class ResultPage extends mixins(PageMixin) {
   async getQuestion() {
     // fake data to store
     this.question = await PageModule.getAnswerFromQuestion(this.questionId);
+  }
+
+  @Watch("questions")
+  onQuestionChange(newValue) {
+    if (newValue.length > 0) {
+      this.getQuestion();
+    }
+  }
+
+  @Watch("$route")
+  onRouteChange(newValue) {
+    this.questionId = parseInt(newValue.query.id);
+    this.getQuestion();
   }
 }
 </script>

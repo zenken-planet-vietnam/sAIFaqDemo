@@ -1,11 +1,12 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import axios from "@/axios"
+import { ICategory } from "@/models/category/inde"
 import store from "@/store"
 import { VuexModule, Module, Action, Mutation, getModule } from "vuex-module-decorators"
 import { recursiveCloseMenu, recursiveOpenMenu, recursiveSelectedMenu } from './helper'
 export interface ICategoryState {
-    categories: Array<any>
+    categories: Array<ICategory>
 }
 
 

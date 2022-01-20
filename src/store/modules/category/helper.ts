@@ -1,5 +1,7 @@
+import { ICategory } from "@/models/category/inde";
+
 // recursive open menu
-export function recursiveOpenMenu(data: any, value: any) {
+export function recursiveOpenMenu(data: ICategory, value: any) {
     if (data.id === value.id) return true;
     if (!data.childs || data.childs.length < 1) return false
     if (data.childs.length > 0) {
@@ -14,7 +16,7 @@ export function recursiveOpenMenu(data: any, value: any) {
 }
 
 // recursive close menu
-export function recursiveCloseMenu(data: any, value: any) {
+export function recursiveCloseMenu(data: Array<ICategory>, value: any) {
     for (let i = 0; i < data.length; i++) {
         const element = data[i];
         if (element.id === value.id) {
@@ -27,7 +29,7 @@ export function recursiveCloseMenu(data: any, value: any) {
 }
 
 // recursive selected menu
-export function recursiveSelectedMenu(data: any, value: any) {
+export function recursiveSelectedMenu(data: Array<ICategory>, value: any) {
     for (let i = 0; i < data.length; i++) {
         const element = data[i];
         if (element.childs.length > 0)
