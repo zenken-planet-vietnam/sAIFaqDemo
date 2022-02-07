@@ -1,4 +1,4 @@
-import { ICategory } from "@/models/category/inde";
+import { ICategory } from "@/models/category";
 
 // recursive open menu
 export function recursiveOpenMenu(data: ICategory, value: any) {
@@ -37,7 +37,16 @@ export function recursiveSelectedMenu(data: Array<ICategory>, value: any) {
         else {
             element.isSelected = value === element.id
         }
-
     }
 }
 
+// get all child category
+export function getChildCategories(categories: Array<ICategory>, childCategory: Array<number>) {
+    categories.forEach(element => {
+        if (!element.childs || element.childs.length === 0) {
+            childCategory.push(element.id)
+        }
+        else
+            getChildCategories(element.childs, childCategory)
+    });
+}

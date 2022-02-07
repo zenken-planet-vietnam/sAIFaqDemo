@@ -4,7 +4,12 @@
         <div class='mt-2 result-title'>
           <span>{{'Question results:'}}</span>
         </div>
+        <div v-if="searchResults.length>0">
         <question-item v-for="item in  searchResults" :key="item.id" :data="item" type="result"/>
+        </div>
+        <div v-else class="text-center font-weight-600">
+          No result
+        </div>
     </div>
 </template>
 <script lang="ts">

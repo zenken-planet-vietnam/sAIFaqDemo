@@ -3,5 +3,8 @@ export interface ICategory {
     label: String,
     childs: Array<ICategory>,
     isOpen: Boolean,
-    isSelected: Boolean
+    isSelected: Boolean,
+    rootId: number | null,
+    texts:Array<string>
 }
+

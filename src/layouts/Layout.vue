@@ -87,6 +87,7 @@ import { Component, Vue } from "vue-property-decorator";
 // import configMixin from "@core/mixins/configMixin"
 import VerticalMenu from "./vertical-nav/VerticalMenu.vue"
 import {PageModule} from "@/store/modules/page"
+import {CategoryModule} from "@/store/modules/category"
 @Component({
 components:{
     BNavbar,
@@ -113,7 +114,10 @@ export default class Layout extends Vue {
     return  this.$store.state.config.data
     }
     created() {
-      PageModule.getQuestionsFaq()
+     CategoryModule.getCategory();
+      // PageModule.getQuestions({
+      //   product_id:[1,2]
+      // })
     }
   }
 </script>

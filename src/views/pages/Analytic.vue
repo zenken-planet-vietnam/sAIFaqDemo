@@ -200,12 +200,14 @@ export default class Analytic extends mixins(AnalyticMixin) {
     this.end = new Date(this.filter.end);
     this.getData();
   }
-  getData() {
-    AnalyticModule.getOverviewData({
+  async getData() {
+    this.$store.state.config.isLoading = true;
+    await AnalyticModule.getOverviewData({
       start_date: this.formatDate(this.start),
       end_date: this.formatDate(this.end),
       size: 20,
     });
+    this.$store.state.config.isLoading = false;
   }
   getDataPerDate(data: any, start: Date, end: Date) {
     start.setHours(0, 0, 0, 0);

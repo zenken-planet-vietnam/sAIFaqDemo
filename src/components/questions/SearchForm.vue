@@ -2,8 +2,9 @@
     <div class="search-form">
        <div class="search-container">
           <div class="search">
-          <div v-if="selectedTags.length>0" class="search-tags">
-           <tag :tags="selectedTags" :isSelectedTag="true" />
+          <div v-if="selectedTags.length>0||(selectedCategory&&selectedCategory!==null&&selectedCategory.isActive)" class="search-tags">
+            <tag :data="selectedCategoryTag" :isSelectedTag="true" @click="unActiveFilter"/>
+           <tags :tags="selectedTags" :isSelectedTag="true" />
           </div>
           <!-- <b-form-input v-model='text' @keyup.enter="submit"  @keyup.delete="onDeleteText" ref="input" @input="onTextChange" class="search-input" @focus="onInputFocus"  placeholder="What is your question?"/> -->
           <auto-complete-input v-model='text' @enter="submit"  @delete="onDeleteText" ref="input" @input="onTextChange" class="search-input" @focus="onInputFocus"  placeholder="What is your question?"/>
@@ -19,16 +20,18 @@
 import { BFormInput } from "bootstrap-vue";
 import SearchResult from "./SearchResult.vue";
 import PageMixin from "@/@core/mixins/searchDataMixin";
-import Tag from "./Tag.vue";
+import Tags from "./Tags.vue";
+import Tag from "./Tag.vue"
 import AutoCompleteInput from "./AutoCompleteInput.vue";
 import { PageModule } from "@/store/modules/page";
+import {CategoryModule}  from "@/store/modules/category"
 import { Component } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
 @Component({
   components: {
     BFormInput,
     SearchResult,
-    Tag,
+    Tags,Tag,
     AutoCompleteInput,
   },
   destroyed() {
@@ -39,6 +42,12 @@ export default class SearchForm extends mixins(PageMixin) {
   text = "";
   get selectedTags() {
     return this.tags.filter((x) => x.isSelected == true);
+  }
+
+  get selectedCategoryTag() {
+    return {
+      text:this.selectedCategory.texts.join(">")
+    }
   }
 
   onInputFocus(event) {
@@ -89,6 +98,10 @@ export default class SearchForm extends mixins(PageMixin) {
       }
     }
   }
+  // unactive selected menu
+  unActiveFilter(){
+    CategoryModule.unActiveSelectedMenu()
+  }
 }
 </script>
 <style lang="scss">
@@ -107,6 +120,29 @@ export default class SearchForm extends mixins(PageMixin) {
       .search-input {
         border: 0px;
         box-shadow: none !important;
+      }
+      .category-tag {
+        color: #fff;
+        background: #138d75;
+        padding: 0.25rem 0.5rem;
+        margin: 5px;
+        border-radius: 16px;
+        cursor: pointer;
+        font-size: 14px;
+        white-space: nowrap;
+        position: relative;
+        .remove-tag {
+          top: -1px;
+          right: 0px;
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: red;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
       }
     }
     .search-button {

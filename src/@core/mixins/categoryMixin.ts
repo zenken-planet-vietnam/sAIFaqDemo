@@ -6,4 +6,5 @@ import { CategoryModule } from '@/store/modules/category'
 })
 export default class extends Vue {
     get categories() { return CategoryModule.categories }
+    get selectedCategory() { return CategoryModule.selectedCategory }
 }

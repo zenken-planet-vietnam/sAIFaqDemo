@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import tinySegmenter from "./tinySegmenter"
 class BaseSearch {
-    search(query = '') { }
+    search(query = '', tags = [], categoryId = null) { }
 }
 
 export class FullTextSearch extends BaseSearch {
@@ -14,7 +14,7 @@ export class FullTextSearch extends BaseSearch {
     }
     // query: text input for search
     //tags : keyword for search
-    search(query = '', tags = []) {
+    search(query = '', tags = [], categoryId: any) {
         if (query.length < 1 && tags.length === 0) {
             return {
                 questions: this.scriptData.questions,

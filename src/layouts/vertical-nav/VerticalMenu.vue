@@ -21,7 +21,7 @@ import { Component } from "vue-property-decorator";
 import VerticalNavLink from "./VerticalNavLink.vue";
 import VerticalNavGroup from "./VerticalNavGroup.vue";
 import CategoryMixin from "@/@core/mixins/categoryMixin";
-import { CategoryModule } from "@/store/modules/category";
+// import { CategoryModule } from "@/store/modules/category";
 import { mixins } from "vue-class-component";
 @Component({
   components: {
@@ -30,7 +30,7 @@ import { mixins } from "vue-class-component";
   },
   created() {
     // get all menu
-    CategoryModule.getCategory();
+    // CategoryModule.getCategory();
   },
 })
 export default class VerticalMenu extends mixins(CategoryMixin) {

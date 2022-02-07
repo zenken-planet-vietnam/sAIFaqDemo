@@ -11,10 +11,10 @@ export class BooleanSearch extends FullTextSearch {
         this.scriptData = scriptData
         this.levenWords = []
     }
-    search(query: any = '', tags: any = []) {
+    search(query: any = '', tags: any = [], categoryId: any) {
         if (query.length < 1 && tags.length === 0) {
             return {
-                questions: this.scriptData.questions,
+                questions:categoryId && categoryId !== null?this.scriptData.questions.filter((x: any) => x.categories.find((y: any) => y === categoryId) !== undefined): this.scriptData.questions,
                 words: []
             }
         }
@@ -25,10 +25,13 @@ export class BooleanSearch extends FullTextSearch {
         const expression = new Expression;
         const postfix = expression.createBinaryTree(query);
         const results = this.recursiveSearch(postfix)
-        const questions: any = []
+        let questions: any = []
         results.forEach((element: any) => {
             questions.push(this.scriptData.questions.find((x: any) => x.id === element))
         });
+        if (categoryId && categoryId !== null) {
+            questions = questions.filter((x: any) => x.categories.find((y: any) => y === categoryId) !== undefined)
+        }
         return {
             // questions: [...new Set([...unionQuestions, ...intersectQuestions, ...excludeQuestions])],
             questions,

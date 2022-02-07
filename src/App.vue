@@ -3,6 +3,7 @@
     <component :is="layout">
       <router-view />
     </component>
+    <loading v-if="isLoading" />
   </div>
 </template>
 
@@ -13,11 +14,15 @@ import { Component, Vue } from "vue-property-decorator";
   components: {
     Layout: () => import("@/layouts/Layout.vue"),
     LayoutFull: () => import("@/layouts/LayoutFull.vue"),
+    Loading: () => import("@/components/common/Loading.vue"),
   },
 })
 export default class App extends Vue {
   get layout() {
     return this.$route?.meta?.layout ? "layout-full" : "layout";
+  }
+  get isLoading() {
+    return this.$store.state.config.isLoading;
   }
 }
 </script>

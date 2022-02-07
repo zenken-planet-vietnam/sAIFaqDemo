@@ -7,6 +7,9 @@ import { BooleanSearch } from "@/@core/libs/boolean_search"
 
 import { VuexModule, Module, Action, Mutation, getModule } from "vuex-module-decorators"
 import store from "@/store"
+import { ICategory } from "@/models/category"
+import { IQuestion } from "@/models/question"
+import { CategoryModule } from "../category"
 export interface IPageState {
     // package data for search
     tagPakage: any,
@@ -34,6 +37,7 @@ class Page extends VuexModule implements IPageState {
     public tagPakage = {
         questions: []
     }
+    public productId=2
     // list all of question
     public questions = []
     // question results after search
@@ -62,13 +66,13 @@ class Page extends VuexModule implements IPageState {
 
     @Mutation
     UPDATE_QUESTIONS(payload: any) {
-        this.questions = payload.data.map((obj: any) => ({ ...obj, isSelected: false, answers: [] }))
+        this.questions = payload.map((obj: any) => ({ ...obj, isSelected: false, answers: [] }))
         const obj = new analysis()
-        this.tagPakage = obj.analysisData(payload.data)
+        this.tagPakage = obj.analysisData(payload)
     }
     @Mutation
     UPDATE_FAQ_QUESTIONS(payload: any) {
-        this.faqQuestions = payload.data.map((obj: any) => ({ ...obj, isSelected: false, answers: [] }))
+        this.faqQuestions = payload.map((obj: any) => ({ ...obj, isSelected: false, answers: [] }))
     }
     @Mutation
     UPDATE_ANSWERS(payload: any) {
@@ -152,9 +156,9 @@ class Page extends VuexModule implements IPageState {
     }
     @Action
     // list faq questions
-    public async getQuestionsFaq() {
+    public async getQuestions(params: any) {
         // eslint-disable-next-line no-debugger
-        const { data } = await axios.get('question/faq/')
+        const { data } = await axios.get('question/', { params })
         this.UPDATE_FAQ_QUESTIONS(data)
         this.UPDATE_QUESTIONS(data)
     }
@@ -166,11 +170,12 @@ class Page extends VuexModule implements IPageState {
     @Action
     // filter candidate question
     filterQuestions(query: any) {
+       
         const text = query.toLowerCase().trim()
         // let search = new FullTextSearch(state.tagPakage)
         const search = new BooleanSearch(this.tagPakage)
         const slectedTags = this.tags.filter(x => x.isSelected)
-        const result = search.search(text, slectedTags)
+        const result = search.search(text, slectedTags, CategoryModule.selectedCategory?.isActive? CategoryModule.selectedCategory.id:undefined)
         const data = {
             result: result.questions.map((obj: any) => ({ ...obj, isSelected: false, answers: [] })),
             words: result.words,
@@ -183,6 +188,33 @@ class Page extends VuexModule implements IPageState {
     updateTagFilter(tag: any) {
         this.UPDATE_TAG_FILTER(tag)
         this.filterQuestions(this.textSearch)
+    }
+
+    @Action
+    getQuestionFromCategory(categories: Array<number>) {
+        const questionCategory: Array<IQuestion> = []
+        Promise.all(categories.map((x) => axios.get('question/', { params: { product_id: [this.productId], category_id: [x] } })))
+            .then(data => {
+                for (let i = 0; i < data.length; i++) {
+                    const questionResults = data[i]?.data?.data;
+                    if (questionResults) {
+                        for (let j = 0; j < questionResults.length; j++) {
+                            const question = questionResults[j];
+                            const questionResult = questionCategory.find((x: IQuestion) => x.id === question.id)
+                            if (questionResult) {
+                                questionResult.categories.push(categories[i])
+                            }
+                            else {
+                                question.categories = [categories[i]]
+                                questionCategory.push(question)
+                            }
+                        }
+                    }
+                }
+                this.UPDATE_FAQ_QUESTIONS(questionCategory)
+                this.UPDATE_QUESTIONS(questionCategory)
+            })
+
     }
 }
 

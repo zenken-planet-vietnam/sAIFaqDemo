@@ -1,18 +1,25 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import axios from "@/axios"
-import { ICategory } from "@/models/category/inde"
+import { ICategory } from "@/models/category"
 import store from "@/store"
 import { VuexModule, Module, Action, Mutation, getModule } from "vuex-module-decorators"
-import { recursiveCloseMenu, recursiveOpenMenu, recursiveSelectedMenu } from './helper'
+import { recursiveCloseMenu, recursiveOpenMenu, recursiveSelectedMenu, getChildCategories } from './helper'
+import { PageModule } from "../page"
 export interface ICategoryState {
-    categories: Array<ICategory>
+    categories: Array<ICategory>,
+    selectedCategory: any
 }
 
+export interface ISelectedCategory extends ICategory {
+    texts: Array<string>,
+    isActive: Boolean
+}
 
 @Module({ dynamic: true, store, name: 'category' })
 class Category extends VuexModule implements ICategoryState {
     public categories = []
+    public selectedCategory = null as any
     @Mutation
     UPDATE_CATEGORIES(payload: any) {
         this.categories = payload.data
@@ -33,30 +40,59 @@ class Category extends VuexModule implements ICategoryState {
 
     }
     @Mutation
-    UPDTATE_SELECTED_MENU(payload: any) {
-        recursiveSelectedMenu(this.categories, payload)
+    UPDTATE_SELECTED_MENU(payload: ICategory) {
+        this.selectedCategory = {
+            id: payload.id,
+            texts:payload.texts,
+            isActive:true
+        }
+        PageModule.updateProcess(true);
+        debugger
+        PageModule.filterQuestions(!PageModule.textSearch?PageModule.textSearch:"")
+    }
+
+    @Mutation
+    UNACTIVE_SELECTED_MENU(){
+        this.selectedCategory.isActive=false
+        PageModule.updateProcess(true);
+        PageModule.filterQuestions(!PageModule.textSearch?PageModule.textSearch:"")
     }
     @Action
     public async getCategory() {
-        const { data } = await axios.get("category/")
-        // createMultilevel(data.data)
-        await this.recursiveGetCategory(data.data)
+        const { data }: any = await axios.get("category/")
+        for (let i = 0; i < data.data.length; i++) {
+            const element = data.data[i];
+            element.texts=[element.label]
+            await this.recursiveGetCategory({
+                category: element,
+                rootId: element.id
+            })
+        }
         this.UPDATE_CATEGORIES(data)
+        const childCategories: Array<number> = []
+        getChildCategories(data.data, childCategories)
+        PageModule.getQuestionFromCategory(childCategories)
     }
+
     @Action
     //  recursive get child category
-    async recursiveGetCategory(categories: any) {
-        if (categories.length > 0) {
-            for (let i = 0; i < categories.length; i++) {
-                const element = categories[i];
-                const child = await this.getChildCategory({ parent_id: element.id })
-                element.childs = child.data
-                element.isOpen = false
-                if (element.childs.length > 0) {
-                    await this.recursiveGetCategory(element.childs)
-                }
-                else element.isSelected = false
+    async recursiveGetCategory(data: any) {
+        const child = await this.getChildCategory({ parent_id: data.category.id })
+        data.category.childs = child.data
+        data.category.isOpen = false
+        if (data.category.childs.length > 0) {
+            for (let i = 0; i < data.category.childs.length; i++) {
+                const element = data.category.childs[i];
+                element.texts=[...data.category.texts,element.label]
+                await this.recursiveGetCategory({
+                    category: element,
+                    rootId: data.rootId
+                })
             }
+        }
+        else {
+            data.category.isSelected = false
+            data.category.rootId = data.category.id !== data.rootId ? data.rootId : null
         }
     }
     @Action
@@ -72,10 +108,14 @@ class Category extends VuexModule implements ICategoryState {
     }
     @Action
     // update seleted navbar link
-    selectedCategory(id: any) {
-        this.UPDTATE_SELECTED_MENU(id)
+    updateSelectedCategory(category: ICategory) {
+        this.UPDTATE_SELECTED_MENU(category)
     }
 
+    @Action
+    unActiveSelectedMenu(){
+        this.UNACTIVE_SELECTED_MENU()
+    }
 }
 export const CategoryModule = getModule(Category)
 

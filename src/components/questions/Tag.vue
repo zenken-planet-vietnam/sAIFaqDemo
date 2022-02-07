@@ -1,56 +1,26 @@
 <template lang="">
-    <div class="tags-container" :class="[isSelectedTag?'selected-tags-container':'', !isModal?'none-background':'' ]"> 
-        <span v-if="!isSelectedTag">
-            {{"Popular key words:"}}
-        </span>
-        <div class="tags-wrapper">
-            <div class="tag" @click="updateTagFilter(item)" v-for="item, index in tags" :key="index">
-              <transition name="bounce">
-              <div>
-                 <span>{{isSelectedTag?`${item.text}`: `#${item.text}`}}</span>
-                <div v-if="isSelectedTag" class="remove-tag">
-                    <feather-icon size="12" icon="XIcon"/>
-                </div>
-              </div>
-              </transition>
-            </div>
+    <div class="tag" @click="$emit('click',data)">
+        <div>
+            <span>{{isSelectedTag?`${data.text}`: `#${data.text}`}}</span>
+        <div v-if="isSelectedTag" class="remove-tag">
+            <feather-icon size="12" icon="XIcon"/>
+        </div>
         </div>
     </div>
 </template>
 <script lang="ts">
-import { PageModule } from "@/store/modules/page";
 import { Component, Vue, Prop } from "vue-property-decorator";
 @Component({})
 export default class Tag extends Vue {
-  @Prop({ default: [] })
-  private tags!: Array<any>;
+  @Prop({ default: null })
+  private data!: any;
 
   @Prop({ default: false })
   private isSelectedTag!: Boolean;
-
-  @Prop({ default: true })
-  private isModal!: true;
-
-  updateTagFilter(tag: any) {
-    PageModule.updateTagFilter({
-      text: tag.text,
-      isSelected: !this.isSelectedTag,
-    });
-  }
 }
 </script>
 <style lang="scss">
-.tags-container {
-  padding: 10px 20px;
-  background: #ebedef;
-  &.selected-tags-container {
-    padding: 0px !important;
-    background: transparent;
-  }
-  .tags-wrapper {
-    display: flex;
-    flex-direction: columns;
-    .tag {
+ .tag {
       color: #fff;
       background: #138d75;
       padding: 0.25rem 0.5rem;
@@ -73,6 +43,4 @@ export default class Tag extends Vue {
         align-items: center;
       }
     }
-  }
-}
 </style>
