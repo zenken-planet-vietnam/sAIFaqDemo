@@ -2,17 +2,15 @@
     <div class="search-form">
        <div class="search-container">
           <div class="search">
-          <div v-if="selectedTags.length>0||(selectedCategory&&selectedCategory!==null&&selectedCategory.isActive)" class="search-tags">
-            <tag :data="selectedCategoryTag" :isSelectedTag="true" @click="unActiveFilter"/>
-           <tags :tags="selectedTags" :isSelectedTag="true" />
-          </div>
-          <!-- <b-form-input v-model='text' @keyup.enter="submit"  @keyup.delete="onDeleteText" ref="input" @input="onTextChange" class="search-input" @focus="onInputFocus"  placeholder="What is your question?"/> -->
+            <tag v-if="selectedCategory&&selectedCategory!==null&&selectedCategory.isActive" :data="selectedCategoryTag" :isSelectedTag="true" @click="unActiveFilter"/>
+            <tags v-if="selectedTags.length>0" :tags="selectedTags" :isSelectedTag="true" />
           <auto-complete-input v-model='text' @enter="submit"  @delete="onDeleteText" ref="input" @input="onTextChange" class="search-input" @focus="onInputFocus"  placeholder="What is your question?"/>
         </div>
          <div v-if="config.SEARCH_BUTTON" @click="submit" class="search-button"> 
             <feather-icon icon="SearchIcon"></feather-icon>
           </div>
        </div>
+        <tags v-if="tags.length>0" :tags="tags" :isSelectedTag="false" />
         <search-result ref="result" v-if="searchProcess"/>
     </div>
 </template>
@@ -96,6 +94,8 @@ export default class SearchForm extends mixins(PageMixin) {
           isSelected: false,
         });
       }
+      if(this.selectedCategory)
+      CategoryModule.unActiveSelectedMenu()
     }
   }
   // unactive selected menu

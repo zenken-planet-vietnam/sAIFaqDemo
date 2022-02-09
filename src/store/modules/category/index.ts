@@ -12,7 +12,6 @@ export interface ICategoryState {
 }
 
 export interface ISelectedCategory extends ICategory {
-    texts: Array<string>,
     isActive: Boolean
 }
 
@@ -47,7 +46,6 @@ class Category extends VuexModule implements ICategoryState {
             isActive:true
         }
         PageModule.updateProcess(true);
-        debugger
         PageModule.filterQuestions(!PageModule.textSearch?PageModule.textSearch:"")
     }
 

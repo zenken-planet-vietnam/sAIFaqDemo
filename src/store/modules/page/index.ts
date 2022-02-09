@@ -54,14 +54,14 @@ class Page extends VuexModule implements IPageState {
     public searchProcess = false
     // list tags
     public tags = [
-        {
-            text: "ticket",
-            isSelected: false
-        },
-        {
-            text: "pay",
-            isSelected: false
-        }
+        // {
+        //     text: "ticket",
+        //     isSelected: false
+        // },
+        // {
+        //     text: "pay",
+        //     isSelected: false
+        // }
     ]
 
     @Mutation
@@ -112,10 +112,15 @@ class Page extends VuexModule implements IPageState {
     }
     @Mutation
     UPDATE_TAG_FILTER(payload: any) {
-        const tag = this.tags.find(x => x.text === payload.text)
+        const tag:any = this.tags.find((x:any) => x.text === payload.text)
         if (tag)
             tag.isSelected = payload.isSelected
     }
+    @Mutation
+    UPDATE_KEYWORD(payload:any){
+        this.tags=payload.map((obj:any)=>({text: obj.label,weight: obj.weight,isSelected:false}))
+    }
+
     @Action
     //   update question lists
     updateQuestion(data: any) {
@@ -170,11 +175,11 @@ class Page extends VuexModule implements IPageState {
     @Action
     // filter candidate question
     filterQuestions(query: any) {
-       
+       this.updateProcess(true)
         const text = query.toLowerCase().trim()
         // let search = new FullTextSearch(state.tagPakage)
         const search = new BooleanSearch(this.tagPakage)
-        const slectedTags = this.tags.filter(x => x.isSelected)
+        const slectedTags = this.tags.filter((x:any) => x.isSelected)
         const result = search.search(text, slectedTags, CategoryModule.selectedCategory?.isActive? CategoryModule.selectedCategory.id:undefined)
         const data = {
             result: result.questions.map((obj: any) => ({ ...obj, isSelected: false, answers: [] })),
@@ -214,7 +219,13 @@ class Page extends VuexModule implements IPageState {
                 this.UPDATE_FAQ_QUESTIONS(questionCategory)
                 this.UPDATE_QUESTIONS(questionCategory)
             })
+        this.getListKeyword()
+    }
 
+    @Action 
+   async  getListKeyword(){
+        const { data } = await axios.get('keyword/')
+        this.UPDATE_KEYWORD(data.data)
     }
 }
 

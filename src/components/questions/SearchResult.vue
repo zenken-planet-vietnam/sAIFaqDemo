@@ -27,7 +27,7 @@ import { mixins } from "vue-class-component";
 })
 export default class SearchResult extends mixins(PageMixin) {
   get unSelectedTags() {
-    return this.tags.filter((x) => !x.isSelected);
+    return this.tags.filter((x:any) => !x.isSelected);
   }
 }
 </script>

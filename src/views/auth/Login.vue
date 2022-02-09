@@ -70,7 +70,6 @@ export default class Login extends Vue {
   sideImg = require("@/assets/logo.png");
   // login
   login = () => {
-    console.log(this.$store);
     // eslint-disable-next-line no-debugger
     //  useJwt.healthcheck()
     useJwt

@@ -4,7 +4,7 @@
             {{"Popular key words:"}}
         </span>
         <div class="tags-wrapper">
-          <tag class="tag" @click="updateTagFilter($event)" v-for="item, index in tags" :key="index"/>
+          <tag class="tag" @click="updateTagFilter($event)" v-for="item, index in tags" :isSelectedTag="isSelectedTag" :data="item" :key="index"/>
             <!-- <div class="tag" @click="updateTagFilter(item)" v-for="item, index in tags" :key="index">
               <transition name="bounce">
               <div>

@@ -75,6 +75,7 @@ export default class AutoCompleteInput extends Vue {
   width: 100%;
 }
 .auto-complete {
+  z-index: 100;
   top: 40px;
   width: 100%;
   position: absolute;

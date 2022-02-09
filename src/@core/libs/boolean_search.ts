@@ -18,12 +18,15 @@ export class BooleanSearch extends FullTextSearch {
                 words: []
             }
         }
+        // const text=tags.map((elem:any)=>{return elem.text}).join(" & ")+query.length>0 ?' $ '+query:''
+        const text=tags.length>0? tags.map((elem:any)=>{ return elem.text;}).join(" & ")+(query.length>0?' & '+query:''):query
         const words = tinySegmenter.segmentNoneSpace(query)
         tags.forEach((element: any) => {
             words.push(element.text)
+
         });
         const expression = new Expression;
-        const postfix = expression.createBinaryTree(query);
+        const postfix = expression.createBinaryTree(text);
         const results = this.recursiveSearch(postfix)
         let questions: any = []
         results.forEach((element: any) => {

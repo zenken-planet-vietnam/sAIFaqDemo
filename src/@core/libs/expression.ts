@@ -80,7 +80,6 @@ export class Expression {
                 }
             }
         }
-        console.log(operation);
         return operation
     }
 
