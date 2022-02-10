@@ -10,7 +10,7 @@
             <feather-icon icon="SearchIcon"></feather-icon>
           </div>
        </div>
-        <tags v-if="tags.length>0" :tags="tags" :isSelectedTag="false" />
+        <tags v-if="filterTag.length>0" :tags="filterTag" :isSelectedTag="false" />
         <search-result ref="result" v-if="searchProcess"/>
     </div>
 </template>
@@ -46,6 +46,10 @@ export default class SearchForm extends mixins(PageMixin) {
     return {
       text:this.selectedCategory.texts.join(">")
     }
+  }
+
+  get filterTag(){
+   return  this.tags.filter(x=>!x.isSelected)
   }
 
   onInputFocus(event) {
@@ -102,6 +106,7 @@ export default class SearchForm extends mixins(PageMixin) {
   unActiveFilter(){
     CategoryModule.unActiveSelectedMenu()
   }
+ 
 }
 </script>
 <style lang="scss">
