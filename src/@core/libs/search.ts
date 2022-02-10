@@ -34,13 +34,17 @@ export class FullTextSearch extends BaseSearch {
         }
     }
     // check document include list word 
-    checkTextIncludeWords(words: any) {
+    checkTextIncludeWords(words: any, searchFilter?:any) {
         const results = []
         for (let i = 0; i < words.length; i++) {
             const element = words[i];
             const result: any = []
             for (const word in this.scriptData.invertedIndex) {
                 const invertedData = this.scriptData.invertedIndex[word]
+                // continue if inverted data not content question filter
+                if(searchFilter&&!invertedData.scripts.find((x:any)=>searchFilter.includes(x.id))){  
+                  continue
+                }
                 // check synonym and add synonym to list search
                 const isSynonym = this.checkSynonym(element, invertedData.synonyms)
                 if (word.includes(element) || isSynonym || this.levenshteinDistance(word, element)) {
@@ -54,7 +58,10 @@ export class FullTextSearch extends BaseSearch {
             results.push(result)
         }
         // take the joint result part of all results
-        const expectResults = this.getGeneralItem(results)
+        let expectResults = this.getGeneralItem(results)
+        if(searchFilter){
+            expectResults= expectResults.filter((x:any)=>searchFilter.includes(x.id))
+        }
         expectResults.sort((a: any, b: any) => {
             return b.weight - a.weight
         })

@@ -78,7 +78,7 @@ class Category extends VuexModule implements ICategoryState {
         const child = await this.getChildCategory({ parent_id: data.category.id })
         data.category.childs = child.data
         data.category.isOpen = false
-        if (data.category.childs.length > 0) {
+        if (data.category.childs&&data.category.childs.length > 0) {
             for (let i = 0; i < data.category.childs.length; i++) {
                 const element = data.category.childs[i];
                 element.texts=[...data.category.texts,element.label]

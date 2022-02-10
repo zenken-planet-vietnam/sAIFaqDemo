@@ -2,8 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 // Modules
-import { IPageState, PageModule } from './modules/page'
-import { ICategoryState, CategoryModule } from "./modules/category"
+import { IPageState } from './modules/page'
+import { ICategoryState } from "./modules/category"
 // import config from "./modules/config"
 import { IAnalyticState, } from "./modules/analytic"
 import { IConfigState, } from "./modules/config"
@@ -15,16 +15,13 @@ export interface IRootState {
   category: ICategoryState
   page: IPageState,
 }
+
 export default new Vuex.Store<IRootState>({
   modules: {
     config
   }
 })
 
-// export {
-//   PageModule,
-//   CategoryModule
-// }
 
 
 // export default new Vuex.Store({

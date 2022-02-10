@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
 import axios from "@/axios"
 import store from "@/store"
 import { VuexModule, Module, Action, Mutation, getModule } from "vuex-module-decorators"

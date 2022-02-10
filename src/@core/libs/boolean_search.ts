@@ -2,6 +2,7 @@
 /* eslint-disable no-unused-vars */
 import { FullTextSearch } from "@/@core/libs/search";
 import tinySegmenter from "@/@core/libs/tinySegmenter";
+import { IQuestion } from "@/models/question";
 import { Expression } from './expression'
 
 
@@ -25,16 +26,21 @@ export class BooleanSearch extends FullTextSearch {
             words.push(element.text)
 
         });
+
+        let questionFilter=undefined
+        if(categoryId)
+        questionFilter=  this.scriptData.questions.filter((x: any) => x.categories.find((y: any) => y === categoryId)).map((item:IQuestion)=>item.id)
+        //ticket &pay & abc
         const expression = new Expression;
         const postfix = expression.createBinaryTree(text);
-        const results = this.recursiveSearch(postfix)
-        let questions: any = []
+        const results = this.recursiveSearch(postfix,questionFilter)
+        const questions: any = []
         results.forEach((element: any) => {
             questions.push(this.scriptData.questions.find((x: any) => x.id === element))
         });
-        if (categoryId && categoryId !== null) {
-            questions = questions.filter((x: any) => x.categories.find((y: any) => y === categoryId) !== undefined)
-        }
+        // if (categoryId && categoryId !== null) {
+        //     questions = questions.filter((x: any) => x.categories.find((y: any) => y === categoryId) !== undefined)
+        // }
         return {
             // questions: [...new Set([...unionQuestions, ...intersectQuestions, ...excludeQuestions])],
             questions,
@@ -42,13 +48,13 @@ export class BooleanSearch extends FullTextSearch {
         }
     }
     // recursive serch from child operation-> parent operation
-    recursiveSearch(node: any) {
+    recursiveSearch(node: any, searchFilter:any) {
         let left: any = [], right: any = []
         if (node.left) {
-            left = this.getNodeResult(node.left)
+            left = this.getNodeResult(node.left,searchFilter)
         }
         if (node.operation !== '~' && node.right) {
-            right = this.getNodeResult(node.right)
+            right = this.getNodeResult(node.right,searchFilter)
         }
         // result is left ∩ right if '&' operation
         if (node.operation === '&') {
@@ -69,8 +75,8 @@ export class BooleanSearch extends FullTextSearch {
     // get node result 
     // if node is string=> return result by find text
     // if node is opreration =>return  recursive search
-    getNodeResult(node: any) {
-        return this.isString(node) ? this.checkTextIncludeWords(tinySegmenter.removeStopWord(node)) : this.recursiveSearch(node)
+    getNodeResult(node: any,searchFilter:any) {
+        return this.isString(node) ? this.checkTextIncludeWords(tinySegmenter.removeStopWord(node),searchFilter) : this.recursiveSearch(node,searchFilter)
     }
     isString(obj: any) {
         return (Object.prototype.toString.call(obj) === '[object String]');
