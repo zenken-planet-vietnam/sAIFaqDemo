@@ -65,6 +65,9 @@ export class FullTextSearch extends BaseSearch {
         expectResults.sort((a: any, b: any) => {
             return b.weight - a.weight
         })
+        const a=expectResults.map((x: any) =>({id:  x.id,weight: x.weight}))
+        console.log(a);
+        
         return expectResults.map((x: any) => x.id)
     }
     //get documemt contains all text

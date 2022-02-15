@@ -67,6 +67,7 @@ import useJwt from "@core/auth";
 export default class Login extends Vue {
   username = "adminhasacl";
   password = "Hello123#";
+  fakeUsername='user';
   sideImg = require("@/assets/logo.png");
   // login
   login = () => {
@@ -82,9 +83,25 @@ export default class Login extends Vue {
         if (data) {
           useJwt.setToken(data.data.access_token),
             useJwt.setRefreshToken(data.data.refresh_token);
-          this.$router.push("/");
+         
         }
+          //fake login user account
+          useJwt
+          .userLogin({
+            name: this.fakeUsername,
+            password: this.password,
+          })
+          .then((response) => {
+            const { data } = response;
+            if (data) {
+              useJwt.setUserToken(data.data.access_token),
+              useJwt.setUserRefreshToken(data.data.refresh_token);
+              this.$router.push("/");
+            }
+          });
       });
+
+    
   };
   // reset data
   resetData = () => {

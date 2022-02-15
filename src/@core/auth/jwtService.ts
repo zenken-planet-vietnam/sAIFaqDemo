@@ -24,8 +24,10 @@ export default class JwtService {
         const accessToken = this.getToken()
         // If token is present add it to request's Authorization Header
         if (accessToken && config.url !== this.jwtConfig.refreshEndpoint && config.url != this.jwtConfig.loginEndpoint) {
-          // eslint-disable-next-line no-param-reassign
-          config.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`
+          if(config.url.includes('fnt'))
+           config.headers.Authorization = `${this.jwtConfig.tokenType} ${this.getUserToken}`
+          else 
+          config.headers.Authorization = `${this.jwtConfig.tokenType} ${this.getToken}`
         }
         return config
       },
@@ -77,6 +79,10 @@ export default class JwtService {
     return localStorage.getItem(this.jwtConfig.storageTokenKeyName)
   }
 
+  getUserToken() {
+    return localStorage.getItem(this.jwtConfig.userStorageTokenKeyName)
+  }
+
   getRefreshToken() {
     return localStorage.getItem(this.jwtConfig.storageRefreshTokenKeyName)
   }
@@ -90,12 +96,25 @@ export default class JwtService {
     localStorage.setItem(this.jwtConfig.storageTokenKeyName, value)
   }
 
+  setUserToken(value: any) {
+    localStorage.setItem(this.jwtConfig.userStorageTokenKeyName, value)
+  }
+
   setRefreshToken(value: any) {
     localStorage.setItem(this.jwtConfig.storageRefreshTokenKeyName, value)
   }
 
+  setUserRefreshToken(value: any) {
+    localStorage.setItem(this.jwtConfig.userStorageRefreshTokenKeyName, value)
+  }
+
+
   login(...args: any) {
     return this.axiosIns.post(this.jwtConfig.loginEndpoint, ...args)
+  }
+
+  userLogin(...args: any) {
+    return this.axiosIns.post(this.jwtConfig.userLoginEndpoint, ...args)
   }
   refreshToken() {
     return this.axiosIns.post(this.jwtConfig.refreshEndpoint, {

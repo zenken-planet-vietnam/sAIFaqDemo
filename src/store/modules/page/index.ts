@@ -28,7 +28,8 @@ export interface IPageState {
     // search status (true: searching, false: end search)
     searchProcess: Boolean,
     // list tags
-    tags: Array<any>
+    tags: Array<any>,
+    questionPinnings:Array<any>
 }
 
 @Module({ dynamic: true, store, name: 'page' })
@@ -53,22 +54,26 @@ class Page extends VuexModule implements IPageState {
     // search status (true: searching, false: end search)
     public searchProcess = false
     // list tags
-    public tags = [
-        // {
-        //     text: "ticket",
-        //     isSelected: false
-        // },
-        // {
-        //     text: "pay",
-        //     isSelected: false
-        // }
-    ]
+    public tags = []
+
+    public questionPinnings= [
+        {
+            keyword: 'ticket',
+            questionIds:[6,7],
+        },
+        {
+            keyword: 'suica',
+            questionIds:[1,2],
+        }
+    ];
 
     @Mutation
     UPDATE_QUESTIONS(payload: any) {
-        this.questions = payload.map((obj: any) => ({ ...obj, isSelected: false, answers: [] }))
-        const obj = new analysis()
-        this.tagPakage = obj.analysisData(payload)
+      this.questions = payload.map((obj: any) => ({ ...obj, isSelected: false, answers: [] }))
+       const obj = new analysis()
+       const tagPakage= obj.analysisData(payload)
+       tagPakage.questionPinnings=this.questionPinnings
+       this.tagPakage =tagPakage
     }
     @Mutation
     UPDATE_FAQ_QUESTIONS(payload: any) {
@@ -197,7 +202,7 @@ class Page extends VuexModule implements IPageState {
 
     @Action
     getQuestionFromCategory(categories: Array<number>) {
-        const questionCategory: Array<IQuestion> = []
+        let questionCategory: Array<IQuestion> = []
         Promise.all(categories.map((x) => axios.get('question/', { params: { product_id: [this.productId], category_id: [x] } })))
             .then(data => {
                 for (let i = 0; i < data.length; i++) {
@@ -216,6 +221,9 @@ class Page extends VuexModule implements IPageState {
                         }
                     }
                 }
+                questionCategory=questionCategory.sort((a: any, b: any) => {
+                    return a.id - b.id
+                })
                 this.UPDATE_FAQ_QUESTIONS(questionCategory)
                 this.UPDATE_QUESTIONS(questionCategory)
             })
