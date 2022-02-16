@@ -6,4 +6,6 @@ export { default as HighLight } from "./HighLight.vue"
 export { default as QuestionItem } from "./QuestionItem.vue"
 export { default as SearchResult } from "./SearchResult.vue"
 export { default as Tag } from "./Tags.vue"
+export { default as ConditionGroup } from "./ConditionGroup.vue"
+export { default as Condition } from "./Condition.vue"
 

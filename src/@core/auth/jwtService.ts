@@ -24,10 +24,10 @@ export default class JwtService {
         const accessToken = this.getToken()
         // If token is present add it to request's Authorization Header
         if (accessToken && config.url !== this.jwtConfig.refreshEndpoint && config.url != this.jwtConfig.loginEndpoint && config.url != this.jwtConfig.userLoginEndpoint) {
-          if(config.url.includes('fnt'))
-           config.headers.Authorization = `${this.jwtConfig.tokenType} ${this.getUserToken}`
-          else 
-          config.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`
+          if (config.url.includes('fnt'))
+            config.headers.Authorization = `${this.jwtConfig.tokenType} ${this.getUserToken()}`
+          else
+            config.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`
         }
         return config
       },
@@ -47,11 +47,23 @@ export default class JwtService {
             this.refreshToken().then((r: any) => {
               this.isAlreadyFetchingAccessToken = false
               const { data } = r
+
+              this.refreshToken().then((r: any) => {
+                this.isAlreadyFetchingAccessToken = false
+                const { data } = r
+                // Update accessToken in localStorage
+                this.setToken(data.data.access_token)
+                // this.setRefreshToken(r.data.refreshToken)
+                this.onAccessTokenFetched(data.data.access_token)
+              })
+
               // Update accessToken in localStorage
               this.setToken(data.data.access_token)
               // this.setRefreshToken(r.data.refreshToken)
               this.onAccessTokenFetched(data.data.access_token)
             })
+
+
           }
           const retryOriginalRequest = new Promise(resolve => {
             this.addSubscriber((accessToken: any) => {
