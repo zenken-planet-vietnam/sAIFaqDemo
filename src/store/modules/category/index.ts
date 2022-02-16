@@ -42,25 +42,25 @@ class Category extends VuexModule implements ICategoryState {
     UPDTATE_SELECTED_MENU(payload: ICategory) {
         this.selectedCategory = {
             id: payload.id,
-            texts:payload.texts,
-            isActive:true
+            texts: payload.texts,
+            isActive: true
         }
         PageModule.updateProcess(true);
-        PageModule.filterQuestions(!PageModule.textSearch?PageModule.textSearch:"")
+        PageModule.filterQuestions(PageModule.textSearch && PageModule.textSearch.length > 0 ? PageModule.textSearch : "")
     }
 
     @Mutation
-    UNACTIVE_SELECTED_MENU(){
-        this.selectedCategory.isActive=false
+    UNACTIVE_SELECTED_MENU() {
+        this.selectedCategory.isActive = false
         PageModule.updateProcess(true);
-        PageModule.filterQuestions(!PageModule.textSearch?PageModule.textSearch:"")
+        PageModule.filterQuestions(PageModule.textSearch && PageModule.textSearch.length > 0 ? PageModule.textSearch : "")
     }
     @Action
     public async getCategory() {
         const { data }: any = await axios.get("category/")
         for (let i = 0; i < data.data.length; i++) {
             const element = data.data[i];
-            element.texts=[element.label]
+            element.texts = [element.label]
             await this.recursiveGetCategory({
                 category: element,
                 rootId: element.id
@@ -78,10 +78,10 @@ class Category extends VuexModule implements ICategoryState {
         const child = await this.getChildCategory({ parent_id: data.category.id })
         data.category.childs = child.data
         data.category.isOpen = false
-        if (data.category.childs&&data.category.childs.length > 0) {
+        if (data.category.childs && data.category.childs.length > 0) {
             for (let i = 0; i < data.category.childs.length; i++) {
                 const element = data.category.childs[i];
-                element.texts=[...data.category.texts,element.label]
+                element.texts = [...data.category.texts, element.label]
                 await this.recursiveGetCategory({
                     category: element,
                     rootId: data.rootId
@@ -111,7 +111,7 @@ class Category extends VuexModule implements ICategoryState {
     }
 
     @Action
-    unActiveSelectedMenu(){
+    unActiveSelectedMenu() {
         this.UNACTIVE_SELECTED_MENU()
     }
 }

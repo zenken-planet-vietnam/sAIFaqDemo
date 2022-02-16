@@ -11,24 +11,47 @@
                     icon="HelpCircleIcon"
                   />
        </div> -->
-       <div class="back-icon" @click="$router.push({name:'search-page'})">
+      <div>
+         <div class="reset-button" @click="$router.push({name:'search-page'})">
           <feather-icon
                     class="icon"
-                    size="24"
-                    icon="ArrowLeftIcon"
+                    size="16"
+                    icon="RefreshCwIcon"
                   />
+                  <span>Reset</span>
        </div>
+      </div>
         <pin class="question-pin"/>
         <div class="question-content">
-            <span>{{question.label}}</span>
+           <div class="question-title">
+                 <feather-icon
+                    class="icon mr-1"
+                    icon="HelpCircleIcon"
+                    size="24"
+                  />
+                  <span>Question</span>
+            </div>
+           <div class="content">
+              <span>{{question.label}}</span>
+           </div>
         </div>
-       <div v-if="question.conditions" class="mt-1">
+       <div v-if="question.conditions.length>0" class="mt-1">
          <condition-group v-for="item,index in conditionGroup"  :key="item.id" @selectedChange="conditionChange" :data="item" :levelIndex="index+1" :selectedCondition="selectedCondition"/>
        </div>
-        <div v-if="(question.conditions.length===0||(question.conditions.length>0&&answers!==null&&answers.length===1))" class="mt-1">
-          <div v-for="item,index in getAnswer" :key="index" class="answer-content">
+        <div v-if="(question.conditions.length===0||(question.conditions.length>0&&answers!==null&&answers.length===1))" class="answer-content mt-1">
+            <div class="answer-title">
+                 <feather-icon
+                    class="icon mr-1"
+                    icon="InfoIcon"
+                    size="24"
+                  />
+                  <span>Answer</span>
+            </div>
+         <div class="content">
+            <div v-for="item,index in getAnswer" :key="index">
             <span>{{item.text}}</span>
           </div>
+         </div>
        </div>
         <div v-if="showResult" class='result mt-2'>
           <b-button variant='primary'>
@@ -86,9 +109,9 @@ export default class ResultPage extends mixins(PageMixin) {
   }
 
   get showResult() {
-    return (this.question.answers?.length === 1 &&
+    return (this.question.answers?.length >= 1 &&
       this.question.conditions.length === 0) ||
-      (this.question.answers.length === 1 &&
+      (this.answers?.length === 1 &&
         this.question.conditions.length > 0)
       ? true
       : false;
@@ -163,6 +186,7 @@ export default class ResultPage extends mixins(PageMixin) {
 <style lang="scss" scoped>
 .qa {
   position: relative;
+  padding-top: 20px;
   .question-icon {
     width: 50px;
     height: 50px;
@@ -177,33 +201,52 @@ export default class ResultPage extends mixins(PageMixin) {
     left: 0px;
     background: #7367f0;
   }
-  .back-icon {
-    top: 5px;
-    left: 5px;
-    position: absolute;
-    width: 25px;
-    height: 25px;
+  .reset-button {
     background: rgba(0, 207, 232, 0.12);
-    display: flex;
+    display: inline-block;
+    padding: 5px 10px;
     justify-content: center;
     align-items: center;
-    border-radius: 50%;
     color: #00cfe8;
     cursor: pointer;
+    border-radius: 0.375rem;
     transition: all 0.5s ease;
-    &:hover {
-      background: rgba(0, 207, 232, 0.12);
-      width: 30px;
-      height: 30px;
+    margin-bottom: 1rem;
+    .icon {
+      margin-right: 10px;
     }
   }
   .question-content {
-    font-size: 21px;
+    font-size: 18px;
     font-weight: 500;
+    // background: rgba(0, 207, 232, 0.12);
+    padding: 10px 5px;
+    border-bottom: 3px solid #00cfe8;
+    .content{
+      padding-left: 50px;
+    }
+    .question-title{
+      font-weight: bold;
+      //  border-bottom: 3px solid #00cfe8;
+      .icon {
+      stroke: #00cfe8;
+    }
+    }
+  }
+  .answer-title{
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+  .icon{
+        stroke: #138d75;
+      }
   }
   .answer-content {
-    color: #b9b9c3;
-    padding-left: 20px;
+    // background: rgba(0, 207, 232, 0.12);
+    padding: 10px 5px;
+    border-radius: 0.375rem;
+    .content{
+      padding-left: 50px;
+    }
   }
   .question-pin {
     position: absolute;

@@ -16,17 +16,17 @@ export default class Condition extends Vue {
 </script>
 <style lang="scss">
 .condition {
-  background-color: #0d6efd;
+  background-color: #0b5ed7;
   margin-top: 10px;
   padding: 0.5rem 1rem;
   color: #ffffff;
   border-radius: 0.375rem;
   cursor: pointer;
   &:hover {
-    background-color: #0b5ed7;
+    background-color: #21618c;
   }
   &.selected {
-    background-color: #0b5ed7;
+    background-color: #21618c;
     pointer-events: none;
   }
 }

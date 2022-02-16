@@ -48,10 +48,11 @@ export default class ConditionGroup extends Vue {
   background-color: #f2f2f2;
   padding: 10px;
   margin-top: 10px;
+  border-radius: 0.375rem;
   .title {
-    background: #ffffff;
+    border-bottom: 3px solid #21618c;
     font-size: 21px;
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 1rem;
   }
 }
 </style>

@@ -26,15 +26,15 @@ export interface IPageState {
     // search status (true: searching, false: end search)
     searchProcess: Boolean,
     // list tags
-    tags: Array<any>,
-    questionPinnings: Array<any>
+    tags: Array<any>
 }
 
 @Module({ dynamic: true, store, name: 'page' })
 class Page extends VuexModule implements IPageState {
     // package data for search
     public tagPakage = {
-        questions: []
+        questions: [],
+        questionPinnings: []
     }
     public productId = 2
     // list all of question
@@ -54,23 +54,11 @@ class Page extends VuexModule implements IPageState {
     // list tags
     public tags = []
 
-    public questionPinnings = [
-        {
-            keyword: 'ticket',
-            questionIds: [6, 7],
-        },
-        {
-            keyword: 'suica',
-            questionIds: [1, 2],
-        }
-    ];
-
     @Mutation
     UPDATE_QUESTIONS(payload: any) {
         this.questions = payload.map((obj: any) => ({ ...obj, isSelected: false, answers: [] }))
         const obj = new analysis()
         const tagPakage = obj.analysisData(payload)
-        tagPakage.questionPinnings = this.questionPinnings
         this.tagPakage = tagPakage
     }
     @Mutation
@@ -127,7 +115,7 @@ class Page extends VuexModule implements IPageState {
 
     @Mutation
     UPDATE_QUESTION_PINNING(payload: any) {
-        this.questionPinnings = payload.data
+        this.tagPakage.questionPinnings = payload.data.map((x: any) => ({ keyword: x.keyword, questionIds: x.question_ids }))
     }
 
     @Action

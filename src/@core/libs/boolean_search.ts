@@ -19,9 +19,11 @@ export class BooleanSearch extends FullTextSearch {
                 words: []
             }
         }
-        const pinningResult = this.getQuestionPinings(query)
         // const text=tags.map((elem:any)=>{return elem.text}).join(" & ")+query.length>0 ?' $ '+query:''
         const text = tags.length > 0 ? tags.map((elem: any) => { return elem.text; }).join(" & ") + (query.length > 0 ? ' & ' + query : '') : query
+        let pinningResult = []
+        if (!categoryId)
+            pinningResult = this.getQuestionPinings(text)
         const words = tinySegmenter.segmentNoneSpace(query)
         tags.forEach((element: any) => {
             words.push(element.text)
@@ -45,7 +47,7 @@ export class BooleanSearch extends FullTextSearch {
         }
     }
     getQuestionPinings(query: string) {
-        const result = this.scriptData.questionPinnings.find((x: any) => x.keyword === query)
+        const result = this.scriptData.questionPinnings.find((x: any) => x.keyword.toLowerCase() === query.trim().toLocaleLowerCase())
         if (result) {
             return this.scriptData.questions.filter((x: any) => result.questionIds.includes(x.id))
         }
