@@ -11,6 +11,9 @@
             <span>{{data.label}}</span>
           </div>
           <high-light :text="data.label" :targets="getTargets" v-else/>
+          <div class="pinned" v-if="data.isPinned" title="Result pinning">
+            <feather-icon icon="Link2Icon" size="16"/>
+          </div>
       </div>
     </div>
 </template>
@@ -60,6 +63,7 @@ export default class QuestionItem extends mixins(PageMixin) {
   padding: 10px 20px;
   border-bottom: 1px solid lightgray;
   cursor: pointer;
+  position: relative;
   transition: all 2s linear;
   .question-content {
     display: flex;
@@ -69,18 +73,10 @@ export default class QuestionItem extends mixins(PageMixin) {
       margin-right: 10px;
     }
   }
-  /* Enter and leave animations can use different */
-  /* durations and timing functions.              */
-  .slide-fade-enter-active {
-    transition: all 0.5s ease;
-  }
-  .slide-fade-leave-active {
-    transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
-  }
-  .slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active below version 2.1.8 */ {
-    transform: translateX(10px);
-    opacity: 0;
+  .pinned{
+    color: #28c76f;
+    position: absolute;
+    right: 10px;
   }
 }
 </style>

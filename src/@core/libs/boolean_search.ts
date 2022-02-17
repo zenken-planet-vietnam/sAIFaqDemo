@@ -50,8 +50,10 @@ export class BooleanSearch extends FullTextSearch {
         const result = this.scriptData.questionPinnings.find((x: any) => x.keyword.toLowerCase() === query.trim().toLocaleLowerCase())
         if (result) {
          return result.questionIds.map((item:any)=>{
-                return this.scriptData.questions.find((x:any)=>x.id===item)
-            })
+                const question= this.scriptData.questions.find((x:any)=>x.id===item)
+                if(question) question.isPinned=true
+                return question
+                })
         }
         return []
     }
