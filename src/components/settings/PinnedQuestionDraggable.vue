@@ -30,7 +30,7 @@
               @click="element.fixed = !element.fixed"
               aria-hidden="true"
             ></i>
-            #{{ element.display_order }} {{element.title }}
+            #{{ element.display_order }} {{element.label }}
           </li>
         </transition-group>
       </draggable>

@@ -16,7 +16,7 @@
         </div>
         <div v-if="$route.name!=='settings'" @click="$router.push({name:'settings'})" class="settings-btn-container">
           <div class="settings-btn">
-          <feather-icon size="18" icon="BarChartIcon"/>
+          <feather-icon size="18" icon="SettingsIcon"/>
           <span class="ml-1">Settings</span>
          </div>
         </div>
