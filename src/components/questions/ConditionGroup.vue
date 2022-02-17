@@ -48,7 +48,7 @@ export default class ConditionGroup extends Vue {
   background-color: #f2f2f2;
   padding: 10px;
   margin-top: 10px;
-  border-radius: 0.375rem;
+  // border-radius: 0.375rem;
   .title {
     border-bottom: 3px solid #21618c;
     font-size: 21px;

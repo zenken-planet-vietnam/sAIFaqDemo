@@ -243,7 +243,7 @@ export default class ResultPage extends mixins(PageMixin) {
   .answer-content {
     // background: rgba(0, 207, 232, 0.12);
     padding: 10px 5px;
-    border-radius: 0.375rem;
+    // border-radius: 0.375rem;
     .content{
       padding-left: 50px;
     }
