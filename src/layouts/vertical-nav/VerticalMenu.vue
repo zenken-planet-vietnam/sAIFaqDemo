@@ -14,6 +14,12 @@
           <span class="ml-1">Analytic</span>
          </div>
         </div>
+        <div v-if="$route.name!=='settings'" @click="$router.push({name:'settings'})" class="settings-btn-container">
+          <div class="settings-btn">
+          <feather-icon size="18" icon="BarChartIcon"/>
+          <span class="ml-1">Settings</span>
+         </div>
+        </div>
     </div>
 </template>
 <script lang="ts">
@@ -52,7 +58,7 @@ export default class VerticalMenu extends mixins(CategoryMixin) {
       padding-left: 0;
     }
   }
-  .analytic-btn-container {
+  .analytic-btn-container{
     position: absolute;
     bottom: 10px;
     width: 100%;
@@ -73,6 +79,30 @@ export default class VerticalMenu extends mixins(CategoryMixin) {
       }
       svg {
         stroke: #00cfe8;
+      }
+    }
+  }
+  .settings-btn-container{
+    position: absolute;
+    bottom: 60px;
+    width: 100%;
+    padding: 0rem 3rem;
+    .settings-btn {
+      cursor: pointer;
+      width: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.375rem 0.375rem;
+      background: rgba(232, 228, 0, 0.12);
+      border-radius: 0.375rem;
+      // border: 1px solid #00cfe8;
+      font-weight: 500;
+      &:hover {
+        border: 1px solid #b6b302;
+      }
+      svg {
+        stroke: #b6b302;
       }
     }
   }

@@ -27,6 +27,11 @@ export const constantRoutes: RouteConfig[] = [
         name: 'analytic',
         component: () => import('@/views/pages/Analytic.vue'),
     },
+    {
+        path: '/settings',
+        name: 'settings',
+        component: () => import('@/views/pages/SettingPage.vue'),
+    }
 ]
 
 const createRouter = () => new VueRouter({

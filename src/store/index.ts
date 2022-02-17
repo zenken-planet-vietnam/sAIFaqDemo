@@ -8,12 +8,14 @@ import { ICategoryState } from "./modules/category"
 import { IAnalyticState, } from "./modules/analytic"
 import { IConfigState, } from "./modules/config"
 import config from "./modules/config"
+import {ISettingState} from "@/store/modules/setting";
 Vue.use(Vuex)
 
 export interface IRootState {
   analytic: IAnalyticState
   category: ICategoryState
   page: IPageState,
+  setting: ISettingState,
 }
 
 export default new Vuex.Store<IRootState>({
