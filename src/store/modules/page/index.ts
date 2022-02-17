@@ -2,12 +2,10 @@
 /* eslint-disable no-unused-vars */
 import axios from "@/axios"
 import { analysis } from "@/@core/libs/analysis"
-import { FullTextSearch } from "@/@core/libs/search"
 import { BooleanSearch } from "@/@core/libs/boolean_search"
 
 import { VuexModule, Module, Action, Mutation, getModule } from "vuex-module-decorators"
 import store from "@/store"
-import { ICategory } from "@/models/category"
 import { IQuestion } from "@/models/question"
 import { CategoryModule } from "../category"
 export interface IPageState {
@@ -28,17 +26,17 @@ export interface IPageState {
     // search status (true: searching, false: end search)
     searchProcess: Boolean,
     // list tags
-    tags: Array<any>,
-    questionPinnings:Array<any>
+    tags: Array<any>
 }
 
 @Module({ dynamic: true, store, name: 'page' })
 class Page extends VuexModule implements IPageState {
     // package data for search
     public tagPakage = {
-        questions: []
+        questions: [],
+        questionPinnings: []
     }
-    public productId=2
+    public productId = 2
     // list all of question
     public questions = []
     // question results after search
@@ -56,24 +54,12 @@ class Page extends VuexModule implements IPageState {
     // list tags
     public tags = []
 
-    public questionPinnings= [
-        {
-            keyword: 'ticket',
-            questionIds:[6,7],
-        },
-        {
-            keyword: 'suica',
-            questionIds:[1,2],
-        }
-    ];
-
     @Mutation
     UPDATE_QUESTIONS(payload: any) {
-      this.questions = payload.map((obj: any) => ({ ...obj, isSelected: false, answers: [] }))
-       const obj = new analysis()
-       const tagPakage= obj.analysisData(payload)
-       tagPakage.questionPinnings=this.questionPinnings
-       this.tagPakage =tagPakage
+        this.questions = payload.map((obj: any) => ({ ...obj, isSelected: false, answers: [] }))
+        const obj = new analysis()
+        const tagPakage = obj.analysisData(payload)
+        this.tagPakage = tagPakage
     }
     @Mutation
     UPDATE_FAQ_QUESTIONS(payload: any) {
@@ -85,6 +71,7 @@ class Page extends VuexModule implements IPageState {
         const question: any = this.questions.find((x: any) => x.id === payload.id)
         if (question) {
             question.answers = payload.answers
+            question.conditions = payload.conditions
         }
     }
     @Mutation
@@ -117,13 +104,18 @@ class Page extends VuexModule implements IPageState {
     }
     @Mutation
     UPDATE_TAG_FILTER(payload: any) {
-        const tag:any = this.tags.find((x:any) => x.text === payload.text)
+        const tag: any = this.tags.find((x: any) => x.text === payload.text)
         if (tag)
             tag.isSelected = payload.isSelected
     }
     @Mutation
-    UPDATE_KEYWORD(payload:any){
-        this.tags=payload.map((obj:any)=>({text: obj.label,weight: obj.weight,isSelected:false}))
+    UPDATE_KEYWORD(payload: any) {
+        this.tags = payload.map((obj: any) => ({ text: obj.label, weight: obj.weight, isSelected: false }))
+    }
+
+    @Mutation
+    UPDATE_QUESTION_PINNING(payload: any) {
+        this.tagPakage.questionPinnings = payload.data.map((x: any) => ({ keyword: x.keyword, questionIds: x.question_ids }))
     }
 
     @Action
@@ -145,23 +137,31 @@ class Page extends VuexModule implements IPageState {
         this.UPDATE_ISESELECTED(id)
         if (question && question.answers.length > 0)
             return question
-        const { data } = await axios.get(`question/${id}/answer/`)
-        if (data) {
-            const answersData: any = {
-                id,
-                answers: []
+        // const { data } = await axios.get(`question/${id}/answer/`)
+
+        //  Get list of answer and condition
+        const { data } = await axios.get(`fnt/product/${this.productId}/answer/`, {
+            params: {
+                question_id: id
             }
-            const answers = data.data
-            for (let index = 0; index < answers.length; index++) {
-                const element = answers[index];
-                const answer = await this.getDetailAnswer({
-                    questionId: id,
-                    answerId: element.id
-                })
-                answersData.answers.push(answer.data)
-            }
-            this.UPDATE_ANSWERS(answersData)
-        }
+        });
+        const { answer: answers, conditionList: conditions } = data.data;
+        // if (data) {
+        //     const answersData: any = {
+        //         id,
+        //         answers: []
+        //     }
+        //     const answers = data.data
+        //     for (let index = 0; index < answers.length; index++) {
+        //         const element = answers[index];
+        //         const answer = await this.getDetailAnswer({
+        //             questionId: id,
+        //             answerId: element.id
+        //         })
+        //         answersData.answers.push(answer.data)
+        //     }
+        this.UPDATE_ANSWERS({ id, answers, conditions })
+
         return question
     }
     @Action
@@ -180,12 +180,12 @@ class Page extends VuexModule implements IPageState {
     @Action
     // filter candidate question
     filterQuestions(query: any) {
-       this.updateProcess(true)
+        this.updateProcess(true)
         const text = query.toLowerCase().trim()
         // let search = new FullTextSearch(state.tagPakage)
         const search = new BooleanSearch(this.tagPakage)
-        const slectedTags = this.tags.filter((x:any) => x.isSelected)
-        const result = search.search(text, slectedTags, CategoryModule.selectedCategory?.isActive? CategoryModule.selectedCategory.id:undefined)
+        const slectedTags = this.tags.filter((x: any) => x.isSelected)
+        const result = search.search(text, slectedTags, CategoryModule.selectedCategory?.isActive ? CategoryModule.selectedCategory.id : undefined)
         const data = {
             result: result.questions.map((obj: any) => ({ ...obj, isSelected: false, answers: [] })),
             words: result.words,
@@ -221,19 +221,26 @@ class Page extends VuexModule implements IPageState {
                         }
                     }
                 }
-                questionCategory=questionCategory.sort((a: any, b: any) => {
+                questionCategory = questionCategory.sort((a: any, b: any) => {
                     return a.id - b.id
                 })
                 this.UPDATE_FAQ_QUESTIONS(questionCategory)
                 this.UPDATE_QUESTIONS(questionCategory)
             })
         this.getListKeyword()
+        this.getQuestionPinning()
     }
 
-    @Action 
-   async  getListKeyword(){
+    @Action
+    async getListKeyword() {
         const { data } = await axios.get('keyword/')
         this.UPDATE_KEYWORD(data.data)
+    }
+
+    @Action
+    async getQuestionPinning() {
+        const { data } = await axios.get('question/pinned', { params: { product_id: [this.productId] } })
+        this.UPDATE_QUESTION_PINNING(data)
     }
 }
 

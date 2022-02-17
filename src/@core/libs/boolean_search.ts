@@ -15,46 +15,52 @@ export class BooleanSearch extends FullTextSearch {
     search(query: any = '', tags: any = [], categoryId: any) {
         if (query.length < 1 && tags.length === 0) {
             return {
-                questions:categoryId && categoryId !== null?this.scriptData.questions.filter((x: any) => x.categories.find((y: any) => y === categoryId) !== undefined): this.scriptData.questions,
+                questions: categoryId && categoryId !== null ? this.scriptData.questions.filter((x: any) => x.categories.find((y: any) => y === categoryId) !== undefined) : this.scriptData.questions,
                 words: []
             }
         }
         // const text=tags.map((elem:any)=>{return elem.text}).join(" & ")+query.length>0 ?' $ '+query:''
-        const text=tags.length>0? tags.map((elem:any)=>{ return elem.text;}).join(" & ")+(query.length>0?' & '+query:''):query
+        const text = tags.length > 0 ? tags.map((elem: any) => { return elem.text; }).join(" & ") + (query.length > 0 ? ' & ' + query : '') : query
+        let pinningResult = []
+        if (!categoryId)
+            pinningResult = this.getQuestionPinings(text)
         const words = tinySegmenter.segmentNoneSpace(query)
         tags.forEach((element: any) => {
             words.push(element.text)
-
         });
 
-        let questionFilter=undefined
-        if(categoryId)
-        questionFilter=  this.scriptData.questions.filter((x: any) => x.categories.find((y: any) => y === categoryId)).map((item:IQuestion)=>item.id)
+        let questionFilter = undefined
+        if (categoryId)
+            questionFilter = this.scriptData.questions.filter((x: any) => x.categories.find((y: any) => y === categoryId)).map((item: IQuestion) => item.id)
         //ticket &pay & abc
         const expression = new Expression;
         const postfix = expression.createBinaryTree(text);
-        const results = this.recursiveSearch(postfix,questionFilter)
+        const results = this.recursiveSearch(postfix, questionFilter)
         const questions: any = []
         results.forEach((element: any) => {
             questions.push(this.scriptData.questions.find((x: any) => x.id === element))
         });
-        // if (categoryId && categoryId !== null) {
-        //     questions = questions.filter((x: any) => x.categories.find((y: any) => y === categoryId) !== undefined)
-        // }
         return {
             // questions: [...new Set([...unionQuestions, ...intersectQuestions, ...excludeQuestions])],
-            questions,
+            questions: [...new Set([...pinningResult, ...questions])],
             words: [...words.map(x => x.replace(/[^a-zA-Z0-9]/g, '')).filter(y => y.length > 0), ...this.levenWords]
         }
     }
+    getQuestionPinings(query: string) {
+        const result = this.scriptData.questionPinnings.find((x: any) => x.keyword.toLowerCase() === query.trim().toLocaleLowerCase())
+        if (result) {
+            return this.scriptData.questions.filter((x: any) => result.questionIds.includes(x.id)).map((x:any)=>({...x,isPinned:true}))
+        }
+        return []
+    }
     // recursive serch from child operation-> parent operation
-    recursiveSearch(node: any, searchFilter:any) {
+    recursiveSearch(node: any, searchFilter: any) {
         let left: any = [], right: any = []
         if (node.left) {
-            left = this.getNodeResult(node.left,searchFilter)
+            left = this.getNodeResult(node.left, searchFilter)
         }
         if (node.operation !== '~' && node.right) {
-            right = this.getNodeResult(node.right,searchFilter)
+            right = this.getNodeResult(node.right, searchFilter)
         }
         // result is left ∩ right if '&' operation
         if (node.operation === '&') {
@@ -75,8 +81,8 @@ export class BooleanSearch extends FullTextSearch {
     // get node result 
     // if node is string=> return result by find text
     // if node is opreration =>return  recursive search
-    getNodeResult(node: any,searchFilter:any) {
-        return this.isString(node) ? this.checkTextIncludeWords(tinySegmenter.removeStopWord(node),searchFilter) : this.recursiveSearch(node,searchFilter)
+    getNodeResult(node: any, searchFilter: any) {
+        return this.isString(node) ? this.checkTextIncludeWords(tinySegmenter.removeStopWord(node), searchFilter) : this.recursiveSearch(node, searchFilter)
     }
     isString(obj: any) {
         return (Object.prototype.toString.call(obj) === '[object String]');

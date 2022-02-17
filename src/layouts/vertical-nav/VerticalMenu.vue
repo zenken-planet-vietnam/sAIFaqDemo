@@ -54,6 +54,8 @@ export default class VerticalMenu extends mixins(CategoryMixin) {
   .vertical-menu {
     list-style-type: none;
     padding: 1rem 0 0 0;
+    max-height: calc(100% - 60px);
+    overflow-y: auto;
     ul {
       padding-left: 0;
     }
