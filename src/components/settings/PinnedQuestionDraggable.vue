@@ -1,7 +1,7 @@
 <template>
   <b-row>
     <b-col md="12">
-      <h3>Transition</h3>
+      <h4>Pinned Questions</h4>
       <b-row class="mb-2">
         <b-col md="2">
           <b-button variant="primary" @click="addNewQuestion">+</b-button>
