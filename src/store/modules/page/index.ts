@@ -239,7 +239,7 @@ class Page extends VuexModule implements IPageState {
 
     @Action
     async getQuestionPinning() {
-        const { data } = await axios.get('question/pinned', { params: { product_id: [this.productId] } })
+        const { data } = await axios.get(`product/${this.productId}/pinned_query/question`)
         this.UPDATE_QUESTION_PINNING(data)
     }
 }

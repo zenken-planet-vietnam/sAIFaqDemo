@@ -49,7 +49,9 @@ export class BooleanSearch extends FullTextSearch {
     getQuestionPinings(query: string) {
         const result = this.scriptData.questionPinnings.find((x: any) => x.keyword.toLowerCase() === query.trim().toLocaleLowerCase())
         if (result) {
-            return this.scriptData.questions.filter((x: any) => result.questionIds.includes(x.id)).map((x:any)=>({...x,isPinned:true}))
+         return result.questionIds.map((item:any)=>{
+                return this.scriptData.questions.find((x:any)=>x.id===item)
+            })
         }
         return []
     }
