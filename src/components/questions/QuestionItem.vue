@@ -12,7 +12,7 @@
           </div>
           <high-light :text="data.label" :targets="getTargets" v-else/>
           <div class="pinned" v-if="data.isPinned" title="Result pinning">
-            <feather-icon icon="StarIcon" size="16"/>
+            <feather-icon icon="StarIcon" size="16" style="fill: #99ff69;"/>
           </div>
       </div>
     </div>
