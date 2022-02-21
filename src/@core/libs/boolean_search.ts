@@ -21,7 +21,7 @@ export class BooleanSearch extends FullTextSearch {
         }
         // const text=tags.map((elem:any)=>{return elem.text}).join(" & ")+query.length>0 ?' $ '+query:''
         const text = tags.length > 0 ? tags.map((elem: any) => { return elem.text; }).join(" & ") + (query.length > 0 ? ' & ' + query : '') : query
-        let pinningResult = []
+        let pinningResult: any = []
         if (!categoryId)
             pinningResult = this.getQuestionPinings(text)
         const words = tinySegmenter.segmentNoneSpace(query)
@@ -36,24 +36,27 @@ export class BooleanSearch extends FullTextSearch {
         const expression = new Expression;
         const postfix = expression.createBinaryTree(text);
         const results = this.recursiveSearch(postfix, questionFilter)
-        const questions: any = []
+        const questions: any = pinningResult?.length ? pinningResult : []
         results.forEach((element: any) => {
-            questions.push(this.scriptData.questions.find((x: any) => x.id === element))
+            if (!questions.find((x: any) => { return x.id === element }))
+                questions.push(this.scriptData.questions.find((x: any) => x.id === element))
         });
         return {
             // questions: [...new Set([...unionQuestions, ...intersectQuestions, ...excludeQuestions])],
-            questions: [...new Set([...pinningResult, ...questions])],
+            questions,
             words: [...words.map(x => x.replace(/[^a-zA-Z0-9]/g, '')).filter(y => y.length > 0), ...this.levenWords]
         }
     }
     getQuestionPinings(query: string) {
-        const result = this.scriptData.questionPinnings.find((x: any) => x.keyword.toLowerCase() === query.trim().toLocaleLowerCase())
+        const result = this.scriptData?.questionPinnings?.find((x: any) => x.keyword.toLowerCase() === query.trim().toLocaleLowerCase())
         if (result) {
-         return result.questionIds.map((item:any)=>{
-                const question= this.scriptData.questions.find((x:any)=>x.id===item)
-                if(question) question.isPinned=true
+            return result.questionIds.map((item: any) => {
+                let question = { ...this.scriptData.questions.find((x: any) => x.id === item) }
+                if (question) {
+                    question = { ...question, isPinned: true }
+                }
                 return question
-                })
+            })
         }
         return []
     }
