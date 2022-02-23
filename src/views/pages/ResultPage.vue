@@ -36,7 +36,7 @@
            </div>
         </div>
        <div v-if="activeConditions.length" class="mt-1">
-         <condition-group v-for="item, index in activeConditions" :key="item.id" @selectedChange="conditionSelected" :data="item" :levelIndex="index+1" :selectedCondition="selectedCondition"/>
+         <condition-group v-for="item, index in activeConditions" :key="item.id" @selectedChange="conditionSelected" :data="item" :levelIndex="item.conditionGroup.level" :selectedConditions="selectedConditions"/>
        </div>
         <div v-if="isShowAnswer" class="answer-content mt-1">
             <div class="answer-title">
@@ -83,19 +83,22 @@ import { PageModule } from "@/store/modules/page";
     Pin,
     ConditionGroup,
   },
-  created() {
-    this.questionId = parseInt(this.$route.query.id, 10);
-    if (this.questions.length > 0) this.getQuestion();
-  },
 })
 export default class ResultPage extends mixins(PageMixin) {
   question = null;
   questionId = null;
   answers = [];
 
-  selectedCondition = [];
+  selectedConditions = [];
   activeConditions = [];
-  currentLevel = 1;
+  currentLevel = 0;
+
+  created() {
+    this.questionId = parseInt(this.$route.query.id, 10);
+    if (this.questions.length > 0) {
+      this.getQuestion();
+    }
+  }
 
   async getQuestion() {
     // fake data to store
@@ -103,9 +106,10 @@ export default class ResultPage extends mixins(PageMixin) {
 
     // Put first condition into activeConditions
     if (this.question.conditions?.length) {
-      const firstCondition = this.question.conditions.find((item) => item.conditionGroup.level == this.currentLevel);
+      const firstCondition = this.question.conditions[0];
       if (firstCondition) {
         this.activeConditions.push(firstCondition);
+        this.currentLevel = firstCondition.conditionGroup.level;
       }
     }
   }
@@ -131,24 +135,24 @@ export default class ResultPage extends mixins(PageMixin) {
     this.checkSelectedLevel(event.level);
 
     // Update selected conditions
-    this.selectedCondition = [...this.selectedCondition, event];
+    this.selectedConditions.push(event);
 
     // Get answers match selected conditions
     this.answers = this.findMatchingAnswers(
       this.question.answers,
-      this.selectedCondition
+      this.selectedConditions
     );
 
     if (this.answers.length > 1) {
-      const nextGroup = this.findNextConditionGroup(this.currentLevel + 1);
+      const nextGroup = this.findNextConditionGroup(this.currentLevel);
       if (nextGroup) {
         this.activeConditions.push(nextGroup);
-        this.currentLevel++;
+        this.currentLevel = nextGroup.conditionGroup.level;
       }
     }
   }
 
-  findNextConditionGroup(nextLevel) {
+  findNextConditionGroup(currentLevel) {
     const conditionGroupIds = new Set();
     this.answers.forEach((answer) => {
       const answerConditionGroupIds = Object.keys(answer.answerConditionMap);
@@ -157,22 +161,14 @@ export default class ResultPage extends mixins(PageMixin) {
 
     return this.question.conditions.find(
       (item) =>
-        item.conditionGroup.level == nextLevel &&
+        item.conditionGroup.level > currentLevel &&
         conditionGroupIds.has(item.conditionGroup.id + "")
     );
   }
 
   checkSelectedLevel(selectedLevel) {
-    if (selectedLevel <= this.selectedCondition.length) {
-      this.selectedCondition = this.selectedCondition.slice(
-        0,
-        selectedLevel - 1
-      );
-    }
-
-    if (selectedLevel < this.activeConditions.length) {
-      this.activeConditions = this.activeConditions.slice(0, selectedLevel);
-    }
+    this.selectedConditions = this.selectedConditions.filter(item => item.level < selectedLevel);
+    this.activeConditions = this.activeConditions.filter(item => item.conditionGroup.level <= selectedLevel)
   }
 
   findMatchingAnswers(answers, conditions) {
@@ -263,7 +259,7 @@ export default class ResultPage extends mixins(PageMixin) {
     // background: rgba(0, 207, 232, 0.12);
     padding: 10px 5px;
     // border-radius: 0.375rem;
-    .content{
+    .content {
       padding-left: 50px;
     }
   }
