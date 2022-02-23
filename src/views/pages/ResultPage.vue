@@ -12,7 +12,7 @@
                   />
        </div> -->
       <div>
-         <div class="reset-button" @click="$router.push({name:'search-page'})">
+         <div class="reset-button" @click="reset">
           <feather-icon
                     class="icon"
                     size="16"
@@ -52,15 +52,22 @@
               <span>{{answer.text}}</span>
             </div>
          </div>
-       </div>
-        <div v-if="answer" class='result mt-2'>
-          <b-button variant='primary'>
+           <div v-if="answer"   class='result'>
+          <b-button :disabled="resolveType!==null" @click="resolve('resolve')" variant='info'>
             <span>{{'Resolved'}}</span>
           </b-button>
-          <b-button class='ml-1' variant='outline-primary'>
+          <b-button :disabled="resolveType!==null" @click="resolve('unresolve')" class="unresolve ml-1" variant='info'>
             <span>{{'Unresolved'}}</span>
           </b-button>
         </div>
+       </div>
+       <div v-if="resolveType" class='after-resolve mt-1'>
+          <div class="message"><span v-html="message"></span></div>
+          <b-button  @click="reset" class="go-to-top mt-1" variant='info'>
+            <span>Go to top</span>
+          </b-button>
+        </div>
+       </div>
      </div>
    </div>
 </template>
@@ -99,9 +106,14 @@ export default class ResultPage extends mixins(PageMixin) {
 
   // the current condition's level is showing
   currentLevel = 0;
+  resolveMessage =
+    "Thank you for your answer. <br /> The information you send will be used as a reference for improving the content.";
+  unresolveMessage =
+    "Thank you for your answer. <br /> The information you send will be used as a reference for improving the content.";
 
   hasNextCondtion = true;
 
+  resolveType = null;
   created() {
     this.questionId = parseInt(this.$route.query.id, 10);
     if (this.questions.length > 0) {
@@ -124,7 +136,10 @@ export default class ResultPage extends mixins(PageMixin) {
 
   get answer() {
     if (this.question?.conditions?.length) {
-      if (this.matchingAnswers.length === 1 || (!this.hasNextCondtion && this.matchingAnswers.length)) {
+      if (
+        this.matchingAnswers.length === 1 ||
+        (!this.hasNextCondtion && this.matchingAnswers.length)
+      ) {
         return this.matchingAnswers[0];
       }
     } else if (this.question?.answers?.length) {
@@ -134,11 +149,19 @@ export default class ResultPage extends mixins(PageMixin) {
     return null;
   }
 
+  get message() {
+    return this.resolveType === "resolve"
+      ? this.resolveMessage
+      : this.unresolveMessage;
+  }
+
   conditionSelected(event) {
     // Check if user select a level less than or equal current level
     if (event.level <= this.currentLevel) {
       this.checkReselectLevel(event.level);
     }
+    this.resolveType = null;
+    this.currentLevel = event.level;
 
     this.currentLevel = event.level;
 
@@ -197,6 +220,13 @@ export default class ResultPage extends mixins(PageMixin) {
         return answerCondition.condition.find((i) => i.id === conditionId);
       });
     });
+  }
+
+  resolve(type) {
+    this.resolveType = type;
+  }
+  reset() {
+    this.$router.push({ name: "search-page" });
   }
 
   @Watch("questions")
@@ -264,18 +294,22 @@ export default class ResultPage extends mixins(PageMixin) {
     }
   }
   .answer-title {
-    margin-bottom: 0.25rem;
+    background: #fff;
+    padding: 10px;
     font-weight: bold;
     .icon {
       stroke: #138d75;
     }
   }
   .answer-content {
-    // background: rgba(0, 207, 232, 0.12);
-    padding: 10px 5px;
+    background: rgba(40, 199, 111, 0.12);
+    padding: 0px 0px 0px 5px;
+    border-bottom: 2px solid rgba(40, 199, 111, 0.12);
     // border-radius: 0.375rem;
     .content {
       padding-left: 50px;
+      background: #fff;
+      padding: 20px;
     }
   }
   .question-pin {
@@ -287,6 +321,17 @@ export default class ResultPage extends mixins(PageMixin) {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 10px;
+  }
+  .after-resolve {
+    text-align: center;
+    .message {
+      display: flex;
+      justify-content: center;
+    }
+  }
+  .btn-info {
+    color: #fff !important;
   }
 }
 </style>
