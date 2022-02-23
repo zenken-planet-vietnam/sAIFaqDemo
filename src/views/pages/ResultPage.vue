@@ -38,7 +38,7 @@
        <div v-if="activeConditions.length" class="mt-1">
          <condition-group v-for="item, index in activeConditions" :key="item.id" @selectedChange="conditionSelected" :data="item" :levelIndex="item.conditionGroup.level" :selectedConditions="selectedConditions"/>
        </div>
-        <div v-if="isShowAnswer" class="answer-content mt-1">
+        <div v-if="answer" class="answer-content mt-1">
             <div class="answer-title">
                  <feather-icon
                     class="icon mr-1"
@@ -48,12 +48,12 @@
                   <span>Answer</span>
             </div>
          <div class="content">
-            <div v-for="item,index in getAnswer" :key="index">
-            <span>{{item.text}}</span>
-          </div>
+            <div>
+              <span>{{answer.text}}</span>
+            </div>
          </div>
        </div>
-        <div v-if="isShowAnswer" class='result mt-2'>
+        <div v-if="answer" class='result mt-2'>
           <b-button variant='primary'>
             <span>{{'Resolved'}}</span>
           </b-button>
@@ -87,11 +87,20 @@ import { PageModule } from "@/store/modules/page";
 export default class ResultPage extends mixins(PageMixin) {
   question = null;
   questionId = null;
-  answers = [];
 
+  // the answers match selected conditions
+  matchingAnswers = [];
+
+  // the conditions that user selected
   selectedConditions = [];
+
+  // the conditions are showing
   activeConditions = [];
+
+  // the current condition's level is showing
   currentLevel = 0;
+
+  hasNextCondtion = true;
 
   created() {
     this.questionId = parseInt(this.$route.query.id, 10);
@@ -101,10 +110,9 @@ export default class ResultPage extends mixins(PageMixin) {
   }
 
   async getQuestion() {
-    // fake data to store
     this.question = await PageModule.getAnswerFromQuestion(this.questionId);
 
-    // Put first condition into activeConditions
+    // Display the first condition
     if (this.question.conditions?.length) {
       const firstCondition = this.question.conditions[0];
       if (firstCondition) {
@@ -114,47 +122,49 @@ export default class ResultPage extends mixins(PageMixin) {
     }
   }
 
-  get getAnswer() {
-    return this.question.conditions?.length > 0
-      ? this.answers
-      : this.question.answers;
-  }
+  get answer() {
+    if (this.question?.conditions?.length) {
+      if (this.matchingAnswers.length === 1 || (!this.hasNextCondtion && this.matchingAnswers.length)) {
+        return this.matchingAnswers[0];
+      }
+    } else if (this.question?.answers?.length) {
+      return this.question.answers[0];
+    }
 
-  get isShowAnswer() {
-    return (
-      (this.question.answers?.length >= 1 &&
-        this.question.conditions?.length === 0) ||
-      (this.answers?.length === 1 && this.question.conditions?.length > 0)
-    );
+    return null;
   }
 
   conditionSelected(event) {
-    this.currentLevel = event.level;
+    // Check if user select a level less than or equal current level
+    if (event.level <= this.currentLevel) {
+      this.checkReselectLevel(event.level);
+    }
 
-    // Check if user select a level lower than current level
-    this.checkSelectedLevel(event.level);
+    this.currentLevel = event.level;
 
     // Update selected conditions
     this.selectedConditions.push(event);
 
     // Get answers match selected conditions
-    this.answers = this.findMatchingAnswers(
+    this.matchingAnswers = this.findMatchingAnswers(
       this.question.answers,
       this.selectedConditions
     );
 
-    if (this.answers.length > 1) {
-      const nextGroup = this.findNextConditionGroup(this.currentLevel);
-      if (nextGroup) {
-        this.activeConditions.push(nextGroup);
-        this.currentLevel = nextGroup.conditionGroup.level;
+    if (this.matchingAnswers.length > 1) {
+      const nextCondition = this.findNextConditionGroup(this.currentLevel);
+      if (nextCondition) {
+        this.activeConditions.push(nextCondition);
+        this.currentLevel = nextCondition.conditionGroup.level;
+      } else {
+        this.hasNextCondtion = false;
       }
     }
   }
 
   findNextConditionGroup(currentLevel) {
     const conditionGroupIds = new Set();
-    this.answers.forEach((answer) => {
+    this.matchingAnswers.forEach((answer) => {
       const answerConditionGroupIds = Object.keys(answer.answerConditionMap);
       answerConditionGroupIds.forEach((i) => conditionGroupIds.add(i));
     });
@@ -166,9 +176,14 @@ export default class ResultPage extends mixins(PageMixin) {
     );
   }
 
-  checkSelectedLevel(selectedLevel) {
-    this.selectedConditions = this.selectedConditions.filter(item => item.level < selectedLevel);
-    this.activeConditions = this.activeConditions.filter(item => item.conditionGroup.level <= selectedLevel)
+  checkReselectLevel(selectedLevel) {
+    this.hasNextCondtion = true;
+    this.selectedConditions = this.selectedConditions.filter(
+      (item) => item.level < selectedLevel
+    );
+    this.activeConditions = this.activeConditions.filter(
+      (item) => item.conditionGroup.level <= selectedLevel
+    );
   }
 
   findMatchingAnswers(answers, conditions) {
