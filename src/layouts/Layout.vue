@@ -8,6 +8,7 @@
                     :src="logo"
                     alt="Login img"
                    />
+                   <span class ="main-title">よくあるお問い合わせ</span>
                 </b-navbar-brand> 
                 <!-- Right aligned nav items -->
                   <b-navbar-nav class="ml-auto user-dropdown">
@@ -125,6 +126,10 @@ export default class Layout extends Vue {
 .layout {
   height: 100%;
   position: relative;
+  .main-title{
+    color: #000;
+    font-weight: bold;
+  }
   .logo {
     height: 50px;
   }

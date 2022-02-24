@@ -12,7 +12,7 @@
                   />
        </div> -->
       <div>
-         <div class="reset-button" @click="$router.push({name:'search-page'})">
+         <div class="reset-button" @click="reset">
           <feather-icon
                     class="icon"
                     size="16"
@@ -36,9 +36,9 @@
            </div>
         </div>
        <div v-if="activeConditions.length" class="mt-1">
-         <condition-group v-for="item, index in activeConditions" :key="item.id" @selectedChange="conditionSelected" :data="item" :levelIndex="index+1" :selectedCondition="selectedCondition"/>
+         <condition-group v-for="item, index in activeConditions" :key="item.id" @selectedChange="conditionSelected" :data="item" :levelIndex="item.conditionGroup.level" :selectedConditions="selectedConditions"/>
        </div>
-        <div v-if="isShowAnswer" class="answer-content mt-1">
+        <div v-if="answer" class="answer-content mt-1">
             <div class="answer-title">
                  <feather-icon
                     class="icon mr-1"
@@ -48,19 +48,26 @@
                   <span>Answer</span>
             </div>
          <div class="content">
-            <div v-for="item,index in getAnswer" :key="index">
-            <span>{{item.text}}</span>
-          </div>
+            <div>
+              <span>{{answer.text}}</span>
+            </div>
          </div>
-       </div>
-        <div v-if="isShowAnswer" class='result mt-2'>
-          <b-button variant='primary'>
+           <div v-if="answer"   class='result'>
+          <b-button :disabled="resolveType!==null" @click="resolve('resolve')" variant='info'>
             <span>{{'Resolved'}}</span>
           </b-button>
-          <b-button class='ml-1' variant='outline-primary'>
+          <b-button :disabled="resolveType!==null" @click="resolve('unresolve')" class="unresolve ml-1" variant='info'>
             <span>{{'Unresolved'}}</span>
           </b-button>
         </div>
+       </div>
+       <div v-if="resolveType" class='after-resolve mt-1'>
+          <div class="message"><span v-html="message"></span></div>
+          <b-button  @click="reset" class="go-to-top mt-1" variant='info'>
+            <span>Go to top</span>
+          </b-button>
+        </div>
+       </div>
      </div>
    </div>
 </template>
@@ -83,96 +90,123 @@ import { PageModule } from "@/store/modules/page";
     Pin,
     ConditionGroup,
   },
-  created() {
-    this.questionId = parseInt(this.$route.query.id, 10);
-    if (this.questions.length > 0) this.getQuestion();
-  },
 })
 export default class ResultPage extends mixins(PageMixin) {
   question = null;
   questionId = null;
-  answers = [];
 
-  selectedCondition = [];
+  // the answers match selected conditions
+  matchingAnswers = [];
+
+  // the conditions that user selected
+  selectedConditions = [];
+
+  // the conditions are showing
   activeConditions = [];
-  currentLevel = 1;
+
+  // the current condition's level is showing
+  currentLevel = 0;
+  resolveMessage =
+    "Thank you for your answer. <br /> The information you send will be used as a reference for improving the content.";
+  unresolveMessage =
+    "Thank you for your answer. <br /> The information you send will be used as a reference for improving the content.";
+
+  hasNextCondtion = true;
+
+  resolveType = null;
+  created() {
+    this.questionId = parseInt(this.$route.query.id, 10);
+    if (this.questions.length > 0) {
+      this.getQuestion();
+    }
+  }
 
   async getQuestion() {
-    // fake data to store
     this.question = await PageModule.getAnswerFromQuestion(this.questionId);
 
-    // Put first condition into activeConditions
+    // Display the first condition
     if (this.question.conditions?.length) {
-      const firstCondition = this.question.conditions.find((item) => item.conditionGroup.level == this.currentLevel);
+      const firstCondition = this.question.conditions[0];
       if (firstCondition) {
         this.activeConditions.push(firstCondition);
+        this.currentLevel = firstCondition.conditionGroup.level;
       }
     }
   }
 
-  get getAnswer() {
-    return this.question.conditions?.length > 0
-      ? this.answers
-      : this.question.answers;
+  get answer() {
+    if (this.question?.conditions?.length) {
+      if (
+        this.matchingAnswers.length === 1 ||
+        (!this.hasNextCondtion && this.matchingAnswers.length)
+      ) {
+        return this.matchingAnswers[0];
+      }
+    } else if (this.question?.answers?.length) {
+      return this.question.answers[0];
+    }
+
+    return null;
   }
 
-  get isShowAnswer() {
-    return (
-      (this.question.answers?.length >= 1 &&
-        this.question.conditions?.length === 0) ||
-      (this.answers?.length === 1 && this.question.conditions?.length > 0)
-    );
+  get message() {
+    return this.resolveType === "resolve"
+      ? this.resolveMessage
+      : this.unresolveMessage;
   }
 
   conditionSelected(event) {
+    // Check if user select a level less than or equal current level
+    if (event.level <= this.currentLevel) {
+      this.checkReselectLevel(event.level);
+    }
+    this.resolveType = null;
     this.currentLevel = event.level;
 
-    // Check if user select a level lower than current level
-    this.checkSelectedLevel(event.level);
+    this.currentLevel = event.level;
 
     // Update selected conditions
-    this.selectedCondition = [...this.selectedCondition, event];
+    this.selectedConditions.push(event);
 
     // Get answers match selected conditions
-    this.answers = this.findMatchingAnswers(
+    this.matchingAnswers = this.findMatchingAnswers(
       this.question.answers,
-      this.selectedCondition
+      this.selectedConditions
     );
 
-    if (this.answers.length > 1) {
-      const nextGroup = this.findNextConditionGroup(this.currentLevel + 1);
-      if (nextGroup) {
-        this.activeConditions.push(nextGroup);
-        this.currentLevel++;
+    if (this.matchingAnswers.length > 1) {
+      const nextCondition = this.findNextConditionGroup(this.currentLevel);
+      if (nextCondition) {
+        this.activeConditions.push(nextCondition);
+        this.currentLevel = nextCondition.conditionGroup.level;
+      } else {
+        this.hasNextCondtion = false;
       }
     }
   }
 
-  findNextConditionGroup(nextLevel) {
+  findNextConditionGroup(currentLevel) {
     const conditionGroupIds = new Set();
-    this.answers.forEach((answer) => {
+    this.matchingAnswers.forEach((answer) => {
       const answerConditionGroupIds = Object.keys(answer.answerConditionMap);
       answerConditionGroupIds.forEach((i) => conditionGroupIds.add(i));
     });
 
     return this.question.conditions.find(
       (item) =>
-        item.conditionGroup.level == nextLevel &&
+        item.conditionGroup.level > currentLevel &&
         conditionGroupIds.has(item.conditionGroup.id + "")
     );
   }
 
-  checkSelectedLevel(selectedLevel) {
-    if (selectedLevel <= this.selectedCondition.length) {
-      this.selectedCondition = this.selectedCondition.slice(
-        0,
-        selectedLevel - 1
-      );
-    }
-
-    if (selectedLevel < this.activeConditions.length) {
-      this.activeConditions = this.activeConditions.slice(0, selectedLevel);
-    }
+  checkReselectLevel(selectedLevel) {
+    this.hasNextCondtion = true;
+    this.selectedConditions = this.selectedConditions.filter(
+      (item) => item.level < selectedLevel
+    );
+    this.activeConditions = this.activeConditions.filter(
+      (item) => item.conditionGroup.level <= selectedLevel
+    );
   }
 
   findMatchingAnswers(answers, conditions) {
@@ -186,6 +220,13 @@ export default class ResultPage extends mixins(PageMixin) {
         return answerCondition.condition.find((i) => i.id === conditionId);
       });
     });
+  }
+
+  resolve(type) {
+    this.resolveType = type;
+  }
+  reset() {
+    this.$router.push({ name: "search-page" });
   }
 
   @Watch("questions")
@@ -253,18 +294,22 @@ export default class ResultPage extends mixins(PageMixin) {
     }
   }
   .answer-title {
-    margin-bottom: 0.25rem;
+    background: #fff;
+    padding: 10px;
     font-weight: bold;
     .icon {
       stroke: #138d75;
     }
   }
   .answer-content {
-    // background: rgba(0, 207, 232, 0.12);
-    padding: 10px 5px;
+    background: rgba(40, 199, 111, 0.12);
+    padding: 0px 0px 0px 5px;
+    border-bottom: 2px solid rgba(40, 199, 111, 0.12);
     // border-radius: 0.375rem;
-    .content{
+    .content {
       padding-left: 50px;
+      background: #fff;
+      padding: 20px;
     }
   }
   .question-pin {
@@ -276,6 +321,17 @@ export default class ResultPage extends mixins(PageMixin) {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 10px;
+  }
+  .after-resolve {
+    text-align: center;
+    .message {
+      display: flex;
+      justify-content: center;
+    }
+  }
+  .btn-info {
+    color: #fff !important;
   }
 }
 </style>

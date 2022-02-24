@@ -3,7 +3,7 @@
      <div class="title">
        {{ data.conditionGroup.label }}
      </div>
-     <condition @selectedChange="conditionChange" v-for="item in data.condition" :key="item.id" :data="item" :isSelected="getConditionSelected(item.id)"/>
+     <condition @selectedChange="conditionChange" v-for="item in data.condition" :key="item.id" :data="item" :isSelected="isConditionSelected(item.id)"/>
     </div>
 </template>
 <script lang="ts">
@@ -22,11 +22,11 @@ export default class ConditionGroup extends Vue {
   private levelIndex!: number;
 
   @Prop({ default: [] })
-  private selectedCondition!: any;
+  private selectedConditions!: any;
 
-  getConditionSelected(conditionId: number) {
-    if (this.selectedCondition) {
-      let condition = this.selectedCondition.find(
+  isConditionSelected(conditionId: number) {
+    if (this.selectedConditions) {
+      let condition = this.selectedConditions.find(
         (x: any) => x.conditionGroupId === this.data.conditionGroup.id
       );
       if (condition) return condition.conditionId === conditionId;
