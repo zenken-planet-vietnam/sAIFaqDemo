@@ -31,6 +31,15 @@ export const constantRoutes: RouteConfig[] = [
         path: '/settings',
         name: 'settings',
         component: () => import('@/views/pages/SettingPage.vue'),
+        children: [
+
+        ]
+    },
+    {
+        path: '/pinned-query/:pinnedQueryId/:pinnedQueryLabel',
+        name: 'pinnedQueryDetail',
+        props: true,
+        component: () => import('@/components/settings/PinnedQuestionDraggable.vue')
     }
 ]
 

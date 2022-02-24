@@ -43,6 +43,8 @@ class Page extends VuexModule implements IPageState {
     public searchResults = []
     // search word
     public searchWords = []
+    // before question result without filter by result pinning
+    public fullQuestions = []
     // text user input
     public textSearch = ''
     // selected tags
@@ -101,6 +103,7 @@ class Page extends VuexModule implements IPageState {
         this.textSearch = payload.text
         this.searchWords = payload.words
         this.searchResults = payload.result
+        this.fullQuestions = payload.fullQuestions
     }
     @Mutation
     UPDATE_TAG_FILTER(payload: any) {
@@ -115,7 +118,8 @@ class Page extends VuexModule implements IPageState {
 
     @Mutation
     UPDATE_QUESTION_PINNING(payload: any) {
-        this.tagPakage.questionPinnings = payload.data.map((x: any) => ({ keyword: x.keyword, questionIds: x.question_ids }))
+        this.tagPakage.questionPinnings = payload.data.map((x: any) => ({ keyword: x.keyword,
+            questionIds: x.promoted_results, hiddenIds: x.hidden_results }))
     }
 
     @Action
@@ -189,6 +193,7 @@ class Page extends VuexModule implements IPageState {
         const data = {
             result: result.questions.map((obj: any) => ({ ...obj, isSelected: false, answers: [] })),
             words: result.words,
+            fullQuestions: result.fullQuestions,
             text
         }
         this.UPDATE_QUESTIONS_FILTER(data)

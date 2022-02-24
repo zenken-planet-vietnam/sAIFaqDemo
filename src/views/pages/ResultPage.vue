@@ -108,6 +108,9 @@ export default class ResultPage extends mixins(PageMixin) {
 
   // the current condition's level is showing
   currentLevel = 0;
+
+  hasNextCondition = true;
+
   resolveMessage =
     "Thank you for your answer. <br /> The information you send will be used as a reference for improving the content.";
   unresolveMessage =
@@ -115,6 +118,7 @@ export default class ResultPage extends mixins(PageMixin) {
   hasNextCondtion = true;
 
   resolveType = null;
+
   created() {
     this.questionId = parseInt(this.$route.query.id, 10);
     if (this.questions.length > 0) {
@@ -136,14 +140,14 @@ export default class ResultPage extends mixins(PageMixin) {
   }
 
   get answer() {
+    // If question has conditions then return matching answers
     if (this.question?.conditions?.length) {
-      if (
-        this.matchingAnswers.length === 1 ||
-        (!this.hasNextCondtion && this.matchingAnswers.length)
-      ) {
+      if (this.matchingAnswers.length === 1 || (!this.hasNextCondition && this.matchingAnswers.length > 1)) {
         return this.matchingAnswers[0];
       }
-    } else if (this.question?.answers?.length) {
+    } 
+    // Otherwise return answer from response data
+    else if (this.question?.answers?.length) {
       return this.question.answers[0];
     }
 
@@ -161,8 +165,8 @@ export default class ResultPage extends mixins(PageMixin) {
     if (event.level <= this.currentLevel) {
       this.checkReselectLevel(event.level);
     }
+
     this.resolveType = null;
-    this.currentLevel = event.level;
 
     this.currentLevel = event.level;
 
@@ -181,7 +185,7 @@ export default class ResultPage extends mixins(PageMixin) {
         this.activeConditions.push(nextCondition);
         this.currentLevel = nextCondition.conditionGroup.level;
       } else {
-        this.hasNextCondtion = false;
+        this.hasNextCondition = false;
       }
     }
   }
@@ -201,7 +205,7 @@ export default class ResultPage extends mixins(PageMixin) {
   }
 
   checkReselectLevel(selectedLevel) {
-    this.hasNextCondtion = true;
+    this.hasNextCondition = true;
     this.selectedConditions = this.selectedConditions.filter(
       (item) => item.level < selectedLevel
     );

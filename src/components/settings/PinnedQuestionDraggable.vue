@@ -1,154 +1,111 @@
 <template>
-  <b-row>
-    <b-col md="12">
-      <h4>Pinned Questions</h4>
-      <b-row class="mb-2">
-        <b-col md="2">
-          <b-button variant="primary" @click="addNewQuestion">+</b-button>
-
-        </b-col>
-      </b-row>
-      <draggable
-        class="list-group"
-        tag="ul"
-        v-model="pinnedQuestionList"
-        v-bind="dragOptions"
-        @start="drag = true"
-        @end="drag = false"
-        @change="orderChange"
-      >
-        <transition-group type="transition" :name="!drag ? 'flip-list' : null">
-          <li
-            class="list-group-item"
-            v-for="element in pinnedQuestionList"
-            :key="element.question_id"
-          >
-            <i
-              :class="
-                element.fixed ? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'
-              "
-              @click="element.fixed = !element.fixed"
-              aria-hidden="true"
-            ></i>
-            #{{ element.display_order }} {{element.label }}
-          </li>
-        </transition-group>
-      </draggable>
-    </b-col>
-  </b-row>
+  <div class="settings card">
+    <div class="mb-1 d-flex align-items-center">
+      <b-link class="d-flex align-items-center" @click="$router.push({name:'settings'})">
+        <feather-icon icon="ArrowLeftIcon"/> Back
+      </b-link>
+    </div>
+    <b-tabs
+        v-model="tabIndex"
+      active-nav-item-class="font-weight-bold"
+      content-class="mt-1"
+    >
+      <b-tab active>
+        <template #title>
+          Promoted Results <span class="sai-badges"> {{countPromotedQuestion}}</span>
+        </template>
+        <promoted-results/>
+      </b-tab>
+      <b-tab lazy>
+        <template #title>
+          Hidden Results <span class="sai-badges"> {{countHiddenQuestion}}</span>
+        </template>
+        <hidden-results/>
+      </b-tab>
+    </b-tabs>
+    <div>
+      <query-search-results/>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import draggable from "vuedraggable";
-import {Component, Prop} from "vue-property-decorator";
-import {BCol, BRow, BTable} from "bootstrap-vue";
+import {Component} from "vue-property-decorator";
+import { BTabs} from "bootstrap-vue";
 import SettingMixin from "@/@core/mixins/settingMixin";
-import { mixins } from "vue-class-component";
+import {mixins} from "vue-class-component";
 import {SettingModule} from "@/store/modules/setting";
+import {PageModule} from "@/store/modules/page";
+import {default as HiddenResults} from "./HiddenResults.vue";
+import {default as PromotedResults} from "./PromotedResults.vue";
+import {default as QuerySearchResults} from "./QuerySearchResults.vue";
 
 @Component({
   components: {
-    BRow,
-    BCol,
-    BTable,
-    draggable,
+    BTabs,
+    "hidden-results": HiddenResults,
+    "promoted-results": PromotedResults,
+    "query-search-results": QuerySearchResults,
   },
 })
 export default class PinnedQuestionDraggable extends mixins(SettingMixin) {
-  message = [
-    "vue.draggable",
-    "draggable",
-    "component",
-    "for",
-    "vue.js 2.0",
-    "based",
-    "on",
-    "Sortablejs"
-  ];
-  drag = false
-  isLoading = false
+  tabIndex: any = 1
 
-  @Prop({ default: [] })
-  private items!: Array<object>;
-
-  @Prop({ default: {} })
-  private queryItem!: object;
-
-  sort() {
-    this.items = this.items.sort((a:any, b:any) => a.order - b.order);
+  increaseTab() {
+    this.tabIndex++
   }
 
-  addNewQuestion() {
-    this.isLoading = true
-    // this.items.push({name: "new message", order: this.items.length + 1})
+  decreaseTab() {
+    this.tabIndex--
   }
 
-  orderChange(e: any) {
-    // this.items = this.items.map((name:any, index:any) => {
-    //     return { name, order: index + 1 };
-    //   })
-    // this.fetchDataPinnedQuestion()
-    // this.items = this.pinnedQuestionByQueryID
-    console.log(e)
-    // console.log("AFTER CHANGED: ")
-    // console.log(this.pinnedQuestionList)
+  async fetchDataPinnedQuestion(queryId: any) {
+    await SettingModule.getPinnedQuestionByQuery(queryId)
   }
-  get dragOptions() {
-      return {
-        animation: 200,
-        group: "description",
-        disabled: false,
-        ghostClass: "ghost"
-      };
-    }
-  get loadingPanel() {
-    return this.isLoading
-  }
-  async fetchDataPinnedQuestion() {
-      await SettingModule.getPinnedQuestionByQuery(this.queryItem, {})
+  async fetchDataQuestionByQuery(text: any) {
+    let searchText = text.toLowerCase().trim();
+    PageModule.updateProcess(true);
+    PageModule.filterQuestions(searchText)
   }
 
-  get pinnedQuestionList() {
+  async created() {
+    this.$store.state.config.isLoading = true;
+    await this.fetchDataPinnedQuestion(this.$route.params.pinnedQueryId)
+    await this.fetchDataQuestionByQuery(this.$route.params.pinnedQueryLabel)
+    this.$store.state.config.isLoading = false;
+  }
+
+  get countPromotedQuestion() {
     return this.pinnedQuestionByQueryID
+        .filter((item: any) => item.pin_type).length
   }
 
-  set pinnedQuestionList(value: any) {
-    SettingModule.setPinnedQuestionList({
-      queryItem: this.queryItem, value:value
-    })
+  get countHiddenQuestion() {
+    return this.pinnedQuestionByQueryID
+        .filter((item: any) => !item.pin_type).length
   }
+
 }
-
-
 </script>
 
 <style scoped>
-.button {
-  margin-top: 35px;
+.sai-badges {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  padding: 0 8px;
+  display: inline-block;
+  text-decoration: none;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  background-color: initial;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: default;
+  max-width: 100%;
+  text-align: left;
+  background-color: #bce4b7;
+  color: rgb(0, 0, 0);
 }
 
-.flip-list-move {
-  transition: transform 0.5s;
-}
-
-.no-move {
-  transition: transform 0s;
-}
-
-.ghost {
-  opacity: 0.5;
-  background: #c8ebfb;
-}
-
-.list-group {
-  min-height: 20px;
-}
-
-.list-group-item {
-  cursor: move;
-}
-
-.list-group-item i {
-  cursor: pointer;
-}
 </style>

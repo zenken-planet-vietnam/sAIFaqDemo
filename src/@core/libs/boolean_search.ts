@@ -22,8 +22,15 @@ export class BooleanSearch extends FullTextSearch {
         // const text=tags.map((elem:any)=>{return elem.text}).join(" & ")+query.length>0 ?' $ '+query:''
         const text = tags.length > 0 ? tags.map((elem: any) => { return elem.text; }).join(" & ") + (query.length > 0 ? ' & ' + query : '') : query
         let pinningResult: any = []
-        if (!categoryId)
-            pinningResult = this.getQuestionPinings(text)
+        let hiddenResult: any = []
+        let result: any = null
+
+        if (!categoryId) {
+            result = this.getQuestionPinings(text)
+            pinningResult = result.promotedQuestions
+            hiddenResult = result.hiddenQuestions
+        }
+
         const words = tinySegmenter.segmentNoneSpace(query)
         tags.forEach((element: any) => {
             words.push(element.text)
@@ -37,29 +44,54 @@ export class BooleanSearch extends FullTextSearch {
         const postfix = expression.createBinaryTree(text);
         const results = this.recursiveSearch(postfix, questionFilter)
         const questions: any = pinningResult?.length ? pinningResult : []
+        const hiddenList: any = hiddenResult?.length ? hiddenResult : []
+        //for displaying in Setting page
+        const fullQuestionList: any = []
+
         results.forEach((element: any) => {
-            if (!questions.find((x: any) => { return x.id === element }))
-                questions.push(this.scriptData.questions.find((x: any) => x.id === element))
+            if (!questions.find((x: any) => { return x.id === element })) {
+                const findItem = this.scriptData.questions.find((x: any) => x.id === element)
+                if (!hiddenList.find((y: any) => { return y.id === element}))
+                    questions.push(findItem)
+            }
+            if (!fullQuestionList.find((x:any) => { return x.id === element})){
+                const findItem = this.scriptData.questions.find((x: any) => x.id === element)
+                fullQuestionList.push(findItem)
+            }
         });
+
         return {
             // questions: [...new Set([...unionQuestions, ...intersectQuestions, ...excludeQuestions])],
             questions,
+            fullQuestions: fullQuestionList,
             words: [...words.map(x => x.replace(/[^a-zA-Z0-9]/g, '')).filter(y => y.length > 0), ...this.levenWords]
         }
     }
     getQuestionPinings(query: string) {
-        const result = this.scriptData?.questionPinnings?.find((x: any) => x.keyword.toLowerCase() === query.trim().toLocaleLowerCase())
+        const result = this.scriptData?.questionPinnings?.find(
+            (x: any) => x.keyword.toLowerCase() === query.trim().toLocaleLowerCase())
         if (result) {
-            return result.questionIds.map((item: any) => {
+            const promotedQuestions = result.questionIds.map((item: any) => {
                 let question = { ...this.scriptData.questions.find((x: any) => x.id === item) }
                 if (question) {
                     question = { ...question, isPinned: true }
                 }
                 return question
             })
+
+            const hiddenQuestions = result.hiddenIds.map((item: any) => {
+                let question = { ...this.scriptData.questions.find((x: any) => x.id === item) }
+                if (question) {
+                    question = { ...question, isPinned: false }
+                }
+                return question
+            })
+
+            return {promotedQuestions, hiddenQuestions}
         }
-        return []
+        return {promotedQuestions: [], hiddenQuestions: []}
     }
+
     // recursive serch from child operation-> parent operation
     recursiveSearch(node: any, searchFilter: any) {
         let left: any = [], right: any = []

@@ -9,6 +9,8 @@ export default class HighLight extends Vue {
   private text!: String;
   @Prop({ default: "" })
   private targets!: Array<any>;
+  @Prop({default: "red"})
+  private textColor!: String;
 
   // get text highlight
   get htmlString() {
@@ -17,15 +19,13 @@ export default class HighLight extends Vue {
     }
     const patternStr = "(?:" + this.targets.join("|") + ")";
     const caseInsensitiveMatching = new RegExp(patternStr, "gi");
+    const style = `background: ${this.textColor};`
     return this.text.replace(
       caseInsensitiveMatching,
-      (matched) => `<span class="hl">${matched}</span>`
+      (matched) => `<span style="${style}" class="hl">${matched}</span>`
     );
   }
 }
 </script>
 <style lang="scss" scoped>
-/deep/ .hl {
-  background: red;
-}
 </style>
