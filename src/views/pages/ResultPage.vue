@@ -68,13 +68,14 @@
           </b-button>
         </div>
        </div>
+        <enquete :id="enqueteModalId" :type="resolveType"/>
      </div>
    </div>
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
 import { BFormInput, BFormGroup, BForm, BButton } from "bootstrap-vue";
-import { SearchForm, Pin, ConditionGroup } from "@/components/questions";
+import { SearchForm, Pin, ConditionGroup, Enquete } from "@/components/questions";
 import { Component, Watch } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
 import PageMixin from "@/@core/mixins/searchDataMixin";
@@ -89,12 +90,13 @@ import { PageModule } from "@/store/modules/page";
     BButton,
     Pin,
     ConditionGroup,
+    Enquete
   },
 })
 export default class ResultPage extends mixins(PageMixin) {
   question = null;
   questionId = null;
-
+  enqueteModalId="enquete-modal"
   // the answers match selected conditions
   matchingAnswers = [];
 
@@ -109,8 +111,7 @@ export default class ResultPage extends mixins(PageMixin) {
   resolveMessage =
     "Thank you for your answer. <br /> The information you send will be used as a reference for improving the content.";
   unresolveMessage =
-    "Thank you for your answer. <br /> The information you send will be used as a reference for improving the content.";
-
+    "Thank you for your answer. <br /> Please tell me why you not resolve question"
   hasNextCondtion = true;
 
   resolveType = null;
@@ -224,6 +225,7 @@ export default class ResultPage extends mixins(PageMixin) {
 
   resolve(type) {
     this.resolveType = type;
+    this.$bvModal.show(this.enqueteModalId)
   }
   reset() {
     this.$router.push({ name: "search-page" });
@@ -329,9 +331,6 @@ export default class ResultPage extends mixins(PageMixin) {
       display: flex;
       justify-content: center;
     }
-  }
-  .btn-info {
-    color: #fff !important;
   }
 }
 </style>

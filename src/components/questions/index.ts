@@ -8,4 +8,4 @@ export { default as SearchResult } from "./SearchResult.vue"
 export { default as Tag } from "./Tags.vue"
 export { default as ConditionGroup } from "./ConditionGroup.vue"
 export { default as Condition } from "./Condition.vue"
-
+export { default as Enquete } from "./Enquete.vue"

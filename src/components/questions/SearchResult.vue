@@ -43,6 +43,7 @@ export default class SearchResult extends mixins(PageMixin) {
   &.result-modal {
     position: absolute;
     background: whitesmoke;
+    z-index: 1000;
   }
 }
 </style>

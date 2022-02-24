@@ -1,5 +1,11 @@
 <template lang="">
     <div class="search-form">
+      <div  class="search-title">
+       <div class="search-icon">
+          <feather-icon size="16" icon="SearchIcon"/>
+       </div>
+        <span>Search by Keyword</span>
+      </div>
        <div class="search-container">
           <div class="search">
             <tag v-if="selectedCategory&&selectedCategory!==null&&selectedCategory.isActive" :data="selectedCategoryTag" :isSelectedTag="true" @click="unActiveFilter"/>
@@ -112,6 +118,22 @@ export default class SearchForm extends mixins(PageMixin) {
 <style lang="scss">
 .search-form {
   position: relative;
+  .search-title{
+    padding: 10px 0px;
+    display: flex;
+    align-items: center;
+    .search-icon{
+      margin-right: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      width:26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #0062cc;
+    }
+  }
   .search-container {
     display: flex;
     border: 1px solid #ced4da;

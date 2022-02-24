@@ -1,5 +1,5 @@
 <template lang="">
-    <div @click="getAnswerFromQuestion(data)" class="question-item">
+    <div @click="selectQuestion(data)" class="question-item">
       <div class="question-content">
             <feather-icon
                     class="icon"
@@ -38,7 +38,7 @@ export default class QuestionItem extends mixins(PageMixin) {
     return this?.searchWords;
   }
 
-  getAnswerFromQuestion(data: any) {
+  selectQuestion(data: any) {
     // call analytics api
     let sa = (window as any).sa;
     if (sa) {
@@ -54,7 +54,18 @@ export default class QuestionItem extends mixins(PageMixin) {
       sa.send(sendData);
     }
     PageModule.updateProcess(false);
+    this.setRecentQuestion(data.id)
     this.$router.push({ name: "result-page", query: { id: data.id } });
+  }
+
+  setRecentQuestion(id:any){
+   let recentQuestionIds:any=[]
+   let localData= localStorage.getItem("recent-faq")
+   if(localData) recentQuestionIds=JSON.parse(localData)
+   if(!recentQuestionIds?.length) recentQuestionIds=[id]
+    else recentQuestionIds=[...new Set([id,...recentQuestionIds])]
+    recentQuestionIds=recentQuestionIds.slice(0,5)
+    localStorage.setItem("recent-faq", JSON.stringify(recentQuestionIds))
   }
 }
 </script>

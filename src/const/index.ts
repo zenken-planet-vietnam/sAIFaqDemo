@@ -1,3 +1,2 @@
-export default {
-    "SEARCH_BUTTON": true
-}
+export  {default   as config}from './config'
+export {default as enquete} from './enquete'
