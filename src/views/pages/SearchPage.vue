@@ -48,26 +48,29 @@ import PageMixin from "@/@core/mixins/searchDataMixin";
 })
 export default class SearchPage extends mixins(PageMixin) {
   get recentlyQuestions() {
-    let faqIds = this.localFaq()
-    return faqIds.map((x:any)=>{return this.questions.find((y:any)=>y.id===x)
-    })
+    let faqIds = this.localFaq();
+    if (faqIds?.length && this.questions?.length)
+      return faqIds.map((x: any) => {
+        return this.questions.find((y: any) => y.id === x);
+      });
+    return [];
   }
 
   get showRecentlyQuestions() {
-    return this.localFaq()?.length
+    return this.localFaq()?.length;
   }
-  
-  localFaq(){
-    let recentFagIds:any=[]
+
+  localFaq() {
+    let recentFagIds: any = [];
     let localData = localStorage.getItem("recent-faq");
-    if(localData) recentFagIds=JSON.parse(localData)
-    return recentFagIds
+    if (localData) recentFagIds = JSON.parse(localData);
+    return recentFagIds;
   }
 }
 </script>
 <style lang="scss">
-.search-page-container{
-  .faq-title{
+.search-page-container {
+  .faq-title {
     padding: 10px 0px;
     border-bottom: 2px solid #138d75;
   }
