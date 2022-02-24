@@ -115,7 +115,7 @@ class Page extends VuexModule implements IPageState {
 
     @Mutation
     UPDATE_QUESTION_PINNING(payload: any) {
-        this.tagPakage.questionPinnings = payload.data.map((x: any) => ({ keyword: x.keyword, questionIds: x.question_ids }))
+        this.tagPakage.questionPinnings = payload.data.map((x: any) => ({ keyword: x.keyword, questionIds: x.promoted_results, hiddenIds: x.hidden_results }))
     }
 
     @Action

@@ -1,40 +1,42 @@
 <template>
   <div class="settings card">
     <div class="title">
-      {{'Settings'}}
+      Settings
     </div>
-    <b-row class="mt-2">
-      <b-col md="2">
-        <b-button variant="primary" size="sm" @click="addKeyword" class="mr-2">
+    <b-row class="mt-2 flex-row-reverse">
+      <b-col md="3">
+        <b-button v-b-modal="modalId" variant="primary" size="sm" style="float: right;">
           <feather-icon icon="PlusIcon"></feather-icon>
+          Create a query
         </b-button>
+        <modal-form @formSubmited="addNewQuery" :modalTitle="modalTitle"
+                    :modalLabel="modalLabel" :modalId="modalId" :placeholder="'Type a query'"/>
       </b-col>
     </b-row>
     <b-row class="mt-2 row-border">
       <b-col md="12">
-        <b-table hover :fields="fields" :items="this.pinnedQueriesData">
+        <b-table ref="queryTable" hover :fields="fields" :items="this.pinnedQueriesData">
           <template #cell(keyword)="row">
-            <b-link @click="detailKeyword(row.item)">{{ row.item.label }}</b-link>
+            <b-link @click="$router.push({
+            name:'pinnedQueryDetail',
+            params: {'pinnedQueryId': row.item.id, 'pinnedQueryLabel': row.item.label}})">
+              {{ row.item.label }}
+            </b-link>
           </template>
           <template #cell(modified)="row">
             <span>{{ formatDatetime(row.item.modified) }}</span>
           </template>
           <template #cell(action)="row">
-            <b-button variant="outline-warning" size="sm" @click="updateKeyword(row.item, row.index)" class="mr-1">
+            <b-button v-b-modal="modalUpdateId" variant="outline-warning" size="sm" @click="updateQuery(row.item, row.index)" class="mr-1">
               <feather-icon icon="Edit2Icon"></feather-icon>
             </b-button>
-
             <b-button variant="outline-danger" size="sm" @click="deleteKeyword(row.item, row.index)">
               <feather-icon icon="TrashIcon"></feather-icon>
             </b-button>
           </template>
         </b-table>
       </b-col>
-      </b-row>
-    <b-row v-if="this.isSelected" class="mt-2 row-border">
-      <b-col class="">
-        <pinned-question-draggable :queryItem="selectedQueryItem" :items="this.pinnedQuestionByQueryID"/>
-      </b-col>
+      <modal-form @formSubmited="updateFormSubmitted" :placeholder="selectedLabel" :modalTitle="modalUpdateTitle" :modalLabel="modalUpdateLabel" :modalId="modalUpdateId"/>
     </b-row>
   </div>
 </template>
@@ -48,6 +50,7 @@ import { Component } from "vue-property-decorator";
 import SettingMixin from "@/@core/mixins/settingMixin";
 import {SettingModule} from "@/store/modules/setting";
 import { mixins } from "vue-class-component";
+import ModalForm from "@/components/common/ModalForm.vue"
 
 @Component({
   components: {
@@ -55,6 +58,7 @@ import { mixins } from "vue-class-component";
     BCol,
     BTable,
     PinnedQuestionDraggable,
+    ModalForm,
   },
 })
 export default class Settings extends mixins(SettingMixin) {
@@ -66,6 +70,16 @@ export default class Settings extends mixins(SettingMixin) {
   items = [
 
   ]
+  modalTitle = "Pinned a query"
+  modalId = "modal-create-query"
+  modalLabel = "Query"
+  modalUpdateTitle = "Update a query"
+  modalUpdateId = "modal-update-query"
+  modalUpdateLabel = "Query"
+  selectedLabel = ""
+  edittingItem = null
+  edittingIndex = null
+
   created() {
     this.fetchingData()
   }
@@ -77,28 +91,43 @@ export default class Settings extends mixins(SettingMixin) {
     this.$store.state.config.isLoading = false;
   }
   deleteKeyword(item: any, index: number) {
-    console.log(item, index)
+    this.$bvModal.msgBoxConfirm('Please confirm that you want to delete.', {
+      title: 'Please Confirm',
+      size: 'sm',
+      buttonSize: 'sm',
+      okVariant: 'danger',
+      okTitle: 'YES',
+      cancelTitle: 'NO',
+      footerClass: 'p-2',
+      hideHeaderClose: false,
+      centered: true
+    })
+      .then((isOk) => {
+        if (isOk)
+          SettingModule.deletePinnedQuery({pinnedQueryId: item.id, index: index})
+      })
+      .catch(() => {
+      })
+
   }
-  updateKeyword(item: any, index: number) {
-    console.log(item, index)
+  updateQuery(item: any, index: number) {
+    this.selectedLabel = item.label
+    this.edittingItem = item
+    this.edittingIndex = index
   }
-  formatDatetime(dt: any) {
-    return new Date(dt).toLocaleString()
+  updateFormSubmitted(data: any) {
+    SettingModule.updatePinnedQuery({
+      payload: {label: data},
+      pinnedQueryId: this.edittingItem.id,
+      index: this.edittingIndex,
+    })
   }
-  addKeyword() {
-    if (this.keyword) {
-      let newId = this.idValue + 1
-      this.idValue = newId
-      // this.items.push({id: newId, keyword:this.keyword, last_update: '2022-02-15 09:33:13'})
+
+
+  addNewQuery(data: any) {
+    if (data) {
+      SettingModule.addPinnedQuery({label: data})
     }
-  }
-  async fetchDataPinnedQuestion(item: any) {
-      await SettingModule.getPinnedQuestionByQuery(item, {})
-  }
-  detailKeyword(item: any) {
-    this.isSelected = true
-    this.fetchDataPinnedQuestion(item)
-    this.selectedQueryItem = item
   }
 }
 </script>
@@ -109,7 +138,6 @@ export default class Settings extends mixins(SettingMixin) {
   border: 1px solid #d3dae6;
   padding: 15px;
 }
-
 
 .settings {
   .title {
@@ -127,6 +155,7 @@ export default class Settings extends mixins(SettingMixin) {
     }
   }
 }
+
 a {
   text-decoration: none;
   color: #0071c2 !important;
