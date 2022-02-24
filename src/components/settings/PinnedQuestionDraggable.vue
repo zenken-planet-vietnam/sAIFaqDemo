@@ -6,6 +6,7 @@
       </b-link>
     </div>
     <b-tabs
+        v-model="tabIndex"
       active-nav-item-class="font-weight-bold"
       content-class="mt-1"
     >
@@ -48,6 +49,16 @@ import {default as QuerySearchResults} from "./QuerySearchResults.vue";
   },
 })
 export default class PinnedQuestionDraggable extends mixins(SettingMixin) {
+  tabIndex: any = 1
+
+  increaseTab() {
+    this.tabIndex++
+  }
+
+  decreaseTab() {
+    this.tabIndex--
+  }
+
   async fetchDataPinnedQuestion(queryId: any) {
     await SettingModule.getPinnedQuestionByQuery(queryId)
   }

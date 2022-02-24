@@ -10,10 +10,10 @@
             <b-card class="mt-1 question-search-item"
                     :sub-title="'Last updated ' + formatDatetime(question.modified)">
               <template #header>
-                <high-light class="question-title" :textColor="'rgba(14,183,84,0.21)'" :text="question.title" :targets="getTargets"/>
+                <high-light class="question-title" :textColor="'rgba(14,183,84,0.21)'" :text="question.label" :targets="getTargets"/>
               </template>
               <b-card-text>
-                <high-light :textColor="'rgba(14,183,84,0.21)'" :text="question.label" :targets="getTargets"/>
+                <high-light :textColor="'rgba(14,183,84,0.21)'" :text="question.title" :targets="getTargets"/>
               </b-card-text>
               <b-button variant="outline-success" @click="promoteQuestion(question)" size="sm" class="mr-1">
                 <feather-icon icon="PaperclipIcon"></feather-icon>
@@ -65,7 +65,7 @@ export default class QuerySearchResults extends mixins(SettingMixin) {
   }
 
   get getQuestionSearchResult() {
-    const array = PageModule.searchResults
+    const array = PageModule.fullQuestions
     return array.filter((elem) => !this.pinnedQuestionByQueryID.find(({question_id}) => elem.id === question_id))
   }
 

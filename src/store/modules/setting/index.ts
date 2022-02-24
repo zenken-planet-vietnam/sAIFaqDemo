@@ -50,8 +50,16 @@ export default class Setting extends VuexModule implements ISettingState {
     @Mutation
     private SET_PINNED_QUESTION_DATA(payload: any) {
         const hiddenQuestions = this.pinnedQuestion.filter((item: any) =>  !item.pin_type )
+
+        let countOrder:any = 1
         this.pinnedQuestion = payload.map((item: any, index: any) => {
-            return {...item, order: index + 1, display_order: index + 1};
+            if (item.pin_type) {
+                const question = {...item, order: countOrder, display_order: countOrder}
+                countOrder++;
+                return question;
+            } else {
+                return {...item}
+            }
         })
         this.pinnedQuestion = [...this.pinnedQuestion, ...hiddenQuestions]
     }
@@ -60,16 +68,30 @@ export default class Setting extends VuexModule implements ISettingState {
     private UNPIN_QUESTION_DATA(payload: any) {
         const questionId = payload.questionId
         this.pinnedQuestion = this.pinnedQuestion.filter((item: any) => item.question_id !== questionId)
+
+        let countOrder:any = 1
         this.pinnedQuestion = this.pinnedQuestion.map((item: any, index: any) => {
-            return {...item, order: index + 1, display_order: index + 1};
+            if (item.pin_type) {
+                const question = {...item, order: countOrder, display_order: countOrder}
+                countOrder++;
+                return question;
+            } else {
+                return {...item}
+            }
         })
     }
 
     @Mutation
     private ADD_PINNED_QUESTION_DATA(payload: any) {
         this.pinnedQuestion.push(payload)
+        let countOrder: any = 1
         this.pinnedQuestion = this.pinnedQuestion.map((item: any, index: any) => {
-            return {...item, order: index + 1, display_order: index + 1};
+            if (item.pin_type) {
+                const question = {...item, order: countOrder, display_order: countOrder}
+                countOrder++;
+                return question;
+            }
+            return {...item}
         })
     }
 
