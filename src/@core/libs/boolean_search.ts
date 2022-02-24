@@ -53,10 +53,13 @@ export class BooleanSearch extends FullTextSearch {
                 const findItem = this.scriptData.questions.find((x: any) => x.id === element)
                 if (!hiddenList.find((y: any) => { return y.id === element}))
                     questions.push(findItem)
+            }
+            if (!fullQuestionList.find((x:any) => { return x.id === element})){
+                const findItem = this.scriptData.questions.find((x: any) => x.id === element)
                 fullQuestionList.push(findItem)
             }
         });
-        console.log(fullQuestionList)
+
         return {
             // questions: [...new Set([...unionQuestions, ...intersectQuestions, ...excludeQuestions])],
             questions,
