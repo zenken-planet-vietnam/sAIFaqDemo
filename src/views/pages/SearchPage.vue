@@ -17,7 +17,7 @@
       <div v-if="showRecentlyQuestions">
         <div class="faq-title mt-2">
           <span class="font-weight-bold">
-            {{ "Recent Questions" }}
+            {{ "Recently Questions" }}
           </span>
         </div>
         <div>

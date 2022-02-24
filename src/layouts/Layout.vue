@@ -8,7 +8,7 @@
                     :src="logo"
                     alt="Login img"
                    />
-                   <span class ="main-title">よくあるお問い合わせ</span>
+                   <span class ="main-title">{{mainTitle}}</span>
                 </b-navbar-brand> 
                 <!-- Right aligned nav items -->
                   <b-navbar-nav class="ml-auto user-dropdown">
@@ -105,6 +105,9 @@ components:{
 export default class Layout extends Vue {
   logo= require("@/assets/logo.png")
   avatar= require("@/assets/imgs/avatar.jpeg")
+  get mainTitle(){
+    return this.$store.state.config?.messages?.MAIN_TITLE
+  }
   get searchProcess(){
     return PageModule.searchProcess
   }

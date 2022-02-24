@@ -68,14 +68,19 @@
           </b-button>
         </div>
        </div>
-        <enquete :id="enqueteModalId" :type="resolveType"/>
+        <enquete v-if="showFeedback" :id="enqueteModalId" :type="resolveType"/>
      </div>
    </div>
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
 import { BFormInput, BFormGroup, BForm, BButton } from "bootstrap-vue";
-import { SearchForm, Pin, ConditionGroup, Enquete } from "@/components/questions";
+import {
+  SearchForm,
+  Pin,
+  ConditionGroup,
+  Enquete,
+} from "@/components/questions";
 import { Component, Watch } from "vue-property-decorator";
 import { mixins } from "vue-class-component";
 import PageMixin from "@/@core/mixins/searchDataMixin";
@@ -90,13 +95,13 @@ import { PageModule } from "@/store/modules/page";
     BButton,
     Pin,
     ConditionGroup,
-    Enquete
+    Enquete,
   },
 })
 export default class ResultPage extends mixins(PageMixin) {
   question = null;
   questionId = null;
-  enqueteModalId="enquete-modal"
+  enqueteModalId = "enquete-modal";
   // the answers match selected conditions
   matchingAnswers = [];
 
@@ -111,13 +116,18 @@ export default class ResultPage extends mixins(PageMixin) {
 
   hasNextCondition = true;
 
-  resolveMessage =
-    "Thank you for your answer. <br /> The information you send will be used as a reference for improving the content.";
-  unresolveMessage =
-    "Thank you for your answer. <br /> Please tell me why you not resolve question"
   hasNextCondtion = true;
 
   resolveType = null;
+
+  get config() {
+    return this.$store.state?.config?.data;
+  }
+  get showFeedback() {
+    return (
+      this.config.WITH_ENQUETE_RESOLVED || this.config.WITH_ENQUETE_UNRESOLVED
+    );
+  }
 
   created() {
     this.questionId = parseInt(this.$route.query.id, 10);
@@ -142,10 +152,13 @@ export default class ResultPage extends mixins(PageMixin) {
   get answer() {
     // If question has conditions then return matching answers
     if (this.question?.conditions?.length) {
-      if (this.matchingAnswers.length === 1 || (!this.hasNextCondition && this.matchingAnswers.length > 1)) {
+      if (
+        this.matchingAnswers.length === 1 ||
+        (!this.hasNextCondition && this.matchingAnswers.length > 1)
+      ) {
         return this.matchingAnswers[0];
       }
-    } 
+    }
     // Otherwise return answer from response data
     else if (this.question?.answers?.length) {
       return this.question.answers[0];
@@ -156,8 +169,8 @@ export default class ResultPage extends mixins(PageMixin) {
 
   get message() {
     return this.resolveType === "resolve"
-      ? this.resolveMessage
-      : this.unresolveMessage;
+      ? this.$store.state.config.messages.AFTER_RESOLVED_MESSAGE
+      : this.$store.state.config.messages.AFTER_UNRESOLVED_MESSAGE;
   }
 
   conditionSelected(event) {
@@ -229,7 +242,16 @@ export default class ResultPage extends mixins(PageMixin) {
 
   resolve(type) {
     this.resolveType = type;
-    this.$bvModal.show(this.enqueteModalId)
+    switch (type) {
+      case "resolve":
+        if (this.config.WITH_ENQUETE_RESOLVED)
+          this.$bvModal.show(this.enqueteModalId);
+        break;
+      case "unresolve":
+        if (this.config.WITH_ENQUETE_UNRESOLVED)
+          this.$bvModal.show(this.enqueteModalId);
+        break;
+    }
   }
   reset() {
     this.$router.push({ name: "search-page" });

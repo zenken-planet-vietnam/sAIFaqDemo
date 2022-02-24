@@ -112,7 +112,7 @@ export default class Enquete extends Vue {
 
   submit(){
    if(!this.checkvalidate()){
-        this.validateMessage="Please input the answer"
+        this.validateMessage="Please input your answer"
    }
    else{
      this.validateMessage=null
