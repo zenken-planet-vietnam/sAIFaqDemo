@@ -1,5 +1,5 @@
 <template>
-  <div class="settings card">
+  <div class="">
     <div class="mb-1 d-flex align-items-center">
       <b-link class="d-flex align-items-center" @click="$router.push({name:'settings'})">
         <feather-icon icon="ArrowLeftIcon"/> Back
@@ -50,14 +50,6 @@ import {default as QuerySearchResults} from "./QuerySearchResults.vue";
 })
 export default class PinnedQuestionDraggable extends mixins(SettingMixin) {
   tabIndex: any = 1
-
-  increaseTab() {
-    this.tabIndex++
-  }
-
-  decreaseTab() {
-    this.tabIndex--
-  }
 
   async fetchDataPinnedQuestion(queryId: any) {
     await SettingModule.getPinnedQuestionByQuery(queryId)

@@ -52,7 +52,7 @@ export default class ModalForm extends Vue {
   private modalTitle!: string;
 
   checkFormValidity() {
-    const valid = this.$refs.form.checkValidity()
+    const valid = (this.$refs.form as Vue & { checkValidity: () => any }).checkValidity()
     this.nameState = valid
     return valid
   }
@@ -61,8 +61,6 @@ export default class ModalForm extends Vue {
     this.nameState = null
   }
   created() {
-    if (this.value)
-      this.name = this.value
   }
   handleOk(bvModalEvt: any) {
     // Prevent modal from closing

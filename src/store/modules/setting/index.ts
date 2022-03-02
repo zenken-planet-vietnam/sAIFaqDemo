@@ -8,8 +8,8 @@ export interface ISettingState {
 
 @Module({ dynamic: true, store, name: 'setting' })
 export default class Setting extends VuexModule implements ISettingState {
-    public data = []
-    public pinnedQuestion = []
+    public data = Array()
+    public pinnedQuestion = Array()
     public isLoading = false
 
     @Mutation

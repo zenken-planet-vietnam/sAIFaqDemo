@@ -1,5 +1,7 @@
 <template>
   <div class="settings card">
+    <router-view v-if="$route.name !=='settings'"></router-view>
+    <div v-else>
     <div class="title">
       Settings
     </div>
@@ -37,7 +39,7 @@
         </b-table>
       </b-col>
       <modal-form @formSubmited="updateFormSubmitted" :placeholder="selectedLabel" :modalTitle="modalUpdateTitle" :modalLabel="modalUpdateLabel" :modalId="modalUpdateId"/>
-    </b-row>
+    </b-row></div>
   </div>
 </template>
 
@@ -77,8 +79,8 @@ export default class Settings extends mixins(SettingMixin) {
   modalUpdateId = "modal-update-query"
   modalUpdateLabel = "Query"
   selectedLabel = ""
-  edittingItem = null
-  edittingIndex = null
+  edittingItem!: any
+  edittingIndex!: any
 
   created() {
     this.fetchingData()

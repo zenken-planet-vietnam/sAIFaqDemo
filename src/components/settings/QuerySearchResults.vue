@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import {Component} from "vue-property-decorator";
-import {BBadge, BCol, BRow, BTable, BTabs} from "bootstrap-vue";
+import { BCol, BRow } from "bootstrap-vue";
 import SettingMixin from "@/@core/mixins/settingMixin";
 import {mixins} from "vue-class-component";
 import {SettingModule} from "@/store/modules/setting";
@@ -49,24 +49,18 @@ import HighLight from "../questions/HighLight.vue";
   components: {
     BRow,
     BCol,
-    BTable,
-    BBadge,
     HighLight,
-    BTabs
   },
 })
 export default class QuerySearchResults extends mixins(SettingMixin) {
-  async fetchDataPinnedQuestion(queryId: any) {
-    await SettingModule.getPinnedQuestionByQuery(queryId)
-  }
-
   get getTargets() {
       return PageModule.searchWords;
   }
 
   get getQuestionSearchResult() {
     const array = PageModule.fullQuestions
-    return array.filter((elem) => !this.pinnedQuestionByQueryID.find(({question_id}) => elem.id === question_id))
+    return array.filter((elem: any) => !this.pinnedQuestionByQueryID.find(
+        (question: any) => elem.id === question.question_id))
   }
 
   async promoteQuestion(item: any) {
@@ -98,20 +92,6 @@ export default class QuerySearchResults extends mixins(SettingMixin) {
 .list-group-item i {
   cursor: pointer;
 }
-.question-section-item {
-  border-radius: 3px;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
-  padding: 10px;
-  margin: 10px;
-  background-color: #FFF;
-  cursor: pointer;
-  border: 1px solid #ebe3e3;
-}
-.row-border {
-  border-radius: 6px;
-  border: 1px solid #d3dae6;
-  background-color: #e6f1fa;
-}
 .settings-title {
   font-size: 21px;
   font-weight: 600;
@@ -121,14 +101,8 @@ a {
   color: #0071c2 !important;
   font-weight: 600;
 }
-.float-right {
-  float: right;
-}
 
 .question-title {
   font-size: 20px;
-}
-.instruction-title {
-  color: #817a7a;
 }
 </style>

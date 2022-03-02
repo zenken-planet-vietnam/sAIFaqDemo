@@ -32,15 +32,14 @@ export const constantRoutes: RouteConfig[] = [
         name: 'settings',
         component: () => import('@/views/pages/SettingPage.vue'),
         children: [
-
+            {
+                path: 'pinned-query/:pinnedQueryId/:pinnedQueryLabel',
+                name: 'pinnedQueryDetail',
+                props: true,
+                component: () => import('@/components/settings/PinnedQuestionDraggable.vue')
+            }
         ]
     },
-    {
-        path: '/pinned-query/:pinnedQueryId/:pinnedQueryLabel',
-        name: 'pinnedQueryDetail',
-        props: true,
-        component: () => import('@/components/settings/PinnedQuestionDraggable.vue')
-    }
 ]
 
 const createRouter = () => new VueRouter({
