@@ -1,134 +1,179 @@
 <template lang="">
-    <div class="search-form">
-      <div  class="search-title">
-       <div class="search-icon">
-          <feather-icon size="16" icon="SearchIcon"/>
-       </div>
-        <span>Search by Keyword</span>
+  <div class="search-form">
+    <div class="search-title">
+      <div class="search-icon">
+        <feather-icon size="16" icon="SearchIcon" />
       </div>
-       <div class="search-container">
-          <div class="search">
-            <tag v-if="selectedCategory&&selectedCategory!==null&&selectedCategory.isActive" :data="selectedCategoryTag" :isSelectedTag="true" @click="unActiveFilter"/>
-            <tags v-if="selectedTags.length>0" :tags="selectedTags" :isSelectedTag="true" />
-          <auto-complete-input v-model='text' @enter="submit"  @delete="onDeleteText" ref="input" @input="onTextChange" class="search-input" @focus="onInputFocus"  placeholder="What is your question?"/>
-        </div>
-         <div v-if="config.SEARCH_BUTTON" @click="submit" class="search-button"> 
-            <feather-icon icon="SearchIcon"></feather-icon>
-          </div>
-       </div>
-        <tags v-if="filterTag.length>0" :tags="filterTag" :isSelectedTag="false" />
-        <search-result ref="result" v-if="searchProcess"/>
+      <span>Search by Keyword</span>
     </div>
+    <div class="search-container">
+      <div class="search">
+        <tag
+          v-if="
+            selectedCategory &&
+            selectedCategory !== null &&
+            selectedCategory.isActive
+          "
+          :data="selectedCategoryTag"
+          :isSelectedTag="true"
+          @click="unActiveFilter"
+        />
+        <tags
+          v-if="selectedTags.length > 0"
+          :tags="selectedTags"
+          :isSelectedTag="true"
+        />
+        <auto-complete-input
+          v-model="text"
+          @enter="submit"
+          @delete="onDeleteText"
+          ref="input"
+          @input="onTextChange"
+          class="search-input"
+          @focus="onInputFocus"
+          placeholder="What is your question?"
+        />
+      </div>
+      <!-- <div v-if="config.SEARCH_BUTTON" @click="submit" class="search-button"> 
+            <feather-icon icon="SearchIcon"></feather-icon>
+          </div> -->
+    </div>
+    <tags
+      v-if="filterTag.length > 0"
+      :tags="filterTag"
+      :isSelectedTag="false"
+    />
+    <search-result ref="result" v-if="searchProcess" />
+  </div>
 </template>
 <script>
-import { BFormInput } from "bootstrap-vue";
-import SearchResult from "./SearchResult.vue";
-import PageMixin from "@/@core/mixins/searchDataMixin";
-import Tags from "./Tags.vue";
-import Tag from "./Tag.vue"
-import AutoCompleteInput from "./AutoCompleteInput.vue";
-import { PageModule } from "@/store/modules/page";
-import {CategoryModule}  from "@/store/modules/category"
-import { Component } from "vue-property-decorator";
-import { mixins } from "vue-class-component";
+import { BFormInput } from 'bootstrap-vue'
+import SearchResult from './SearchResult.vue'
+import PageMixin from '@/@core/mixins/searchDataMixin'
+import Tags from './Tags.vue'
+import Tag from './Tag.vue'
+import AutoCompleteInput from './AutoCompleteInput.vue'
+import { PageModule } from '@/store/modules/page'
+import { CategoryModule } from '@/store/modules/category'
+import { Component } from 'vue-property-decorator'
+import { mixins } from 'vue-class-component'
 @Component({
   components: {
     BFormInput,
     SearchResult,
-    Tags,Tag,
+    Tags,
+    Tag,
     AutoCompleteInput,
   },
   destroyed() {
-    PageModule.updateProcess(false);
+    PageModule.updateProcess(false)
   },
 })
 export default class SearchForm extends mixins(PageMixin) {
-  text = "";
+  text = ''
+  timeDelayAnalaytic = 0
+  tick = 100
+  intervalAnalytic = null
+  // search result 
+  result = null
   get selectedTags() {
-    return this.tags.filter((x) => x.isSelected == true);
+    return this.tags.filter((x) => x.isSelected == true)
   }
 
   get selectedCategoryTag() {
     return {
-      text:this.selectedCategory.texts.join(">")
+      text: this.selectedCategory.texts.join('>'),
     }
   }
 
-  get filterTag(){
-   return  this.tags.filter(x=>!x.isSelected)
+  get filterTag() {
+    return this.tags.filter((x) => !x.isSelected)
   }
 
   onInputFocus(event) {
     if (!this.config.SEARCH_BUTTON) {
-      PageModule.updateProcess(event.isTrusted);
+      PageModule.updateProcess(event.isTrusted)
       if (!this.config.SEARCH_BUTTON) {
-        let rect = this.$refs.input.$el.getBoundingClientRect();
+        let rect = this.$refs.input.$el.getBoundingClientRect()
         // eslint-disable-next-line no-unused-vars
-        let maxHeight = document.body.clientHeight - rect.y;
+        let maxHeight = document.body.clientHeight - rect.y
         this.$nextTick(() => {
           this.$refs.result.$el.style.maxHeight =
-            maxHeight - rect.height - 10 + "px";
-        });
+            maxHeight - rect.height - 10 + 'px'
+        })
       }
     }
   }
   // filter question
   onTextChange() {
-    if (!this.config.SEARCH_BUTTON) this.submit();
+    // if (!this.config.SEARCH_BUTTON) this.submit()
+    // immediately submit search in FE
+    this.submit()
+    // delay send analytic
+    this.timeDelayAnalaytic = this.config.TIME_DELAY_ANALYTIC
+    clearInterval(this.intervalAnalytic)
+    this.intervalAnalytic = setInterval(() => {
+      this.timeDelayAnalaytic -= this.tick
+      if (this.timeDelayAnalaytic <= 0) {
+        clearInterval(this.intervalAnalytic)
+        this.analytic()
+      }
+    }, this.tick)
   }
-  async submit() {
-    let text = this.text.toLowerCase().trim();
-    PageModule.updateProcess(true);
-    let result = await PageModule.filterQuestions(text);
+  analytic() {
+    let text = this.text.toLowerCase().trim()
     // call analytics api
     if (window.sa && text.length > 0) {
       let data = {
-        event_name: "question_query",
+        event_name: 'question_query',
         value: {
           query: text,
-          result: result.length,
+          result: this.result.length,
         },
         core_value: text,
-        sub_value: result.length,
-      };
-      window.sa.send(data);
+        sub_value: this.result.length,
+      }
+      window.sa.send(data)
     }
+  }
+  async submit() {
+    let text = this.text.toLowerCase().trim()
+    PageModule.updateProcess(true)
+    this.result = await PageModule.filterQuestions(text)
   }
   onDeleteText(event) {
     if (event.target.value.length === 0) {
-      let selectedTags = this.tags.filter((x) => x.isSelected).reverse();
-      let lastSelectedTag = selectedTags.find((x) => x.isSelected);
+      let selectedTags = this.tags.filter((x) => x.isSelected).reverse()
+      let lastSelectedTag = selectedTags.find((x) => x.isSelected)
       if (lastSelectedTag) {
         PageModule.updateTagFilter({
           text: lastSelectedTag.text,
           isSelected: false,
-        });
+        })
       }
-      if(this.selectedCategory)
-      CategoryModule.unActiveSelectedMenu()
+      if (this.selectedCategory) CategoryModule.unActiveSelectedMenu()
     }
   }
   // unactive selected menu
-  unActiveFilter(){
+  unActiveFilter() {
     CategoryModule.unActiveSelectedMenu()
   }
- 
 }
 </script>
 <style lang="scss">
 .search-form {
   position: relative;
-  .search-title{
+  .search-title {
     padding: 10px 0px;
     display: flex;
     align-items: center;
-    .search-icon{
+    .search-icon {
       margin-right: 10px;
       display: flex;
       justify-content: center;
       align-items: center;
       color: #fff;
-      width:26px;
+      width: 26px;
       height: 26px;
       border-radius: 50%;
       background: #0062cc;
