@@ -8,6 +8,12 @@ import { VuexModule, Module, Action, Mutation, getModule } from "vuex-module-dec
 import store from "@/store"
 import { IQuestion } from "@/models/question"
 import { CategoryModule } from "../category"
+const sAIFaqClientKey="sAIFaqClient"
+const getUserInfo=()=>{
+    const userData=localStorage.getItem(sAIFaqClientKey)
+    if(userData) return JSON.parse(userData)
+    return null
+}
 export interface IPageState {
     // package data for search
     tagPakage: any,
@@ -26,7 +32,8 @@ export interface IPageState {
     // search status (true: searching, false: end search)
     searchProcess: Boolean,
     // list tags
-    tags: Array<any>
+    tags: Array<any>,
+    userInfo:any
 }
 
 @Module({ dynamic: true, store, name: 'page' })
@@ -55,6 +62,7 @@ class Page extends VuexModule implements IPageState {
     public searchProcess = false
     // list tags
     public tags = []
+    public userInfo: any=getUserInfo()
 
     @Mutation
     UPDATE_QUESTIONS(payload: any) {
@@ -120,6 +128,14 @@ class Page extends VuexModule implements IPageState {
     UPDATE_QUESTION_PINNING(payload: any) {
         this.tagPakage.questionPinnings = payload.data.map((x: any) => ({ keyword: x.keyword,
             questionIds: x.promoted_results, hiddenIds: x.hidden_results }))
+    }
+    @Mutation
+    UPDATE_USER_INFO(payload: any) {
+       this.userInfo=payload
+       if(payload)
+       localStorage.setItem(sAIFaqClientKey, JSON.stringify(payload))
+       else
+       localStorage.removeItem(sAIFaqClientKey)
     }
 
     @Action
@@ -247,6 +263,12 @@ class Page extends VuexModule implements IPageState {
         const { data } = await axios.get(`product/${this.productId}/pinned_query/question`)
         this.UPDATE_QUESTION_PINNING(data)
     }
+
+    @Action
+    async setUserInfo(data:any) {
+        this.UPDATE_USER_INFO(data)
+    }
+
 }
 
 export const PageModule = getModule(Page)

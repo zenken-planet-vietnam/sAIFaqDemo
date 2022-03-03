@@ -12,14 +12,21 @@
                 </b-navbar-brand> 
                 <!-- Right aligned nav items -->
                   <b-navbar-nav class="ml-auto user-dropdown">
+                    <div v-if="config.WITH_INITIAL_FORM&&userInfo" class="user-info">
+                      <span>User: </span>
+                      <span class="name">{{`  ${userInfo.user.id}` }}</span>
+                     <div @click="logout">
+                        <feather-icon class="icon" icon="LogOutIcon"/>
+                     </div>
+                    </div>
                     <b-nav-item-dropdown right toggle-class="d-flex align-items-center dropdown-user-link">
                       <!-- Using 'button-content' slot -->
                       <template #button-content>
                         <div class="d-sm-flex d-none user-nav">
-                          <p class="user-name font-weight-bolder mb-0">
+                          <!-- <p class="user-name font-weight-bolder mb-0">
                             {{ "Admin" }}
                           </p>
-                          <span class="user-status">{{ "admin" }}</span>
+                          <span class="user-status">{{ "admin" }}</span> -->
                         </div>
                         <b-avatar
                           size="40"
@@ -71,6 +78,7 @@
             <slot></slot>
          </div>
         </div>
+        <initial-form v-if="config.WITH_INITIAL_FORM" :id="initialFormId"/>
     </div>
 </template>
 <script lang="ts">
@@ -89,6 +97,7 @@ import { Component, Vue } from "vue-property-decorator";
 import VerticalMenu from "./vertical-nav/VerticalMenu.vue"
 import {PageModule} from "@/store/modules/page"
 import {CategoryModule} from "@/store/modules/category"
+import InitialForm from "@/components/common/InitialForm.vue"
 @Component({
 components:{
     BNavbar,
@@ -98,13 +107,15 @@ components:{
     BImg,
     BAvatar,
     BDropdownDivider,
-    VerticalMenu
+    VerticalMenu,
+    InitialForm
 },
 
 })
 export default class Layout extends Vue {
   logo= require("@/assets/logo.png")
   avatar= require("@/assets/imgs/avatar.jpeg")
+  initialFormId="initial-form"
   get mainTitle(){
     return this.$store.state.config?.messages?.MAIN_TITLE
   }
@@ -114,14 +125,24 @@ export default class Layout extends Vue {
   closeSearch() {
      PageModule.updateProcess(false)
   }
+  get userInfo(){
+    return PageModule?.userInfo
+  }
   get config(){
     return  this.$store.state.config.data
     }
     created() {
      CategoryModule.getCategory();
-      // PageModule.getQuestions({
-      //   product_id:[1,2]
-      // })
+    }
+    mounted() {
+      if(this.config.WITH_INITIAL_FORM){
+      if(!PageModule.userInfo)
+       this.$bvModal.show(this.initialFormId)
+      }
+    }
+    logout(){
+      PageModule.setUserInfo(null)
+      this.$bvModal.show(this.initialFormId)
     }
   }
 </script>
@@ -162,6 +183,16 @@ export default class Layout extends Vue {
     }
   }
   .user-dropdown{
+    .user-info{
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    padding: 0px 20px;
+    color: #6e6b7b;
+    .name{
+      padding: 0px 10px 0px 5px;
+    }
+    }
     .dropdown-item{
       font-size:14px;
       color:#6e6b7b
