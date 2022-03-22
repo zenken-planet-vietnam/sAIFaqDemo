@@ -71,7 +71,7 @@ import { mixins } from 'vue-class-component'
 })
 export default class SearchForm extends mixins(PageMixin) {
   text = ''
-  timeDelayAnalaytic = 0
+  timeStopTyping = 0
   tick = 100
   intervalAnalytic = null
   // search result 
@@ -106,16 +106,17 @@ export default class SearchForm extends mixins(PageMixin) {
   }
   // filter question
   onTextChange() {
-    // if (!this.config.SEARCH_BUTTON) this.submit()
     // immediately submit search in FE
     this.submit()
     // delay send analytic
-    this.timeDelayAnalaytic = this.config.TIME_DELAY_ANALYTIC
+    this.timeStopTyping = this.config.TIME_DELAY_ANALYTIC
     clearInterval(this.intervalAnalytic)
     this.intervalAnalytic = setInterval(() => {
-      this.timeDelayAnalaytic -= this.tick
-      if (this.timeDelayAnalaytic <= 0) {
+      this.timeStopTyping -= this.tick
+      // stop typing about TIME_DELAY_ANALYTIC
+      if (this.timeStopTyping <= 0) {
         clearInterval(this.intervalAnalytic)
+        //call analytic api
         this.analytic()
       }
     }, this.tick)

@@ -135,11 +135,14 @@ export default class Layout extends Vue {
      CategoryModule.getCategory();
     }
     mounted() {
+      // check with initial form
       if(this.config.WITH_INITIAL_FORM){
+      // show initial form if userinfo is null 
       if(!PageModule.userInfo)
        this.$bvModal.show(this.initialFormId)
       }
     }
+    // logout 
     logout(){
       PageModule.setUserInfo(null)
       this.$bvModal.show(this.initialFormId)
