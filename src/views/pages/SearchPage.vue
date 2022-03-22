@@ -49,11 +49,19 @@ import PageMixin from "@/@core/mixins/searchDataMixin";
 export default class SearchPage extends mixins(PageMixin) {
   get recentlyQuestions() {
     let faqIds = this.localFaq();
-    if (faqIds?.length && this.questions?.length)
-      return faqIds.map((x: any) => {
-        return this.questions.find((y: any) => y.id === x);
-      });
-    return [];
+    const recentlyQuestion: any = []
+
+    if (faqIds?.length && this.faqQuestions?.length) {
+      faqIds.forEach((x: any) => {
+        const findItem = this.faqQuestions.find((item: any) => item.id == x)
+        if (findItem)
+          recentlyQuestion.push(findItem)
+      })
+      // return faqIds.map((x: any) => {
+      //   return this.questions.find((y: any) => y.id === x);
+      // });
+    }
+    return recentlyQuestion
   }
 
   get showRecentlyQuestions() {

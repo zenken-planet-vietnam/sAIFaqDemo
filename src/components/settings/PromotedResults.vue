@@ -6,10 +6,10 @@
           Promoted results
       </b-col>
       <b-col md="4" v-if="pinnedPromotedQuestionList.length > 0" >
-        <b-button class="ml-1 float-right" variant="outline-danger" @click="unpinAllQuestions" size="sm">
+        <b-button class="ml-1 float-right" variant="outline-danger" @click="demoteAll" size="sm">
           Demote all
         </b-button>
-        <b-button class="float-right" variant="outline-primary" @click="pinQuestionManually" size="sm">
+        <b-button v-b-toggle.sidebar-backdrop class="float-right" variant="outline-primary" size="sm">
           Add manually
         </b-button>
       </b-col>
@@ -17,11 +17,11 @@
     <b-row v-else class="mt-1 mb-1 d-flex flex-column justify-content-center align-items-center">
       <b-col md="6" class="d-flex justify-content-center">
         <div class="instruction-title">
-          Promote your search result always on top
+          Promote your result always on top.
         </div>
       </b-col>
       <b-col md="6" class="mt-1 d-flex justify-content-center">
-        <b-button variant="outline-primary" @click="pinQuestionManually" size="sm" class="m2-1">
+        <b-button v-b-toggle.sidebar-backdrop variant="outline-primary" size="sm" class="m2-1">
           <feather-icon icon="PlusIcon"></feather-icon> Add manually
         </b-button>
       </b-col>
@@ -39,7 +39,7 @@
           <transition-group type="transition" :name="!drag ? 'flip-list' : null">
             <div
               v-for="item in pinnedPromotedQuestionList"
-              :key="item.question_id"
+              :key="item.id"
             >
               <div class="d-flex justify-content-between align-items-center question-section-item">
                 #{{ item.display_order }} {{item.label }}
@@ -58,19 +58,16 @@
 <script lang="ts">
 import draggable from "vuedraggable";
 import {Component} from "vue-property-decorator";
-import {BCol, BRow, BTable, BTabs} from "bootstrap-vue";
+import {BCol, BRow} from "bootstrap-vue";
 import SettingMixin from "@/@core/mixins/settingMixin";
 import {mixins} from "vue-class-component";
 import {SettingModule} from "@/store/modules/setting";
-import {PageModule} from "@/store/modules/page";
 
 @Component({
   components: {
     BRow,
     BCol,
-    BTable,
     draggable,
-    BTabs
   },
 })
 export default class PromotedResults extends mixins(SettingMixin) {
@@ -85,11 +82,6 @@ export default class PromotedResults extends mixins(SettingMixin) {
     "Sortablejs"
   ];
   drag = false
-  isLoading = false
-
-  async fetchDataPinnedQuestion(queryId: any) {
-    await SettingModule.getPinnedQuestionByQuery(queryId)
-  }
 
   get dragOptions() {
       return {
@@ -99,10 +91,6 @@ export default class PromotedResults extends mixins(SettingMixin) {
         ghostClass: "ghost"
       };
     }
-
-  get getTargets() {
-      return PageModule.searchWords;
-  }
 
   get pinnedPromotedQuestionList() {
     return this.pinnedQuestionByQueryID.filter((item: any) => item.pin_type)
@@ -114,41 +102,15 @@ export default class PromotedResults extends mixins(SettingMixin) {
     })
   }
 
-  async pinQuestion(item: any) {
-    this.$store.state.config.isLoading = true;
-    await SettingModule.addPinnedQuestionToQuery({
-      queryId: this.$route.params.pinnedQueryId,
-      question_id: item.id,
-      order: this.pinnedQuestionByQueryID.length + 1,
-      pin_type: 1,
-    })
-    this.$store.state.config.isLoading = false;
-  }
-
-  async unpinQuestion(item: any) {
-    this.$store.state.config.isLoading = true;
-    await SettingModule.unpinQuestionByQuery({questionId: item.question_id,
-      queryId:this.$route.params.pinnedQueryId,
-    })
-    this.$store.state.config.isLoading = false;
-  }
-
-  async unpinAllQuestions() {
+  async demoteAll() {
     this.$store.state.config.isLoading = true;
     await SettingModule.unpinAllQuestionsByQuery({
       queryId: this.$route.params.pinnedQueryId,
       pinType: 1
     })
     this.$store.state.config.isLoading = false;
-
-  }
-
-  pinQuestionManually() {
-
   }
 }
-
-
 </script>
 
 <style scoped>
@@ -169,17 +131,6 @@ export default class PromotedResults extends mixins(SettingMixin) {
   background: #c8ebfb;
 }
 
-.list-group {
-  min-height: 20px;
-}
-
-.list-group-item {
-  cursor: move;
-}
-
-.list-group-item i {
-  cursor: pointer;
-}
 .question-section-item {
   border-radius: 3px;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
@@ -198,17 +149,8 @@ export default class PromotedResults extends mixins(SettingMixin) {
   font-size: 21px;
   font-weight: 600;
 }
-a {
-  text-decoration: none;
-  color: #0071c2 !important;
-  font-weight: 600;
-}
 .float-right {
   float: right;
-}
-
-.question-title {
-  font-size: 20px;
 }
 .instruction-title {
   color: #817a7a;

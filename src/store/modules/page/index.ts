@@ -50,6 +50,8 @@ class Page extends VuexModule implements IPageState {
     public searchResults = []
     // search word
     public searchWords = []
+    // search word for add manually form
+    public searchWordsManual = []
     // before question result without filter by result pinning
     public fullQuestions = []
     // text user input
@@ -111,7 +113,14 @@ class Page extends VuexModule implements IPageState {
         this.textSearch = payload.text
         this.searchWords = payload.words
         this.searchResults = payload.result
+        this.searchWordsManual = payload.words
         this.fullQuestions = payload.fullQuestions
+    }
+    @Mutation
+    UPDATE_QUESTIONS_FILTER_MANUALLY_FORM(payload: any) {
+        this.textSearch = payload.text
+        this.searchWordsManual = payload.words
+        this.searchResults = payload.result
     }
     @Mutation
     UPDATE_TAG_FILTER(payload: any) {
@@ -216,6 +225,23 @@ class Page extends VuexModule implements IPageState {
         return data.result
     }
     @Action
+    filterQuestionsManuallyForm(query: any) {
+        this.updateProcess(true)
+        const text = query.toLowerCase().trim()
+        // let search = new FullTextSearch(state.tagPakage)
+        const search = new BooleanSearch(this.tagPakage)
+        const slectedTags = this.tags.filter((x: any) => x.isSelected)
+        const result = search.search(text, slectedTags, CategoryModule.selectedCategory?.isActive ? CategoryModule.selectedCategory.id : undefined)
+        const data = {
+            result: result.questions.map((obj: any) => ({ ...obj, isSelected: false, answers: [] })),
+            words: result.words,
+            fullQuestions: result.fullQuestions,
+            text
+        }
+        this.UPDATE_QUESTIONS_FILTER_MANUALLY_FORM(data)
+        return data.result
+    }
+    @Action
     updateTagFilter(tag: any) {
         this.UPDATE_TAG_FILTER(tag)
         this.filterQuestions(this.textSearch)
@@ -245,11 +271,34 @@ class Page extends VuexModule implements IPageState {
                 questionCategory = questionCategory.sort((a: any, b: any) => {
                     return a.id - b.id
                 })
-                this.UPDATE_FAQ_QUESTIONS(questionCategory)
                 this.UPDATE_QUESTIONS(questionCategory)
+                this.getQuestionPinning()
+                    .then(() =>{
+                        const defaultPinningResult: any = this.tagPakage.questionPinnings.find((item: any) => item.keyword=="")
+                        const result: any = []
+                        if (!defaultPinningResult) {
+                            this.UPDATE_FAQ_QUESTIONS(questionCategory)
+                            return
+                        }
+                        defaultPinningResult.questionIds.forEach((id: any) => {
+                            result.push(questionCategory.find((el: any) => el.id === id))
+                        })
+
+                        questionCategory.forEach((element: any) => {
+                            if (!result.find((x: any) => {
+                                return x.id === element.id
+                            })) {
+                                const findItem = questionCategory.find((x: any) => x.id === element.id)
+                                if (!defaultPinningResult.hiddenIds.find((y: any) => {
+                                    return y === element.id
+                                }))
+                                    result.push(findItem)
+                            }
+                        });
+                        this.UPDATE_FAQ_QUESTIONS(result)
+                    } )
             })
         this.getListKeyword()
-        this.getQuestionPinning()
     }
 
     @Action
@@ -260,7 +309,7 @@ class Page extends VuexModule implements IPageState {
 
     @Action
     async getQuestionPinning() {
-        const { data } = await axios.get(`product/${this.productId}/pinned_query/question`)
+        const { data } = await axios.get(`fnt/product/${this.productId}/pinned_query/question`)
         this.UPDATE_QUESTION_PINNING(data)
     }
 

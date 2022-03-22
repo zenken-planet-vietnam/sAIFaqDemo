@@ -1,0 +1,180 @@
+<template lang="">
+  <div class="search-form">
+    <div class="search-title">
+      <div class="search-icon">
+        <feather-icon size="16" icon="SearchIcon" />
+      </div>
+      <span>Search by Keyword</span>
+    </div>
+    <div class="search-container">
+      <div class="search">
+        <auto-complete-input
+          v-model="text"
+          @enter="submit"
+          @delete="onDeleteText"
+          ref="input"
+          @input="onTextChange"
+          class="search-input"
+          @focus="onInputFocus"
+          :placeholder="textSearch"
+        />
+      </div>
+      <!-- <div v-if="config.SEARCH_BUTTON" @click="submit" class="search-button">
+            <feather-icon icon="SearchIcon"></feather-icon>
+          </div> -->
+    </div>
+    <search-result-manually ref="result" v-if="searchProcess" />
+  </div>
+</template>
+<script>
+import { BFormInput } from 'bootstrap-vue'
+import SearchResultManually from './SearchResultManually.vue'
+import PageMixin from '@/@core/mixins/searchDataMixin'
+import AutoCompleteInput from '../questions/AutoCompleteInput.vue'
+import { PageModule } from '@/store/modules/page'
+import { CategoryModule } from '@/store/modules/category'
+import { Component } from 'vue-property-decorator'
+import { mixins } from 'vue-class-component'
+
+@Component({
+  components: {
+    BFormInput,
+    SearchResultManually,
+    AutoCompleteInput,
+  },
+  destroyed() {
+    PageModule.updateProcess(false)
+  },
+})
+export default class SearchFormManually extends mixins(PageMixin) {
+  text = ''
+  timeDelayAnalaytic = 0
+  tick = 100
+  intervalAnalytic = null
+  // search result
+  result = null
+
+  onInputFocus(event) {
+    if (!this.config.SEARCH_BUTTON) {
+      PageModule.updateProcess(event.isTrusted)
+      if (!this.config.SEARCH_BUTTON) {
+        let rect = this.$refs.input.$el.getBoundingClientRect()
+        // eslint-disable-next-line no-unused-vars
+        let maxHeight = document.body.clientHeight - rect.y
+        this.$nextTick(() => {
+          this.$refs.result.$el.style.maxHeight =
+            maxHeight - rect.height - 10 + 'px'
+        })
+      }
+    }
+  }
+  // filter question
+  onTextChange() {
+    // if (!this.config.SEARCH_BUTTON) this.submit()
+    // immediately submit search in FE
+    this.submit()
+
+  }
+
+  async submit() {
+    let text = this.text.toLowerCase().trim()
+    // if(!text) {
+    //   text = "default"
+    // }
+    PageModule.updateProcess(true)
+    this.result = await PageModule.filterQuestionsManuallyForm(text)
+  }
+  onDeleteText(event) {
+    if (event.target.value.length === 0) {
+      let selectedTags = this.tags.filter((x) => x.isSelected).reverse()
+      let lastSelectedTag = selectedTags.find((x) => x.isSelected)
+      if (lastSelectedTag) {
+        PageModule.updateTagFilter({
+          text: lastSelectedTag.text,
+          isSelected: false,
+        })
+      }
+      if (this.selectedCategory) CategoryModule.unActiveSelectedMenu()
+    }
+  }
+  // unactive selected menu
+  unActiveFilter() {
+    CategoryModule.unActiveSelectedMenu()
+  }
+}
+</script>
+<style lang="scss">
+.search-form {
+  position: relative;
+  .search-title {
+    padding: 10px 0px;
+    display: flex;
+    align-items: center;
+    .search-icon {
+      margin-right: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #0062cc;
+    }
+  }
+  .search-container {
+    display: flex;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    .search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: white;
+      border-radius: 0.25rem;
+      .search-input {
+        border: 0px;
+        box-shadow: none !important;
+      }
+      .category-tag {
+        color: #fff;
+        background: #138d75;
+        padding: 0.25rem 0.5rem;
+        margin: 5px;
+        border-radius: 16px;
+        cursor: pointer;
+        font-size: 14px;
+        white-space: nowrap;
+        position: relative;
+        .remove-tag {
+          top: -1px;
+          right: 0px;
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: red;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+    }
+    .search-button {
+      cursor: pointer;
+      background: #0062cc;
+      flex: 0 0 auto;
+      height: 38px;
+      width: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      border-radius: 0rem 0.25rem 0.25rem 0rem;
+      &:hover {
+        background: #0069d9;
+      }
+    }
+  }
+}
+</style>

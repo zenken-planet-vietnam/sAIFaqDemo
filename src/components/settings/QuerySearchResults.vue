@@ -11,16 +11,18 @@
                     :sub-title="'Last updated ' + formatDatetime(question.modified)">
               <template #header>
                 <high-light class="question-title" :textColor="'rgba(14,183,84,0.21)'" :text="question.label" :targets="getTargets"/>
+                <div>
+                  <b-button title="Promote this result" variant="outline-success" @click="promoteQuestion(question)" size="sm" class="mr-1">
+                    <feather-icon icon="TrendingUpIcon"></feather-icon>
+                  </b-button>
+                  <b-button title="Hide this result" variant="outline-danger"  @click="hideQuestion(question)" size="sm">
+                    <feather-icon icon="EyeOffIcon"></feather-icon>
+                  </b-button>
+                </div>
               </template>
               <b-card-text>
                 <high-light :textColor="'rgba(14,183,84,0.21)'" :text="question.title" :targets="getTargets"/>
               </b-card-text>
-              <b-button variant="outline-success" @click="promoteQuestion(question)" size="sm" class="mr-1">
-                <feather-icon icon="PaperclipIcon"></feather-icon>
-              </b-button>
-              <b-button variant="outline-danger"  @click="hideQuestion(question)" size="sm">
-                <feather-icon icon="EyeOffIcon"></feather-icon>
-              </b-button>
             </b-card>
           </div>
         </div>
@@ -41,7 +43,6 @@ import {Component} from "vue-property-decorator";
 import { BCol, BRow } from "bootstrap-vue";
 import SettingMixin from "@/@core/mixins/settingMixin";
 import {mixins} from "vue-class-component";
-import {SettingModule} from "@/store/modules/setting";
 import {PageModule} from "@/store/modules/page";
 import HighLight from "../questions/HighLight.vue";
 
@@ -60,32 +61,21 @@ export default class QuerySearchResults extends mixins(SettingMixin) {
   get getQuestionSearchResult() {
     const array = PageModule.fullQuestions
     return array.filter((elem: any) => !this.pinnedQuestionByQueryID.find(
-        (question: any) => elem.id === question.question_id))
+        (question: any) => elem.id === question.id))
+  }
+  async fetchDataQuestionByQuery(text: any) {
+    let searchText = text.toLowerCase().trim();
+    PageModule.updateProcess(true);
+    PageModule.filterQuestions(searchText)
   }
 
-  async promoteQuestion(item: any) {
+  async created() {
     this.$store.state.config.isLoading = true;
-    await SettingModule.addPinnedQuestionToQuery({
-      queryId: this.$route.params.pinnedQueryId,
-      question_id: item.id,
-      order: this.promotedQuestions.length + 1,
-      pin_type: 1,
-    })
+    await this.fetchDataQuestionByQuery(this.$route.params.pinnedQueryLabel)
     this.$store.state.config.isLoading = false;
   }
 
-  async hideQuestion(item: any) {
-    this.$store.state.config.isLoading = true;
-    await SettingModule.addPinnedQuestionToQuery({
-      queryId: this.$route.params.pinnedQueryId,
-      question_id: item.id,
-      order: 0,
-      pin_type: 0,
-    })
-    this.$store.state.config.isLoading = false;  }
 }
-
-
 </script>
 
 <style scoped>
@@ -96,13 +86,12 @@ export default class QuerySearchResults extends mixins(SettingMixin) {
   font-size: 21px;
   font-weight: 600;
 }
-a {
-  text-decoration: none;
-  color: #0071c2 !important;
-  font-weight: 600;
-}
 
 .question-title {
   font-size: 20px;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

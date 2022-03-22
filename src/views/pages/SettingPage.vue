@@ -22,7 +22,7 @@
             <b-link @click="$router.push({
             name:'pinnedQueryDetail',
             params: {'pinnedQueryId': row.item.id, 'pinnedQueryLabel': row.item.label}})">
-              {{ row.item.label }}
+              {{ row.item.label ? row.item.label : '""' }}
             </b-link>
           </template>
           <template #cell(modified)="row">
@@ -38,7 +38,7 @@
           </template>
         </b-table>
       </b-col>
-      <modal-form @formSubmited="updateFormSubmitted" :placeholder="selectedLabel" :modalTitle="modalUpdateTitle" :modalLabel="modalUpdateLabel" :modalId="modalUpdateId"/>
+      <modal-form @formSubmited="updateFormSubmitted" :formState="'edit'" :placeholder="selectedLabel" :modalTitle="modalUpdateTitle" :modalLabel="modalUpdateLabel" :modalId="modalUpdateId"/>
     </b-row></div>
   </div>
 </template>
@@ -124,12 +124,8 @@ export default class Settings extends mixins(SettingMixin) {
       index: this.edittingIndex,
     })
   }
-
-
   addNewQuery(data: any) {
-    if (data) {
-      SettingModule.addPinnedQuery({label: data})
-    }
+    SettingModule.addPinnedQuery({label: data})
   }
 }
 </script>

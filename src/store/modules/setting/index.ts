@@ -11,6 +11,7 @@ export default class Setting extends VuexModule implements ISettingState {
     public data = Array()
     public pinnedQuestion = Array()
     public isLoading = false
+    public productId = 2
 
     @Mutation
     private SET_LOADING_PROGRESS(payload: any) {
@@ -67,7 +68,7 @@ export default class Setting extends VuexModule implements ISettingState {
     @Mutation
     private UNPIN_QUESTION_DATA(payload: any) {
         const questionId = payload.questionId
-        this.pinnedQuestion = this.pinnedQuestion.filter((item: any) => item.question_id !== questionId)
+        this.pinnedQuestion = this.pinnedQuestion.filter((item: any) => item.id !== questionId)
 
         let countOrder:any = 1
         this.pinnedQuestion = this.pinnedQuestion.map((item: any, index: any) => {
@@ -102,13 +103,13 @@ export default class Setting extends VuexModule implements ISettingState {
 
     @Action
     public async getPinnedQueries(params: any) {
-        const { data } = await axios.get('product/2/pinned_query/', { params })
+        const { data } = await axios.get('/pinned_query/', { params: { product_id: this.productId}})
         this.GET_PINNED_QUERIES_DATA(data)
     }
     
     @Action
     public addPinnedQuery(params: any) {
-        axios.post('product/2/pinned_query/',  params)
+        axios.post('pinned_query/',  {...params, product_id: this.productId})
             .then(response => {
                 this.ADD_PINNED_QUERIES_DATA(response.data)
             })
@@ -119,7 +120,7 @@ export default class Setting extends VuexModule implements ISettingState {
 
     @Action
     public updatePinnedQuery(params: any) {
-        axios.put(`product/2/pinned_query/${params.pinnedQueryId}`,  params.payload)
+        axios.put(`pinned_query/${params.pinnedQueryId}`,  params.payload)
             .then(response => {
                 this.UPDATE_PINNED_QUERY_DATA({data: response.data.data, index:params.index})
             })
@@ -127,13 +128,14 @@ export default class Setting extends VuexModule implements ISettingState {
 
     @Action
     public async deletePinnedQuery(params: any) {
-        const { data } = await axios.delete(`product/2/pinned_query/${params.pinnedQueryId}`)
+        const { data } = await axios.delete(`pinned_query/${params.pinnedQueryId}`)
         this.DELETE_PINNED_QUERY_DATA(params)
     }
 
     @Action
     public async getPinnedQuestionByQuery(params: any) {
-        const { data } = await axios.get(`product/2/pinned_query/${params}` )
+        const { data } = await axios.get(`pinned_query/${params}/question`, {
+            params: {product_id: this.productId}})
         this.GET_PINNED_QUESTION_DATA(data)
     }
 
@@ -141,9 +143,9 @@ export default class Setting extends VuexModule implements ISettingState {
     public updatePinnedQuestionOrder(params: any) {
         //create array-like question_id
         const arrayQuestionId = params.value.map((item: any, index: any) => {
-            return item.question_id
+            return item.id
         })
-        axios.put(`product/2/pinned_query/${params.queryId}/question`,
+        axios.put(`pinned_query/${params.queryId}/question`,
             {question_order: arrayQuestionId})
 
         this.SET_PINNED_QUESTION_DATA(params.value)
@@ -151,21 +153,27 @@ export default class Setting extends VuexModule implements ISettingState {
 
     @Action
     public async addPinnedQuestionToQuery(params: any) {
-        const { data } = await axios.post(`product/2/pinned_query/${params.queryId}/question`,
-            {question_id: params.question_id, order: params.order, pin_type: params.pin_type})
-        this.ADD_PINNED_QUESTION_DATA(data.data)
+        axios.post(`pinned_query/${params.queryId}/question`,
+            {question_id: params.questionId, pin_type: params.pinType})
+            .then((response => {
+                this.ADD_PINNED_QUESTION_DATA(response.data.data)
+            }))
+            .catch((error) =>{
+                console.log("ERROR")
+            })
     }
 
     @Action
     public async unpinQuestionByQuery(params: any) {
-        const { data } = await axios.delete(`product/2/pinned_query/${params.queryId}/question/${params.questionId}`)
+        const { data } = await axios.post(`pinned_query/${params.queryId}/question/delete`,
+            {question_id: params.questionId,})
 
         this.UNPIN_QUESTION_DATA(params)
     }
 
     @Action
     public async unpinAllQuestionsByQuery(params: any) {
-        const { data } = await axios.delete(`product/2/pinned_query/${params.queryId}/question/unpin/${params.pinType}`)
+        const { data } = await axios.post(`pinned_query/${params.queryId}/question/unpin`, {pin_type: params.pinType})
 
         this.UNPIN_ALL_QUESTION_DATA(params)
     }

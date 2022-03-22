@@ -12,5 +12,31 @@ export default class extends Vue {
 
     formatDatetime(dt: any) {
         return new Date(dt).toLocaleString()
-      }
+    }
+    async promoteQuestion(item: any) {
+        this.$store.state.config.isLoading = true;
+        await SettingModule.addPinnedQuestionToQuery({
+              queryId: this.$route.params.pinnedQueryId,
+              questionId: item.id,
+              pinType: 1,
+        })
+        this.$store.state.config.isLoading = false;
+    }
+
+    async hideQuestion(item: any) {
+        this.$store.state.config.isLoading = true;
+        await SettingModule.addPinnedQuestionToQuery({
+              queryId: this.$route.params.pinnedQueryId,
+              questionId: item.id,
+              pinType: 0,
+        })
+        this.$store.state.config.isLoading = false;
+    }
+
+    async unpinQuestion(item: any) {
+        this.$store.state.config.isLoading = true;
+        await SettingModule.unpinQuestionByQuery({questionId: item.id,
+          queryId:this.$route.params.pinnedQueryId})
+        this.$store.state.config.isLoading = false;
+    }
 }

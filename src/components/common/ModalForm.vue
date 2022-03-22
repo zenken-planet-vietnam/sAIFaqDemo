@@ -8,42 +8,44 @@
       @hidden="resetModal"
       @ok="handleOk"
     >
-      <form ref="form" @submit.stop.prevent="handleSubmit">
-        <b-form-group
-          label="Name"
-          label-for="name-input"
-          invalid-feedback="Field is required"
-          :state="nameState"
-        >
-          <b-form-input
-            id="name-input"
-            v-model="name"
-            :state="nameState"
-            :placeholder="placeholder"
-            required
-          ></b-form-input>
-        </b-form-group>
-      </form>
+      <b-form @submit.stop.prevent="handleSubmit">
+        <label for="feedback-user">Keyword</label>
+        <b-form-input
+          id="feedback-user"
+          v-model="name"
+          :state="validation"
+          :placeholder="placeholder"
+          required
+        ></b-form-input>
+        <b-form-invalid-feedback :state="validation">
+          Keyword must be unique and cannot be empty!
+        </b-form-invalid-feedback>
+        <b-form-valid-feedback :state="validation">
+          Looks Good.
+        </b-form-valid-feedback>
+      </b-form>
     </b-modal>
   </div>
 </template>
 
 <script lang="ts">
 import {Component, Prop, Vue} from "vue-property-decorator";
-import {BModal} from 'bootstrap-vue'
+import {BModal, BForm} from 'bootstrap-vue'
 
 @Component({
   components: {
-    BModal
+    BModal,
+    BForm
   },
 })
 export default class ModalForm extends Vue {
 
   @Prop({ default: "" })
   private placeholder!: string;
+  @Prop({ default: "create" })
+  private formState!: string;
 
   name = ""
-
   nameState = null
 
   @Prop({ default: "" })
@@ -51,16 +53,16 @@ export default class ModalForm extends Vue {
   @Prop({ default: "" })
   private modalTitle!: string;
 
-  checkFormValidity() {
-    const valid = (this.$refs.form as Vue & { checkValidity: () => any }).checkValidity()
-    this.nameState = valid
-    return valid
+  get validation() {
+    if(this.formState == "edit") {
+      return this.name.length > 0 && this.name != this.placeholder
+    }
+    return true
   }
+
   resetModal() {
     this.name = ''
     this.nameState = null
-  }
-  created() {
   }
   handleOk(bvModalEvt: any) {
     // Prevent modal from closing
@@ -69,11 +71,8 @@ export default class ModalForm extends Vue {
     this.handleSubmit()
   }
   handleSubmit() {
-    // Exit when the form isn't valid
-
-    if (!this.checkFormValidity()) {
+    if (!this.validation)
       return
-    }
     // Push the name to submitted names
     this.$emit("formSubmited", this.name)
     // Hide the modal manually

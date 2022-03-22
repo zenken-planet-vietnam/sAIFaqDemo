@@ -13,18 +13,19 @@ export class BooleanSearch extends FullTextSearch {
         this.levenWords = []
     }
     search(query: any = '', tags: any = [], categoryId: any) {
-        if (query.length < 1 && tags.length === 0) {
-            return {
-                questions: categoryId && categoryId !== null ? this.scriptData.questions.filter((x: any) => x.categories.find((y: any) => y === categoryId) !== undefined) : this.scriptData.questions,
-                words: []
-            }
-        }
+        // for empty string query, we don't need to return all questions
+        // if (query.length < 1 && tags.length === 0) {
+        //     return {
+        //         questions: categoryId && categoryId !== null ? this.scriptData.questions.filter((x: any) => x.categories.find((y: any) => y === categoryId) !== undefined) : this.scriptData.questions,
+        //         words: [],
+        //         fullQuestions: this.scriptData.questions
+        //     }
+        // }
         // const text=tags.map((elem:any)=>{return elem.text}).join(" & ")+query.length>0 ?' $ '+query:''
         const text = tags.length > 0 ? tags.map((elem: any) => { return elem.text; }).join(" & ") + (query.length > 0 ? ' & ' + query : '') : query
         let pinningResult: any = []
         let hiddenResult: any = []
         let result: any = null
-
         if (!categoryId) {
             result = this.getQuestionPinings(text)
             pinningResult = result.promotedQuestions
@@ -42,12 +43,17 @@ export class BooleanSearch extends FullTextSearch {
         //ticket &pay & abc
         const expression = new Expression;
         const postfix = expression.createBinaryTree(text);
-        const results = this.recursiveSearch(postfix, questionFilter)
+        let results: any = []
+        //if not empty query, performing recursive-search
+        if (text)
+            results = this.recursiveSearch(postfix, questionFilter)
+        //else => using initial question list to apply pinning result for query empty
+        else
+            results = this.scriptData.questions.map((item:any) => item.id)
         const questions: any = pinningResult?.length ? pinningResult : []
         const hiddenList: any = hiddenResult?.length ? hiddenResult : []
-        //for displaying in Setting page
         const fullQuestionList: any = []
-
+        //for displaying in Setting page
         results.forEach((element: any) => {
             if (!questions.find((x: any) => { return x.id === element })) {
                 const findItem = this.scriptData.questions.find((x: any) => x.id === element)
@@ -74,7 +80,7 @@ export class BooleanSearch extends FullTextSearch {
             const promotedQuestions = result.questionIds.map((item: any) => {
                 let question = { ...this.scriptData.questions.find((x: any) => x.id === item) }
                 if (question) {
-                    question = { ...question, isPinned: true }
+                    question = { ...question, isPinned: true, pinType: 1 }
                 }
                 return question
             })
@@ -82,7 +88,7 @@ export class BooleanSearch extends FullTextSearch {
             const hiddenQuestions = result.hiddenIds.map((item: any) => {
                 let question = { ...this.scriptData.questions.find((x: any) => x.id === item) }
                 if (question) {
-                    question = { ...question, isPinned: false }
+                    question = { ...question, isPinned: false, pinType: 0 }
                 }
                 return question
             })

@@ -5,8 +5,7 @@
         <feather-icon icon="ArrowLeftIcon"/> Back
       </b-link>
     </div>
-    <b-tabs
-        v-model="tabIndex"
+    <b-tabs v-model="tabIndex"
       active-nav-item-class="font-weight-bold"
       content-class="mt-1"
     >
@@ -23,6 +22,7 @@
         <hidden-results/>
       </b-tab>
     </b-tabs>
+    <add-manually/>
     <div>
       <query-search-results/>
     </div>
@@ -31,18 +31,19 @@
 
 <script lang="ts">
 import {Component} from "vue-property-decorator";
-import { BTabs} from "bootstrap-vue";
+import { BTabs } from "bootstrap-vue";
 import SettingMixin from "@/@core/mixins/settingMixin";
 import {mixins} from "vue-class-component";
 import {SettingModule} from "@/store/modules/setting";
-import {PageModule} from "@/store/modules/page";
-import {default as HiddenResults} from "./HiddenResults.vue";
-import {default as PromotedResults} from "./PromotedResults.vue";
-import {default as QuerySearchResults} from "./QuerySearchResults.vue";
+import HiddenResults from "./HiddenResults.vue";
+import PromotedResults from "./PromotedResults.vue";
+import QuerySearchResults from "./QuerySearchResults.vue";
+import AddManually from "./AddManually.vue"
 
 @Component({
   components: {
     BTabs,
+    AddManually,
     "hidden-results": HiddenResults,
     "promoted-results": PromotedResults,
     "query-search-results": QuerySearchResults,
@@ -54,16 +55,10 @@ export default class PinnedQuestionDraggable extends mixins(SettingMixin) {
   async fetchDataPinnedQuestion(queryId: any) {
     await SettingModule.getPinnedQuestionByQuery(queryId)
   }
-  async fetchDataQuestionByQuery(text: any) {
-    let searchText = text.toLowerCase().trim();
-    PageModule.updateProcess(true);
-    PageModule.filterQuestions(searchText)
-  }
 
   async created() {
     this.$store.state.config.isLoading = true;
     await this.fetchDataPinnedQuestion(this.$route.params.pinnedQueryId)
-    await this.fetchDataQuestionByQuery(this.$route.params.pinnedQueryLabel)
     this.$store.state.config.isLoading = false;
   }
 
