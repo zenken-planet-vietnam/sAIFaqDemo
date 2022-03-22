@@ -222,6 +222,7 @@ class Page extends VuexModule implements IPageState {
             text
         }
         this.UPDATE_QUESTIONS_FILTER(data)
+        this.checkHaveSearch()
         return data.result
     }
     @Action
@@ -317,7 +318,11 @@ class Page extends VuexModule implements IPageState {
     async setUserInfo(data:any) {
         this.UPDATE_USER_INFO(data)
     }
-
+    @Action
+    checkHaveSearch(){
+        const selectedTag:any=this.tags.find((x: any) => x.isSelected)
+        if(!selectedTag&&this.textSearch.length===0&&!CategoryModule.selectedCategory?.isActive) this.UPDATE_SEARCH_PROCESS(false)
+    }
 }
 
 export const PageModule = getModule(Page)
