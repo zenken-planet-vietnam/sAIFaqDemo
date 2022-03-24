@@ -9,7 +9,7 @@ export default class HighLight extends Vue {
   private text!: String;
   @Prop({ default: "" })
   private targets!: Array<any>;
-  @Prop({default: "red"})
+  @Prop({default: "darkorange"})
   private textColor!: String;
 
   // get text highlight

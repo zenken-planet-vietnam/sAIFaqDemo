@@ -1,10 +1,10 @@
 <template lang="">
     <div class="tags-container" :class="[isSelectedTag?'selected-tags-container':'', !isModal?'none-background':'' ]"> 
-        <span v-if="!isSelectedTag">
+        <span class="title" v-if="!isSelectedTag">
             {{"Popular key words:"}}
         </span>
         <div class="tags-wrapper">
-          <tag class="tag" @click="updateTagFilter($event)" v-for="item, index in tags" :isSelectedTag="isSelectedTag" :data="item" :key="index"/>
+          <tag @click="updateTagFilter($event)" v-for="item, index in tags" :isSelectedTag="isSelectedTag" :data="item" :key="index"/>
             <!-- <div class="tag" @click="updateTagFilter(item)" v-for="item, index in tags" :key="index">
               <transition name="bounce">
               <div>
@@ -46,37 +46,17 @@ export default class Tags extends Vue {
 <style lang="scss">
 .tags-container {
   padding: 10px 20px;
-  background: #ebedef;
+  //background: #ebedef;
   &.selected-tags-container {
     padding: 0px !important;
     background: transparent;
   }
+  .title{
+    font-weight: bold;
+  }
   .tags-wrapper {
     display: flex;
     flex-direction: columns;
-    .tag {
-      color: #fff;
-      background: #138d75;
-      padding: 0.25rem 0.5rem;
-      margin: 5px;
-      border-radius: 16px;
-      cursor: pointer;
-      font-size: 14px;
-      white-space: nowrap;
-      position: relative;
-      .remove-tag {
-        top: -1px;
-        right: 0px;
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: red;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    }
   }
 }
 </style>

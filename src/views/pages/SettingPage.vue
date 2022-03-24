@@ -82,12 +82,13 @@ export default class Settings extends mixins(SettingMixin) {
   edittingItem!: any
   edittingIndex!: any
 
-  created() {
+   created() {
+    
     this.fetchingData()
   }
   //fetch data
   async fetchingData() {
-    this.$store.state.config.isLoading = true;
+   this.$store.state.config.isLoading = true;
     await SettingModule.getPinnedQueries({
     });
     this.$store.state.config.isLoading = false;

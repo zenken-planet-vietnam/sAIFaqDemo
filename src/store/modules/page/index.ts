@@ -31,6 +31,7 @@ export interface IPageState {
     faqQuestions: Array<any>,
     // search status (true: searching, false: end search)
     searchProcess: Boolean,
+    pageLoading: Boolean,
     // list tags
     tags: Array<any>,
     userInfo:any
@@ -65,6 +66,7 @@ class Page extends VuexModule implements IPageState {
     // list tags
     public tags = []
     public userInfo: any=getUserInfo()
+    public pageLoading= false
 
     @Mutation
     UPDATE_QUESTIONS(payload: any) {
@@ -147,6 +149,10 @@ class Page extends VuexModule implements IPageState {
        localStorage.removeItem(sAIFaqClientKey)
     }
 
+    @Mutation
+    UPDATE_PAGE_LOADING(payload: any) {
+       this.pageLoading=payload
+    }
     @Action
     //   update question lists
     updateQuestion(data: any) {
@@ -249,21 +255,26 @@ class Page extends VuexModule implements IPageState {
     }
 
     @Action
-    getQuestionFromCategory(categories: Array<number>) {
+    async getQuestionFromCategory(categories: Array<any>) {
         let questionCategory: Array<IQuestion> = []
-        Promise.all(categories.map((x) => axios.get('question/', { params: { product_id: [this.productId], category_id: [x] } })))
-            .then(data => {
+       await Promise.all(categories.map((x) => axios.get('question/', { params: { product_id: [this.productId], category_id: [x.id] } })))
+            .then(async data => {
                 for (let i = 0; i < data.length; i++) {
                     const questionResults = data[i]?.data?.data;
                     if (questionResults) {
                         for (let j = 0; j < questionResults.length; j++) {
                             const question = questionResults[j];
                             const questionResult = questionCategory.find((x: IQuestion) => x.id === question.id)
+                           const category:any={
+                               id: categories[i].id,
+                               label: categories[i].label,
+                               texts:categories[i].texts
+                           }
                             if (questionResult) {
-                                questionResult.categories.push(categories[i])
+                                questionResult.categories.push(category)
                             }
                             else {
-                                question.categories = [categories[i]]
+                                question.categories = [category]
                                 questionCategory.push(question)
                             }
                         }
@@ -273,7 +284,7 @@ class Page extends VuexModule implements IPageState {
                     return a.id - b.id
                 })
                 this.UPDATE_QUESTIONS(questionCategory)
-                this.getQuestionPinning()
+                await this.getQuestionPinning()
                     .then(() =>{
                         const defaultPinningResult: any = this.tagPakage.questionPinnings.find((item: any) => item.keyword=="")
                         const result: any = []
@@ -298,6 +309,18 @@ class Page extends VuexModule implements IPageState {
                         });
                         this.UPDATE_FAQ_QUESTIONS(result)
                     } )
+                    .catch(()=>{
+                        const result: any = []
+                        questionCategory.forEach((element: any) => {
+                            if (!result.find((x: any) => {
+                                return x.id === element.id
+                            })) {
+                                const findItem = questionCategory.find((x: any) => x.id === element.id)
+                                    result.push(findItem)
+                            }
+                        });
+                        this.UPDATE_FAQ_QUESTIONS(result)
+                    })
             })
         this.getListKeyword()
     }
@@ -322,6 +345,11 @@ class Page extends VuexModule implements IPageState {
     checkHaveSearch(){
         const selectedTag:any=this.tags.find((x: any) => x.isSelected)
         if(!selectedTag&&this.textSearch.length===0&&!CategoryModule.selectedCategory?.isActive) this.UPDATE_SEARCH_PROCESS(false)
+    }
+
+    @Action
+    setPageLoading(value:any){
+    this.UPDATE_PAGE_LOADING(value)
     }
 }
 

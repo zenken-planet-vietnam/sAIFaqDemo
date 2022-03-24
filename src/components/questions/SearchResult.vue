@@ -1,33 +1,35 @@
 <template lang="">
-    <div class="search-result" :class="{'result-modal':!config.SEARCH_BUTTON}">
-        <tag v-if="!config.SEARCH_BUTTON" :tags="unSelectedTags" :isModal="!config.SEARCH_BUTTON"/>
-        <div class='mt-2 result-title'>
-          <span>{{'Question results:'}}</span>
-        </div>
-        <div v-if="searchResults.length>0">
-        <question-item v-for="item in  searchResults" :key="item.id" :data="item" type="result"/>
-        </div>
-        <div v-else class="text-center font-weight-600">
-          No result
-        </div>
+  <div class="search-result" :class="{ 'result-modal': !config.SEARCH_BUTTON }">
+    <tag
+      v-if="!config.SEARCH_BUTTON"
+      :tags="unSelectedTags"
+      :isModal="!config.SEARCH_BUTTON"
+    />
+    <div class="mt-2 result-title">
+      <span>{{ 'Question results:' }}</span>
     </div>
+    <div v-if="searchResults.length > 0">
+      <question-pagination :questions="searchResults" type="result" :pageSize="10"/>
+    </div>
+    <div v-else class="text-center font-weight-600">No result</div>
+  </div>
 </template>
 <script lang="ts">
-import QuestionItem from "./QuestionItem.vue";
-import { Tag } from "@/components/questions";
+import { Tag } from '@/components/questions'
+import QuestionPagination from './QuestionPagination.vue'
 // import Tag from "./Tag.vue";
-import PageMixin from "@/@core/mixins/searchDataMixin";
-import { Component } from "vue-property-decorator";
-import { mixins } from "vue-class-component";
+import PageMixin from '@/@core/mixins/searchDataMixin'
+import { Component } from 'vue-property-decorator'
+import { mixins } from 'vue-class-component'
 @Component({
   components: {
-    QuestionItem,
     Tag,
+    QuestionPagination,
   },
 })
 export default class SearchResult extends mixins(PageMixin) {
   get unSelectedTags() {
-    return this.tags.filter((x:any) => !x.isSelected);
+    return this.tags.filter((x: any) => !x.isSelected)
   }
 }
 </script>

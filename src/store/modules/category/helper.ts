@@ -41,10 +41,10 @@ export function recursiveSelectedMenu(data: Array<ICategory>, value: any) {
 }
 
 // get all child category
-export function getChildCategories(categories: Array<ICategory>, childCategory: Array<number>) {
+export function getChildCategories(categories: Array<ICategory>, childCategory: Array<ICategory>) {
     categories.forEach(element => {
         if (!element.childs || element.childs.length === 0) {
-            childCategory.push(element.id)
+            childCategory.push(element)
         }
         else
             getChildCategories(element.childs, childCategory)

@@ -8,11 +8,7 @@
         </span>
       </div>
       <div v-if="faqQuestions">
-        <question-item
-          v-for="item in faqQuestions"
-          :key="item.id"
-          :data="item"
-        />
+        <question-pagination :loading="pageLoading" :questions="faqQuestionData" />
       </div>
       <div v-if="showRecentlyQuestions">
         <div class="faq-title mt-2">
@@ -20,13 +16,10 @@
             {{ "Recently Questions" }}
           </span>
         </div>
-        <div>
-          <question-item
-            v-for="item in recentlyQuestions"
-            :key="item.id"
-            :data="item"
-          />
+        <div class="recent-question">
+           <question-pagination :loading="pageLoading" :questions="recentlyQuestions" />
         </div>
+        
       </div>
     </div>
   </div>
@@ -37,18 +30,36 @@ import { BFormInput, BFormGroup, BForm } from "bootstrap-vue";
 import { SearchForm } from "@/components/questions";
 import { mixins } from "vue-class-component";
 import PageMixin from "@/@core/mixins/searchDataMixin";
+import {QuestionPagination} from "@/components/questions"
 @Component({
   components: {
     BFormInput,
     BFormGroup,
     BForm,
     SearchForm,
-    QuestionItem: () => import("@/components/questions/QuestionItem.vue"),
+    QuestionPagination
   },
 })
 export default class SearchPage extends mixins(PageMixin) {
+ get faqQuestionData(){
+    if(this.pageLoading){
+       let skeletonItems=[]
+      for (let i = 0; i < 10; i++) {
+       skeletonItems.push({})
+      }
+      return skeletonItems
+    }
+    return this.faqQuestions
+ }
   get recentlyQuestions() {
     let faqIds = this.localFaq();
+     if(this.pageLoading){
+       let skeletonItems=[]
+      for (let i = 0; i < faqIds.length; i++) {
+       skeletonItems.push({})
+      }
+      return skeletonItems
+    }
     const recentlyQuestion: any = []
 
     if (faqIds?.length && this.faqQuestions?.length) {
@@ -81,6 +92,9 @@ export default class SearchPage extends mixins(PageMixin) {
   .faq-title {
     padding: 10px 0px;
     border-bottom: 2px solid #138d75;
+  }
+  .recent-question{
+    transition: all .5s ease-in-out;
   }
 }
 </style>

@@ -15,13 +15,13 @@ export default class Config extends VuexModule implements IConfigState {
     public isLoading = false;
     public messages=messages
     @Mutation
-    UPDTATE_SELECTED_MENU(payload: boolean) {
+    UPDTATE_LOADING(payload: boolean) {
         this.isLoading = payload
     }
 
     @Action({ rawError: true })
     updateLoading(value: boolean) {
-        this.UPDTATE_SELECTED_MENU(value)
+        this.UPDTATE_LOADING(value)
     }
 }
 

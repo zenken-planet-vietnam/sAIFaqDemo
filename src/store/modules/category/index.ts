@@ -67,9 +67,9 @@ class Category extends VuexModule implements ICategoryState {
             })
         }
         this.UPDATE_CATEGORIES(data)
-        const childCategories: Array<number> = []
+        const childCategories: Array<ICategory> = []
         getChildCategories(data.data, childCategories)
-        PageModule.getQuestionFromCategory(childCategories)
+        await PageModule.getQuestionFromCategory(childCategories)
     }
 
     @Action

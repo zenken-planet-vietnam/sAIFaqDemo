@@ -12,6 +12,7 @@ export default class extends Vue {
     get searchResults() { return PageModule.searchResults }
     get textSearch() { return PageModule.textSearch }
     get searchWords() { return PageModule.searchWords }
+    get pageLoading(){ return PageModule.pageLoading}
     get tagSearch() { return PageModule.tagSearch }
     get config() { return this.$store.state.config.data }
     get selectedCategory() { return CategoryModule.selectedCategory }

@@ -131,8 +131,12 @@ export default class Layout extends Vue {
   get config(){
     return  this.$store.state.config.data
     }
-    created() {
-     CategoryModule.getCategory();
+   async created() {
+   // this.$store.state.config.isLoading=true
+    PageModule.setPageLoading(true)
+    await CategoryModule.getCategory();
+    //this.$store.state.config.isLoading=false
+    PageModule.setPageLoading(false)
     }
     mounted() {
       // check with initial form
