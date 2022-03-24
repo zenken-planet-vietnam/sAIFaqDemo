@@ -20,6 +20,7 @@ import { mixins } from "vue-class-component";
 export default class VerticalNavLink extends mixins(CategoryMixin) {
   @Prop({ default: {} })
   private item!: any;
+
   // select menu
   selectedMenu() {
     CategoryModule.updateSelectedCategory(this.item);

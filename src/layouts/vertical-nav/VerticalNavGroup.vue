@@ -6,7 +6,14 @@
       :class="{'close':!item.isOpen,'active':item.isOpen}"
        
     >
-      <span class="menu-title text-truncate">{{ item.label }}</span>
+      <b-skeleton-wrapper :loading="loading">
+         <template #loading>
+          <div>
+            <b-skeleton animation="fade" width="60%"></b-skeleton>
+          </div>
+          </template>
+        <span v-if="item.label" class="menu-title text-truncate">{{ item.label }}</span>
+      </b-skeleton-wrapper>
     </b-link>
     <b-collapse
       v-if="item.childs&&item.childs.length>0"
@@ -25,7 +32,7 @@
 </template>
 <script lang="ts">
 import VerticalNavLink from "./VerticalNavLink.vue";
-import { BCollapse, BLink } from "bootstrap-vue";
+import { BCollapse, BLink, BSkeleton, BSkeletonWrapper } from "bootstrap-vue";
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { CategoryModule } from "@/store/modules/category";
 @Component({
@@ -34,11 +41,17 @@ import { CategoryModule } from "@/store/modules/category";
     VerticalNavLink,
     BCollapse,
     BLink,
+    BSkeleton,
+    BSkeletonWrapper
   },
 })
 export default class VerticalNavGroup extends Vue {
   @Prop({ default: {} })
   private item!: any;
+
+  @Prop({ default: false })
+  private loading!: boolean;
+  
   // eslint-disable-next-line no-unused-vars
   resolveNavItemComponent(item: any) {
     return item.childs && item.childs.length > 0

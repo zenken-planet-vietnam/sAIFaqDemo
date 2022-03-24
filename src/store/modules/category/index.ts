@@ -8,7 +8,8 @@ import { recursiveCloseMenu, recursiveOpenMenu, recursiveSelectedMenu, getChildC
 import { PageModule } from "../page"
 export interface ICategoryState {
     categories: Array<ICategory>,
-    selectedCategory: any
+    selectedCategory: any,
+    pageLoading: boolean
 }
 
 export interface ISelectedCategory extends ICategory {
@@ -19,6 +20,8 @@ export interface ISelectedCategory extends ICategory {
 class Category extends VuexModule implements ICategoryState {
     public categories = []
     public selectedCategory = null as any
+    public pageLoading= false
+    
     @Mutation
     UPDATE_CATEGORIES(payload: any) {
         this.categories = payload.data
@@ -55,8 +58,14 @@ class Category extends VuexModule implements ICategoryState {
         PageModule.updateProcess(true);
         PageModule.filterQuestions(PageModule.textSearch && PageModule.textSearch.length > 0 ? PageModule.textSearch : "")
     }
+
+    @Mutation
+    UPDATE_LOAIDING(payload:boolean) {
+     this.pageLoading=payload
+    }
     @Action
     public async getCategory() {
+        this.UPDATE_LOAIDING(true)
         const { data }: any = await axios.get("category/")
         for (let i = 0; i < data.data.length; i++) {
             const element = data.data[i];
@@ -67,6 +76,7 @@ class Category extends VuexModule implements ICategoryState {
             })
         }
         this.UPDATE_CATEGORIES(data)
+        this.UPDATE_LOAIDING(false)
         const childCategories: Array<ICategory> = []
         getChildCategories(data.data, childCategories)
         await PageModule.getQuestionFromCategory(childCategories)

@@ -1,34 +1,44 @@
 <template lang="">
-    <div class="vertical-menu-container">
-        <ul class="vertical-menu">
-          <component
-            :is="resolveNavItemComponent(item)"
-            v-for="item in categories"
-            :key="item.id"
-            :item="item"
-          />
-        </ul>
-        <div v-if="$route.name!=='analytic'" @click="$router.push({name:'analytic'})" class="analytic-btn-container">
-          <div class="analytic-btn">
-          <feather-icon size="18" icon="BarChartIcon"/>
-          <span class="ml-1">Analytic</span>
-         </div>
-        </div>
-        <div v-if="$route.name!=='settings'" @click="$router.push({name:'settings'})" class="settings-btn-container">
-          <div class="settings-btn">
-          <feather-icon size="18" icon="SettingsIcon"/>
-          <span class="ml-1">Settings</span>
-         </div>
-        </div>
+  <div class="vertical-menu-container">
+    <ul class="vertical-menu">
+      <component
+        :is="resolveNavItemComponent(item)"
+        v-for="item in categoriesData"
+        :key="item.id"
+        :item="item"
+        :loading="loading"
+      />
+    </ul>
+    <div
+      v-if="$route.name !== 'analytic'"
+      @click="$router.push({ name: 'analytic' })"
+      class="analytic-btn-container"
+    >
+      <div class="analytic-btn">
+        <feather-icon size="18" icon="BarChartIcon" />
+        <span class="ml-1">Analytic</span>
+      </div>
     </div>
+    <div
+      v-if="$route.name !== 'settings'"
+      @click="$router.push({ name: 'settings' })"
+      class="settings-btn-container"
+    >
+      <div class="settings-btn">
+        <feather-icon size="18" icon="SettingsIcon" />
+        <span class="ml-1">Settings</span>
+      </div>
+    </div>
+  </div>
 </template>
 <script lang="ts">
-import { Component } from "vue-property-decorator";
-import VerticalNavLink from "./VerticalNavLink.vue";
-import VerticalNavGroup from "./VerticalNavGroup.vue";
-import CategoryMixin from "@/@core/mixins/categoryMixin";
+import { Component } from 'vue-property-decorator'
+import VerticalNavLink from './VerticalNavLink.vue'
+import VerticalNavGroup from './VerticalNavGroup.vue'
+import CategoryMixin from '@/@core/mixins/categoryMixin'
 // import { CategoryModule } from "@/store/modules/category";
-import { mixins } from "vue-class-component";
+import { mixins } from 'vue-class-component'
+
 @Component({
   components: {
     VerticalNavLink,
@@ -40,15 +50,30 @@ import { mixins } from "vue-class-component";
   },
 })
 export default class VerticalMenu extends mixins(CategoryMixin) {
+  get categoriesData() {
+    const categorieSkeleton: any = []
+    if (this.loading) {
+      for (let i = 0; i < 6; i++) {
+        categorieSkeleton.push({})
+      }
+      return categorieSkeleton
+    }
+    // return categorieSkeleton
+    return this.categories
+  }
   resolveNavItemComponent = (item: any) => {
+    if (!item.childs) return 'vertical-nav-group'
     return item.childs && item.childs.length > 0
-      ? "vertical-nav-group"
-      : "vertical-nav-link";
-  };
+      ? 'vertical-nav-group'
+      : 'vertical-nav-link'
+  }
 }
 </script>
 <style lang="scss">
 .vertical-menu-container {
+  .b-skeleton-wrapper {
+    width: 100%;
+  }
   position: relative;
   height: 100%;
   .vertical-menu {
@@ -60,7 +85,7 @@ export default class VerticalMenu extends mixins(CategoryMixin) {
       padding-left: 0;
     }
   }
-  .analytic-btn-container{
+  .analytic-btn-container {
     position: absolute;
     bottom: 10px;
     width: 100%;
@@ -84,7 +109,7 @@ export default class VerticalMenu extends mixins(CategoryMixin) {
       }
     }
   }
-  .settings-btn-container{
+  .settings-btn-container {
     position: absolute;
     bottom: 60px;
     width: 100%;
