@@ -46,7 +46,7 @@ export default class QuestionPagination extends Vue {
 
   @Watch('questions')
   onQuestionChange() {
-    this.pagination.pageSize = this.pageSize
+    this.pagination.pageNumber = 1
   }
 
   @Watch('pageSize')

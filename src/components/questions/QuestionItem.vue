@@ -15,7 +15,7 @@
       </template>
         <div v-if="!loading">
           <div v-if="type !== 'result'">
-            <span>{{ data.label }}</span>
+            <span>{{data.id}}-{{ data.label }}</span>
           </div>
           <div v-else>
             <high-light :text="data.label" :targets="getTargets" />
@@ -60,7 +60,7 @@ import { BSkeleton, BSkeletonWrapper } from 'bootstrap-vue'
 })
 export default class QuestionItem extends mixins(QuestionMixin) {
   @Prop({ default: null })
-  private data!: object
+  private data!: any
   @Prop({ default: 'frequent' })
   private type!: String
 
@@ -69,6 +69,12 @@ export default class QuestionItem extends mixins(QuestionMixin) {
 
   get getTargets() {
     return this?.searchWords
+  }
+  created() {
+    console.log(this.data.id);
+  }
+  updated() {
+     console.log(this.data.id);
   }
 
   selectQuestion(data: any) {

@@ -44,25 +44,23 @@ import { mixins } from 'vue-class-component'
     VerticalNavLink,
     VerticalNavGroup,
   },
-  created() {
-    // get all menu
-    // CategoryModule.getCategory();
-  },
 })
 export default class VerticalMenu extends mixins(CategoryMixin) {
   get categoriesData() {
     const categorieSkeleton: any = []
+     console.log("compted",this.loading);
     if (this.loading) {
       for (let i = 0; i < 6; i++) {
-        categorieSkeleton.push({})
+        categorieSkeleton.push({id: i})
       }
       return categorieSkeleton
     }
     // return categorieSkeleton
     return this.categories
   }
-  resolveNavItemComponent = (item: any) => {
-    if (!item.childs) return 'vertical-nav-group'
+
+  resolveNavItemComponent(item: any){
+    if (this.loading) return 'vertical-nav-group'
     return item.childs && item.childs.length > 0
       ? 'vertical-nav-group'
       : 'vertical-nav-link'

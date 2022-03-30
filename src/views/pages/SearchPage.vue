@@ -64,9 +64,9 @@ export default class SearchPage extends mixins(PageMixin) {
 
     if (faqIds?.length && this.faqQuestions?.length) {
       faqIds.forEach((x: any) => {
-        const findItem = this.faqQuestions.find((item: any) => item.id == x)
+        const findItem:any = this.faqQuestions.find((item: any) => item.id == x)
         if (findItem)
-          recentlyQuestion.push(findItem)
+          recentlyQuestion.push({...findItem})
       })
       // return faqIds.map((x: any) => {
       //   return this.questions.find((y: any) => y.id === x);
