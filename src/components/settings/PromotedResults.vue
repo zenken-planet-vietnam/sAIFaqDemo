@@ -1,12 +1,12 @@
 <template>
   <div>
-    <b-row v-if="pinnedPromotedQuestionList.length > 0" class="d-flex align-items-center justify-content-between">
+    <b-row v-if="promotedQuestions.length > 0" class="d-flex align-items-center justify-content-between">
       <b-col md="8" class="settings-title mt-1 mb-1">
-        <span>{{ pinnedPromotedQuestionList.length }}</span>
+        <span>{{ promotedQuestions.length }}</span>
           Promoted results
       </b-col>
-      <b-col md="4" v-if="pinnedPromotedQuestionList.length > 0" >
-        <b-button class="ml-1 float-right" variant="outline-danger" @click="demoteAll" size="sm">
+      <b-col md="4" v-if="promotedQuestions.length > 0" >
+        <b-button class="ml-1 float-right" variant="outline-danger" @click="deleteAll(1)" size="sm">
           Demote all
         </b-button>
         <b-button v-b-toggle.sidebar-backdrop class="float-right" variant="outline-primary" size="sm">
@@ -31,14 +31,14 @@
       <b-col md="12">
         <draggable
           class="row-border"
-          v-model="pinnedPromotedQuestionList"
+          v-model="promotedQuestions"
           v-bind="dragOptions"
           @start="drag = true"
           @end="drag = false"
         >
           <transition-group type="transition" :name="!drag ? 'flip-list' : null">
             <div
-              v-for="item in pinnedPromotedQuestionList"
+              v-for="item in promotedQuestions"
               :key="item.id"
             >
               <div class="d-flex justify-content-between align-items-center question-section-item">
@@ -61,7 +61,6 @@ import {Component} from "vue-property-decorator";
 import {BCol, BRow} from "bootstrap-vue";
 import SettingMixin from "@/@core/mixins/settingMixin";
 import {mixins} from "vue-class-component";
-import {SettingModule} from "@/store/modules/setting";
 
 @Component({
   components: {
@@ -91,44 +90,12 @@ export default class PromotedResults extends mixins(SettingMixin) {
         ghostClass: "ghost"
       };
     }
-
-  get pinnedPromotedQuestionList() {
-    return this.pinnedQuestionByQueryID.filter((item: any) => item.pin_type)
-  }
-
-  set pinnedPromotedQuestionList(value: any) {
-    SettingModule.updatePinnedQuestionOrder({
-      queryId: this.$route.params.pinnedQueryId, value:value
-    })
-  }
-
-  async demoteAll() {
-    this.$store.state.config.isLoading = true;
-    await SettingModule.unpinAllQuestionsByQuery({
-      queryId: this.$route.params.pinnedQueryId,
-      pinType: 1
-    })
-    this.$store.state.config.isLoading = false;
-  }
 }
 </script>
 
 <style scoped>
 .button {
   margin-top: 35px;
-}
-
-.flip-list-move {
-  transition: transform 0.5s;
-}
-
-.no-move {
-  transition: transform 0s;
-}
-
-.ghost {
-  opacity: 0.5;
-  background: #c8ebfb;
 }
 
 .question-section-item {

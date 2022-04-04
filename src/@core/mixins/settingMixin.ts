@@ -9,10 +9,27 @@ export default class extends Vue {
     get pinnedQuestionByQueryID(): any { return SettingModule.pinnedQuestion }
     get hiddenQuestions(): any { return SettingModule.pinnedQuestion.filter((item: any) => !item.pin_type) }
     get promotedQuestions(): any { return SettingModule.pinnedQuestion.filter((item: any) => item.pin_type) }
-
+    set promotedQuestions(value: any) {
+        this.updateQuestionOrder(value)
+    }
+    updateQuestionOrder(value: any) {
+        SettingModule.updatePinnedQuestionOrder({
+            queryId: this.$route.params.pinnedQueryId, value:value
+        })
+    }
     formatDatetime(dt: any) {
         return new Date(dt).toLocaleString()
     }
+    async pinQuestion(item: any) {
+        this.$store.state.config.isLoading = true;
+        await SettingModule.addPinnedQuestionToQuery({
+              queryId: this.$route.params.pinnedQueryId,
+              questionId: item.id,
+              pinType: item.pinType,
+        })
+        this.$store.state.config.isLoading = false;
+    }
+
     async promoteQuestion(item: any) {
         this.$store.state.config.isLoading = true;
         await SettingModule.addPinnedQuestionToQuery({
@@ -37,6 +54,24 @@ export default class extends Vue {
         this.$store.state.config.isLoading = true;
         await SettingModule.unpinQuestionByQuery({questionId: item.id,
           queryId:this.$route.params.pinnedQueryId})
+        this.$store.state.config.isLoading = false;
+    }
+    get countPromotedQuestion() {
+        return this.pinnedQuestionByQueryID
+            .filter((item: any) => item.pin_type).length
+        }
+
+    get countHiddenQuestion() {
+        return this.pinnedQuestionByQueryID
+            .filter((item: any) => !item.pin_type).length
+        }
+
+    async deleteAll(pinType: any) {
+        this.$store.state.config.isLoading = true;
+        await SettingModule.unpinAllQuestionsByQuery({
+          queryId: this.$route.params.pinnedQueryId,
+          pinType: pinType
+        })
         this.$store.state.config.isLoading = false;
     }
 }

@@ -1,59 +1,56 @@
 <template>
   <div class="">
-    <div class="mb-1 d-flex align-items-center">
+    <div class="mb-1 d-flex align-items-center justify-content-between">
       <b-link class="d-flex align-items-center" @click="$router.push({name:'settings'})">
         <feather-icon icon="ArrowLeftIcon"/> Back
       </b-link>
+      <div>
+        <b-button variant="outline-dark" @click="toggleView(true)" :pressed="pressView" size="sm" class="mr-1">
+          <feather-icon icon="ListIcon"></feather-icon>
+        </b-button>
+        <b-button variant="outline-dark" @click="toggleView(false)" :pressed="!pressView" size="sm" class="">
+          <feather-icon icon="ColumnsIcon"></feather-icon>
+        </b-button>
+      </div>
     </div>
-    <b-tabs v-model="tabIndex"
-      active-nav-item-class="font-weight-bold"
-      content-class="mt-1"
-    >
-      <b-tab active>
-        <template #title>
-          Promoted Results <span class="sai-badges"> {{countPromotedQuestion}}</span>
-        </template>
-        <promoted-results/>
-      </b-tab>
-      <b-tab lazy>
-        <template #title>
-          Hidden Results <span class="sai-badges"> {{countHiddenQuestion}}</span>
-        </template>
-        <hidden-results/>
-      </b-tab>
-    </b-tabs>
+    <div v-if="pressView">
+      <horizontal-view/>
+    </div>
+    <div v-else>
+      <vertical-view/>
+    </div>
     <add-manually/>
-    <div>
-      <query-search-results/>
-    </div>
+
   </div>
 </template>
 
 <script lang="ts">
 import {Component} from "vue-property-decorator";
-import { BTabs } from "bootstrap-vue";
 import SettingMixin from "@/@core/mixins/settingMixin";
 import {mixins} from "vue-class-component";
 import {SettingModule} from "@/store/modules/setting";
-import HiddenResults from "./HiddenResults.vue";
-import PromotedResults from "./PromotedResults.vue";
-import QuerySearchResults from "./QuerySearchResults.vue";
+import HorizontalView from "./VerticalView.vue";
+import VerticalView from "./HorizontalView.vue"
 import AddManually from "./AddManually.vue"
 
 @Component({
   components: {
-    BTabs,
+    HorizontalView,
+    VerticalView,
     AddManually,
-    "hidden-results": HiddenResults,
-    "promoted-results": PromotedResults,
-    "query-search-results": QuerySearchResults,
+
   },
 })
 export default class PinnedQuestionDraggable extends mixins(SettingMixin) {
-  tabIndex: any = 1
+  pressView: boolean = true
 
   async fetchDataPinnedQuestion(queryId: any) {
     await SettingModule.getPinnedQuestionByQuery(queryId)
+  }
+
+  toggleView(isPressed: any) {
+    this.pressView = isPressed
+    return this.toggleView
   }
 
   async created() {
@@ -61,21 +58,24 @@ export default class PinnedQuestionDraggable extends mixins(SettingMixin) {
     await this.fetchDataPinnedQuestion(this.$route.params.pinnedQueryId)
     this.$store.state.config.isLoading = false;
   }
-
-  get countPromotedQuestion() {
-    return this.pinnedQuestionByQueryID
-        .filter((item: any) => item.pin_type).length
-  }
-
-  get countHiddenQuestion() {
-    return this.pinnedQuestionByQueryID
-        .filter((item: any) => !item.pin_type).length
-  }
-
 }
 </script>
 
-<style scoped>
+<style>
+
+.flip-list-move {
+  transition: transform 0.5s;
+}
+
+.no-move {
+  transition: transform 0s;
+}
+
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
+
 .sai-badges {
   font-size: 12px;
   font-weight: 500;

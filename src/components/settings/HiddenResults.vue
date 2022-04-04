@@ -6,7 +6,7 @@
           Hidden results
       </b-col>
       <b-col md="4" v-if="this.hiddenQuestions.length > 0" >
-        <b-button class="ml-1 float-right" variant="outline-danger" @click="unhideAll" size="sm">
+        <b-button class="ml-1 float-right" variant="outline-danger" @click="deleteAll(0)" size="sm">
           Unhide all
         </b-button>
         <b-button v-b-toggle.sidebar-backdrop class="float-right" variant="outline-primary" size="sm">
@@ -52,7 +52,6 @@ import {Component} from "vue-property-decorator";
 import { BCol, BRow } from "bootstrap-vue";
 import SettingMixin from "@/@core/mixins/settingMixin";
 import {mixins} from "vue-class-component";
-import {SettingModule} from "@/store/modules/setting";
 
 @Component({
   components: {
@@ -61,17 +60,7 @@ import {SettingModule} from "@/store/modules/setting";
   },
 })
 export default class HiddenResults extends mixins(SettingMixin) {
-  async unhideAll() {
-        this.$store.state.config.isLoading = true;
-        await SettingModule.unpinAllQuestionsByQuery({
-          queryId: this.$route.params.pinnedQueryId,
-          pinType: 0
-        })
-        this.$store.state.config.isLoading = false;
-    }
 }
-
-
 </script>
 
 <style scoped>

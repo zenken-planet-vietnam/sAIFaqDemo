@@ -19,11 +19,26 @@
       <b-col md="12">
         <b-table ref="queryTable" hover :fields="fields" :items="this.pinnedQueriesData">
           <template #cell(keyword)="row">
-            <b-link @click="$router.push({
+            <b-link :id="'label-'+row.item.id" @click="$router.push({
             name:'pinnedQueryDetail',
             params: {'pinnedQueryId': row.item.id, 'pinnedQueryLabel': row.item.label}})">
               {{ row.item.label ? row.item.label : '""' }}
             </b-link>
+            <b-tooltip placement="right" :target="'label-'+row.item.id" triggers="hover">
+              <div>
+                <span>Promoted results:</span>
+                <div>
+                  <p>Where and when do I pay my fare for a train?</p>
+                  <p>Where are Shinkansen tickets sold?</p>
+                  <p>Are fares different for babies / children?</p>
+                </div>
+                Hidden results:
+                <div>
+                  <p>Where and when do I pay my fare for a train?</p>
+                  <p>How is the fare handled when going to confirm?</p>
+                </div>
+              </div>
+            </b-tooltip>
           </template>
           <template #cell(modified)="row">
             <span>{{ formatDatetime(row.item.modified) }}</span>
@@ -44,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import { BRow, BCol, BTable } from "bootstrap-vue";
+import { BRow, BCol, BTable, BTooltip } from "bootstrap-vue";
 import {
   PinnedQuestionDraggable
 } from "@/components/settings";
@@ -61,6 +76,7 @@ import ModalForm from "@/components/common/ModalForm.vue"
     BTable,
     PinnedQuestionDraggable,
     ModalForm,
+    BTooltip
   },
 })
 export default class Settings extends mixins(SettingMixin) {
@@ -127,6 +143,9 @@ export default class Settings extends mixins(SettingMixin) {
   }
   addNewQuery(data: any) {
     SettingModule.addPinnedQuery({label: data})
+  }
+  onHoverDisplayReview(data: any) {
+    SettingModule.getPinnedQuestionByQuery(data.id)
   }
 }
 </script>
