@@ -114,7 +114,6 @@ export default class Setting extends VuexModule implements ISettingState {
                 this.ADD_PINNED_QUERIES_DATA(response.data)
             })
             .catch(err => {
-                console.log(err.response.data.data.errors)
             })
     }
 

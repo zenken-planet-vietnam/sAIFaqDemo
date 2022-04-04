@@ -45,7 +45,7 @@ export default class Tags extends Vue {
 </script>
 <style lang="scss">
 .tags-container {
-  padding: 10px 20px;
+  padding: 10px 0px;
   //background: #ebedef;
   &.selected-tags-container {
     padding: 0px !important;

@@ -70,11 +70,13 @@ export default class QuestionItem extends mixins(QuestionMixin) {
   get getTargets() {
     return this?.searchWords
   }
+  //check question render 
   created() {
-    console.log(this.data.id);
+    console.log('created question id: ',this.data.id);
   }
+
   updated() {
-     console.log(this.data.id);
+     console.log('updated question id: ',this.data.id);
   }
 
   selectQuestion(data: any) {

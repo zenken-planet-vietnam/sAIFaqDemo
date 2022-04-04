@@ -14,6 +14,7 @@ export default class Config extends VuexModule implements IConfigState {
     public enquete=enquete;
     public isLoading = false;
     public messages=messages
+
     @Mutation
     UPDTATE_LOADING(payload: boolean) {
         this.isLoading = payload

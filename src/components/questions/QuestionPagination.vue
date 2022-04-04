@@ -1,8 +1,8 @@
 <template lang="">
   <div class="question-pagination" v-if="questions">
     <question-item
-      v-for="(item, index) in questionPagination"
-      :key="index"
+      v-for="item in selectQuestionPagination"
+      :key="item.id"
       :data="item"
       :type="type"
       :loading="loading"
@@ -28,11 +28,7 @@ import QuestionItem from '@/components/questions/QuestionItem.vue'
   },
 })
 export default class QuestionPagination extends Vue {
-  pagination = {
-    pageSize: 5,
-    pageNumber: 1,
-  }
-
+ 
   @Prop({ default: [] })
   private questions!: Array<any>
   @Prop({ default: '' })
@@ -44,25 +40,38 @@ export default class QuestionPagination extends Vue {
   @Prop({ default: 5 })
   private pageSize!: number
 
+  pagination = {
+    pageSize: this.pageSize,
+    pageNumber: 1,
+  }
+ //list of question for pagination
+  questionPagination:any=this.questions ?this.questions.slice(0,this.pagination.pageSize):[]
+
   @Watch('questions')
   onQuestionChange() {
     this.pagination.pageNumber = 1
+    this.questionPagination=this.questions.slice(0,this.pagination.pageSize)
   }
 
-  @Watch('pageSize')
-  onPageSizeChange() {
-    this.pagination.pageSize = this.pageSize
-  }
-
-  get questionPagination() {
+ //return new lits of question  when pagination changing
+  get selectQuestionPagination() {
+    console.log('case 1');
+    
     return this.questions.slice(
       0,
       this.pagination.pageNumber * this.pagination.pageSize
     )
   }
-
+  //click show more button
   showMore() {
+    // plus page number 1
     this.pagination.pageNumber++
+    const start=this.pagination.pageSize*(this.pagination.pageNumber-1)
+    const end=Math.min((start+this.pagination.pageSize),this.questions.length)
+    //push new questions
+    for (let i =start ; i < end; i++) {
+      this.questionPagination.push(this.questions[i])
+    }
   }
 }
 </script>

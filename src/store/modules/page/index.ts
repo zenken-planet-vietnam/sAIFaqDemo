@@ -3,7 +3,7 @@
 import axios from "@/axios"
 import { analysis } from "@/@core/libs/analysis"
 import { BooleanSearch } from "@/@core/libs/boolean_search"
-
+import { imageTag} from "@/const"
 import { VuexModule, Module, Action, Mutation, getModule } from "vuex-module-decorators"
 import store from "@/store"
 import { IQuestion } from "@/models/question"
@@ -35,6 +35,7 @@ export interface IPageState {
     // list tags
     tags: Array<any>,
     userInfo:any
+    imageTag:any
 }
 
 @Module({ dynamic: true, store, name: 'page' })
@@ -67,6 +68,8 @@ class Page extends VuexModule implements IPageState {
     public tags = []
     public userInfo: any=getUserInfo()
     public pageLoading= false
+    public imageTag=imageTag
+
 
     @Mutation
     UPDATE_QUESTIONS(payload: any) {

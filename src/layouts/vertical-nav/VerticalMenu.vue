@@ -48,7 +48,6 @@ import { mixins } from 'vue-class-component'
 export default class VerticalMenu extends mixins(CategoryMixin) {
   get categoriesData() {
     const categorieSkeleton: any = []
-     console.log("compted",this.loading);
     if (this.loading) {
       for (let i = 0; i < 6; i++) {
         categorieSkeleton.push({id: i})

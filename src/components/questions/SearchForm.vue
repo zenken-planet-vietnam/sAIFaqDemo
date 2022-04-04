@@ -8,6 +8,7 @@
     </div>
     <div class="search-container">
       <div class="search">
+        <!-- tag category -->
         <tag
           v-if="
             selectedCategory &&
@@ -18,6 +19,7 @@
           :isSelectedTag="true"
           @click="unActiveFilter"
         />
+        <!-- tag key word -->
         <tags
           v-if="selectedTags.length > 0"
           :tags="selectedTags"
@@ -43,6 +45,7 @@
       :tags="filterTag"
       :isSelectedTag="false"
     />
+    <image-tag :data="imageTag"/>
     <search-result ref="result" v-if="searchProcess" />
   </div>
 </template>
@@ -52,6 +55,7 @@ import SearchResult from './SearchResult.vue'
 import PageMixin from '@/@core/mixins/searchDataMixin'
 import Tags from './Tags.vue'
 import Tag from './Tag.vue'
+import ImageTag from "./ImageTag.vue"
 import AutoCompleteInput from './AutoCompleteInput.vue'
 import { PageModule } from '@/store/modules/page'
 import { CategoryModule } from '@/store/modules/category'
@@ -63,6 +67,7 @@ import { mixins } from 'vue-class-component'
     SearchResult,
     Tags,
     Tag,
+    ImageTag,
     AutoCompleteInput,
   },
   destroyed() {

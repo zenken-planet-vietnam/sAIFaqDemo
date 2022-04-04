@@ -10,7 +10,7 @@
       <div v-if="faqQuestions">
         <question-pagination :loading="pageLoading" :questions="faqQuestionData" />
       </div>
-      <div v-if="showRecentlyQuestions">
+      <!-- <div v-if="showRecentlyQuestions">
         <div class="faq-title mt-2">
           <span class="font-weight-bold">
             {{ "Recently Questions" }}
@@ -20,7 +20,7 @@
            <question-pagination :loading="pageLoading" :questions="recentlyQuestions" />
         </div>
         
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
