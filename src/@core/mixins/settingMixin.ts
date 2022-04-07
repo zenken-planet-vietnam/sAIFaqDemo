@@ -74,4 +74,30 @@ export default class extends Vue {
         })
         this.$store.state.config.isLoading = false;
     }
+
+    async cloneQuestions(targetLabel: any, pinType: any, replace: any) {
+        this.$store.state.config.isLoading = true;
+        await SettingModule.cloneQuestions({
+            queryId: this.$route.params.pinnedQueryId,
+            targetLabel: targetLabel,
+            pinType: pinType,
+            replace: replace
+        })
+        this.$store.state.config.isLoading = false;
+    }
+
+    async manualCloneQuestions(targetLabel: any,
+                               replace: any,
+                               promotedList: any,
+                               hiddenList: any) {
+        this.$store.state.config.isLoading = true;
+        await SettingModule.manualCloneQuestions({
+            queryId: this.$route.params.pinnedQueryId,
+            targetLabel: targetLabel,
+            replace: replace,
+            promotedList: promotedList,
+            hiddenList: hiddenList,
+        })
+        this.$store.state.config.isLoading = false;
+    }
 }

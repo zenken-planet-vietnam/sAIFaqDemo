@@ -45,7 +45,7 @@ export default class Setting extends VuexModule implements ISettingState {
 
     @Mutation
     private GET_PINNED_QUESTION_DATA(payload: any) {
-        this.pinnedQuestion = payload.data
+        this.pinnedQuestion = payload.data.map((item: any) => ({...item, selected: true}))
     }
 
     @Mutation
@@ -177,5 +177,24 @@ export default class Setting extends VuexModule implements ISettingState {
         this.UNPIN_ALL_QUESTION_DATA(params)
     }
 
+    @Action
+    public async cloneQuestions(params: any) {
+        const { data } = await axios.post(`pinned_query/${params.queryId}/question/clone`,
+            {pin_type: params.pinType,
+                replace: params.replace,
+                target_query_label: params.targetLabel
+            })
+    }
+
+    @Action
+    public async manualCloneQuestions(params: any) {
+        const { data } = await axios.post(`pinned_query/${params.queryId}/question/manual-clone`,
+            {
+                replace: params.replace,
+                target_query_label: params.targetLabel,
+                promoted_ids: params.promotedList,
+                hidden_ids: params.hiddenList
+            })
+    }
 }
 export const SettingModule = getModule(Setting)

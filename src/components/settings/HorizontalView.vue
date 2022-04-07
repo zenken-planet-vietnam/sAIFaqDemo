@@ -23,23 +23,11 @@
                   <template #button-content>
                       <feather-icon icon="MoreVerticalIcon"></feather-icon>
                   </template>
-                  <b-dropdown-item-button v-b-modal.modal-clone>Clone</b-dropdown-item-button>
+                  <b-dropdown-item-button @click="selectedPinType=1" v-b-modal.modal-clone>Clone</b-dropdown-item-button>
                   <b-dropdown-item-button @click="deleteAll(1)" >Delete all</b-dropdown-item-button>
                 </b-dropdown>
               </div>
             </template>
-            <b-modal id="modal-clone" title="Clone">
-              <span class="my-4">Copy to    </span>
-              <b-form-select v-model="selected" :options="options"></b-form-select>
-              <b-form-checkbox
-                id="checkbox-1"
-                name="checkbox-1"
-                value="accepted"
-                unchecked-value="not_accepted"
-              >
-                Replace
-              </b-form-checkbox>
-            </b-modal>
 
             <draggable
               class="list-group"
@@ -79,7 +67,7 @@
                   <template #button-content>
                       <feather-icon icon="MoreVerticalIcon"></feather-icon>
                   </template>
-                  <b-dropdown-item-button>Clone</b-dropdown-item-button>
+                  <b-dropdown-item-button @click="selectedPinType=0" v-b-modal.modal-clone>Clone</b-dropdown-item-button>
                   <b-dropdown-item-button @click="deleteAll(0)" >Delete all</b-dropdown-item-button>
                 </b-dropdown>
               </div>
@@ -142,6 +130,12 @@
           </b-card>
         </b-card-group>
       </b-col>
+      <clone-modal @toggleManualCloneModal="toggleManualCloneModal" :cloneLabel="cloneLabel" @handleQuickClone="handleQuickClone"></clone-modal>
+      <manual-clone-modal
+          @toggleManualCloneModal="toggleManualCloneModal"
+          v-if="modalDisplay"
+          :cloneLabel="cloneLabel" @handleManualClone="handleManualClone"></manual-clone-modal>
+
     </b-row>
   </div>
 </template>
@@ -153,7 +147,8 @@ import SettingMixin from "@/@core/mixins/settingMixin";
 import {mixins} from "vue-class-component";
 import {BCol, BRow, BFormSelect} from "bootstrap-vue";
 import {PageModule} from "@/store/modules/page";
-
+import CloneModal from "./CloneModal.vue";
+import ManualCloneModal from "./ManualCloneModal.vue";
 
 @Component({
   components: {
@@ -161,19 +156,28 @@ import {PageModule} from "@/store/modules/page";
     BRow,
     draggable,
     BFormSelect,
+    CloneModal,
+    ManualCloneModal
   },
 })
 export default class VerticalView extends mixins(SettingMixin) {
   drag = false
   executionStack: any = []
-  selected: any = null
-  options: any = [
-    {value: 1, text: "children"},
-    {value: 2, text: "ticket"},
-    {value: 3, text: "where"},
-    {value: 4, text: "lost"},
-    {value: 5, text: "fare"}
-  ]
+  selectedPinType: any = null
+  cloneLabel: any = []
+  replace: any = false
+  modalDisplay: any = false
+
+  toggleManualCloneModal(value: any) {
+    this.modalDisplay = value
+    this.$nextTick(() => {
+      if (value)
+        this.$bvModal.show('manual-modal-clone')
+      else
+        this.$bvModal.hide('manual-modal-clone')
+    })
+  }
+
   get dragOptions() {
       return {
         animation: 200,
@@ -214,19 +218,22 @@ export default class VerticalView extends mixins(SettingMixin) {
       await func(params)
     }
   }
+
   created() {
-    // console.log(this.pinnedQueriesData.map((item: any) => {
-    //         return {value: item.id, text: item.label}
-    //     }
-    // ).filter((item: any) => item.value != this.$route.params.pinnedQueryId ))
+    this.cloneLabel = this.pinnedQueriesData.map((item: any) => {
+            return {value: item.label, text: item.label, id: item.id}
+        }
+    ).filter((item: any) => item.id != this.$route.params.pinnedQueryId)
   }
-  // filteringCloneQuery() {
-  //   return this.pinnedQueriesData.map((item: any) => {
-  //         if (item.id != this.$route.params.pinnedQueryId)
-  //           return {value: item.id, text: item.label}
-  //       }
-  //   )
-  // }
+
+  async handleQuickClone(data: any) {
+    await this.cloneQuestions(data.selectedLabel, this.selectedPinType, data.replace)
+  }
+
+  async handleManualClone(data: any) {
+    await this.manualCloneQuestions(data.selectedLabel, data.replace,
+        data.promotedList, data.hiddenList)
+  }
 
 }
 </script>

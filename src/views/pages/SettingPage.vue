@@ -24,21 +24,21 @@
             params: {'pinnedQueryId': row.item.id, 'pinnedQueryLabel': row.item.label}})">
               {{ row.item.label ? row.item.label : '""' }}
             </b-link>
-            <b-tooltip placement="right" :target="'label-'+row.item.id" triggers="hover">
-              <div>
-                <span>Promoted results:</span>
-                <div>
-                  <p>Where and when do I pay my fare for a train?</p>
-                  <p>Where are Shinkansen tickets sold?</p>
-                  <p>Are fares different for babies / children?</p>
-                </div>
-                Hidden results:
-                <div>
-                  <p>Where and when do I pay my fare for a train?</p>
-                  <p>How is the fare handled when going to confirm?</p>
-                </div>
-              </div>
-            </b-tooltip>
+<!--            <b-tooltip placement="right" :target="'label-'+row.item.id" triggers="hover">-->
+<!--              <div>-->
+<!--                <span>Promoted results:</span>-->
+<!--                <div>-->
+<!--                  <p>Where and when do I pay my fare for a train?</p>-->
+<!--                  <p>Where are Shinkansen tickets sold?</p>-->
+<!--                  <p>Are fares different for babies / children?</p>-->
+<!--                </div>-->
+<!--                Hidden results:-->
+<!--                <div>-->
+<!--                  <p>Where and when do I pay my fare for a train?</p>-->
+<!--                  <p>How is the fare handled when going to confirm?</p>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </b-tooltip>-->
           </template>
           <template #cell(modified)="row">
             <span>{{ formatDatetime(row.item.modified) }}</span>
