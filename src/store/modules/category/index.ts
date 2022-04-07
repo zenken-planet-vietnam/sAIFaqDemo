@@ -53,10 +53,10 @@ class Category extends VuexModule implements ICategoryState {
     }
 
     @Mutation
-    UNACTIVE_SELECTED_MENU() {
+    UNACTIVE_SELECTED_MENU(tag:any) {
         this.selectedCategory.isActive = false
-        PageModule.updateProcess(true);
-        PageModule.filterQuestions(PageModule.textSearch && PageModule.textSearch.length > 0 ? PageModule.textSearch : "")
+      //  PageModule.updateProcess(true);
+      //  PageModule.filterQuestions(PageModule.textSearch && PageModule.textSearch.length > 0 ? PageModule.textSearch : "")
     }
 
     @Mutation
@@ -121,8 +121,8 @@ class Category extends VuexModule implements ICategoryState {
     }
 
     @Action
-    unActiveSelectedMenu() {
-        this.UNACTIVE_SELECTED_MENU()
+    unActiveSelectedMenu(tag:any) {
+        this.UNACTIVE_SELECTED_MENU(tag)
     }
 }
 export const CategoryModule = getModule(Category)

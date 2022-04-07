@@ -17,4 +17,6 @@ export default class extends Vue {
     get config() { return this.$store.state.config.data }
     get selectedCategory() { return CategoryModule.selectedCategory }
     get imageTag(){return PageModule.imageTag}
+    get selectedTag() { return PageModule.selectedTag}
+    get candidateTag(){return PageModule.candidateTag}
 }

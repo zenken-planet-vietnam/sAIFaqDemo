@@ -21,8 +21,8 @@
         />
         <!-- tag key word -->
         <tags
-          v-if="selectedTags.length > 0"
-          :tags="selectedTags"
+          v-if="selectedTag.length > 0"
+          :tags="selectedTag"
           :isSelectedTag="true"
         />
         <auto-complete-input
@@ -36,17 +36,15 @@
           placeholder="What is your question?"
         />
       </div>
-      <!-- <div v-if="config.SEARCH_BUTTON" @click="submit" class="search-button"> 
-            <feather-icon icon="SearchIcon"></feather-icon>
-          </div> -->
     </div>
     <tags
-      v-if="filterTag.length > 0"
       :tags="filterTag"
+      :title="tagTitle"
       :isSelectedTag="false"
     />
-    <image-tag :data="imageTag"/>
+    <image-tag v-if="!this.selectedTag||!this.selectedTag.length" :data="imageTag"/>
     <search-result ref="result" v-if="searchProcess" />
+
   </div>
 </template>
 <script>
@@ -81,9 +79,6 @@ export default class SearchForm extends mixins(PageMixin) {
   intervalAnalytic = null
   // search result 
   result = null
-  get selectedTags() {
-    return this.tags.filter((x) => x.isSelected == true)
-  }
 
   get selectedCategoryTag() {
     return {
@@ -92,7 +87,11 @@ export default class SearchForm extends mixins(PageMixin) {
   }
 
   get filterTag() {
-    return this.tags.filter((x) => !x.isSelected)
+    return !this.searchProcess&&this.tags?.length?this.tags:this.candidateTag.slice(0,5)
+  }
+
+  get tagTitle(){
+  return !this.searchProcess?'Frequently Used Keywords':'Related keywords'
   }
 
   onInputFocus(event) {
@@ -161,8 +160,9 @@ export default class SearchForm extends mixins(PageMixin) {
     }
   }
   // unactive selected menu
-  unActiveFilter() {
-    CategoryModule.unActiveSelectedMenu()
+  unActiveFilter(tag) {
+    CategoryModule.unActiveSelectedMenu(tag)
+    PageModule.unselectedtag(tag.text)
   }
 }
 </script>

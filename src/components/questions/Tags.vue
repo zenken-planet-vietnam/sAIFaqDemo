@@ -1,11 +1,23 @@
 <template lang="">
-    <div class="tags-container" :class="[isSelectedTag?'selected-tags-container':'', !isModal?'none-background':'' ]"> 
-        <span class="title" v-if="!isSelectedTag">
-            {{"Popular key words:"}}
-        </span>
-        <div class="tags-wrapper">
-          <tag @click="updateTagFilter($event)" v-for="item, index in tags" :isSelectedTag="isSelectedTag" :data="item" :key="index"/>
-            <!-- <div class="tag" @click="updateTagFilter(item)" v-for="item, index in tags" :key="index">
+  <div
+    class="tags-container"
+    :class="[
+      isSelectedTag ? 'selected-tags-container' : '',
+      !isModal ? 'none-background' : '',
+    ]"
+  >
+    <span class="title" v-if="!isSelectedTag">
+      {{ title }}
+    </span>
+    <div class="tags-wrapper">
+      <tag
+        @click="updateTagFilter($event)"
+        v-for="(item, index) in tags"
+        :isSelectedTag="isSelectedTag"
+        :data="item"
+        :key="index"
+      />
+      <!-- <div class="tag" @click="updateTagFilter(item)" v-for="item, index in tags" :key="index">
               <transition name="bounce">
               <div>
                  <span>{{isSelectedTag?`${item.text}`: `#${item.text}`}}</span>
@@ -15,31 +27,38 @@
               </div>
               </transition>
             </div> -->
-        </div>
     </div>
+  </div>
 </template>
 <script lang="ts">
-import { PageModule } from "@/store/modules/page";
-import { Component, Vue, Prop } from "vue-property-decorator";
-import Tag from "./Tag.vue"
-@Component({components:{
-  Tag
-}})
+import { PageModule } from '@/store/modules/page'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import Tag from './Tag.vue'
+@Component({
+  components: {
+    Tag,
+  },
+})
 export default class Tags extends Vue {
   @Prop({ default: [] })
-  private tags!: Array<any>;
+  private tags!: Array<any>
 
   @Prop({ default: false })
-  private isSelectedTag!: Boolean;
+  private isSelectedTag!: Boolean
 
   @Prop({ default: true })
-  private isModal!: true;
+  private isModal!: true
+
+   @Prop({ default: 'true' })
+  private title!: string
 
   updateTagFilter(tag: any) {
-    PageModule.updateTagFilter({
-      text: tag.text,
-      isSelected: !this.isSelectedTag,
-    });
+    let currrentTag = { text: tag.text }
+    if (this.isSelectedTag) {
+      PageModule.unselectedTag(currrentTag)
+    } else {
+      PageModule.updateTagFilter(currrentTag)
+    }
   }
 }
 </script>
@@ -51,7 +70,7 @@ export default class Tags extends Vue {
     padding: 0px !important;
     background: transparent;
   }
-  .title{
+  .title {
     font-weight: bold;
   }
   .tags-wrapper {

@@ -3,5 +3,5 @@ export default {
   WITH_ENQUETE_RESOLVED: false,
   WITH_ENQUETE_UNRESOLVED: true,
   TIME_DELAY_ANALYTIC: 2000,
-  WITH_INITIAL_FORM: true,
+  WITH_INITIAL_FORM: false,
 }

@@ -1,131 +1,190 @@
 /* eslint-disable no-unused-vars */
-import tinySegmenter from "./tinySegmenter"
+import tinySegmenter from './tinySegmenter'
 class BaseSearch {
-    search(query = '', tags = [], categoryId = null) { }
+  search(query = '', tags = [], categoryId = null) {}
 }
 
 export class FullTextSearch extends BaseSearch {
-    scriptData: any
-    levenWords: Array<string>
-    constructor(scriptData: any) {
-        super()
-        this.scriptData = scriptData
-        this.levenWords = []
+  scriptData: any
+  levenWords: Array<string>
+  constructor(scriptData: any) {
+    super()
+    this.scriptData = scriptData
+    this.levenWords = []
+  }
+  // query: text input for search
+  //tags : keyword for search
+  search(query = '', tags = [], categoryId: any) {
+    if (query.length < 1 && tags.length === 0) {
+      return {
+        questions: this.scriptData.questions,
+        words: [],
+      }
     }
-    // query: text input for search
-    //tags : keyword for search
-    search(query = '', tags = [], categoryId: any) {
-        if (query.length < 1 && tags.length === 0) {
-            return {
-                questions: this.scriptData.questions,
-                words: []
-            }
-        }
-        const words = tinySegmenter.segmentNoneSpace(query)
-        tags.forEach((element: any) => {
-            words.push(element.text)
-        });
-        const results = this.checkTextIncludeWords(words)
-        // results = results.sort((x, y) => y.weight - x.weight)
-        const questions = this.scriptData.questions.filter((x: any) => results.find((y: any) => y === x.id) !== undefined)
-        return {
-            questions,
-            words: [...words, ...this.levenWords]
-        }
+    const words = tinySegmenter.segmentNoneSpace(query)
+    tags.forEach((element: any) => {
+      words.push(element.text)
+    })
+    const results = this.checkTextIncludeWords(words)
+    // results = results.sort((x, y) => y.weight - x.weight)
+    const questions = this.scriptData.questions.filter(
+      (x: any) => results.find((y: any) => y === x.id) !== undefined
+    )
+    return {
+      questions,
+      words: [...words, ...this.levenWords],
     }
-    // check document include list word 
-    checkTextIncludeWords(words: any, searchFilter?:any) {
-        const results = []
-        for (let i = 0; i < words.length; i++) {
-            const element = words[i];
-            const result: any = []
-            for (const word in this.scriptData.invertedIndex) {
-                const invertedData = this.scriptData.invertedIndex[word]
-                // continue if inverted data not content question filter
-                if(searchFilter&&!invertedData.scripts.find((x:any)=>searchFilter.includes(x.id))){  
-                  continue
-                }
-                // check synonym and add synonym to list search
-                const isSynonym = this.checkSynonym(element, invertedData.synonyms)
-                if (word.includes(element) || isSynonym || this.levenshteinDistance(word, element)) {
-                    invertedData.scripts.forEach((item: any) => {
-                        const script = result.find((x: any) => x.id === item.id)
-                        if (!script) result.push(item)
-                        else if (script.weight < item.weight) script.weight = item.weight
-                    });
-                }
-            }
-            results.push(result)
+  }
+  // check document include list word
+  checkTextIncludeWords(words: any, searchFilter?: any) {
+    const results = []
+    for (let i = 0; i < words.length; i++) {
+      const element = words[i]
+      const result: any = []
+      for (const word in this.scriptData.invertedIndex) {
+        const invertedData = this.scriptData.invertedIndex[word]
+        // continue if inverted data not content question filter
+        if (
+          searchFilter &&
+          !invertedData.scripts.find((x: any) => searchFilter.includes(x.id))
+        ) {
+          continue
         }
-        // take the joint result part of all results
-        let expectResults = this.getGeneralItem(results)
-        if(searchFilter){
-            expectResults= expectResults.filter((x:any)=>searchFilter.includes(x.id))
+        // check synonym and add synonym to list search
+        const isSynonym = this.checkSynonym(element, invertedData.synonyms)
+        if (
+          word.includes(element) ||
+          isSynonym ||
+          this.levenshteinDistance(word, element)
+        ) {
+          invertedData.scripts.forEach((item: any) => {
+            const script = result.find((x: any) => x.id === item.id)
+            if (!script) result.push(item)
+            else if (script.weight < item.weight) script.weight = item.weight
+          })
         }
-        expectResults.sort((a: any, b: any) => {
-            return b.weight - a.weight
+      }
+      results.push(result)
+    }
+    // take the joint result part of all results
+    let expectResults = this.getGeneralItem(results)
+    if (searchFilter) {
+      expectResults = expectResults.filter((x: any) =>
+        searchFilter.includes(x.id)
+      )
+    }
+    expectResults.sort((a: any, b: any) => {
+      return b.weight - a.weight
+    })
+    const a = expectResults.map((x: any) => ({ id: x.id, weight: x.weight }))
+
+    return expectResults.map((x: any) => x.id)
+  }
+  //get documemt contains all text
+  getGeneralItem(items: any) {
+    if (items.length === 0) return []
+    if (items.length === 1) return items[0]
+    const results = []
+    for (let i = 0; i < items[0].length; i++) {
+      const element = items[0][i]
+      let isContain = true
+      for (let j = 1; j < items.length; j++) {
+        const item = items[j]
+        if (item.find((x: any) => x.id == element.id) === undefined) {
+          isContain = false
+          break
+        }
+      }
+      if (isContain) results.push(element)
+    }
+    return results
+  }
+  //levenshteinDistance algorithm copy right
+  levenshteinDistance(str1 = '', str2 = '') {
+    const track = Array(str2.length + 1)
+      .fill(null)
+      .map(() => Array(str1.length + 1).fill(null))
+    for (let i = 0; i <= str1.length; i += 1) {
+      track[0][i] = i
+    }
+    for (let j = 0; j <= str2.length; j += 1) {
+      track[j][0] = j
+    }
+    for (let j = 1; j <= str2.length; j += 1) {
+      for (let i = 1; i <= str1.length; i += 1) {
+        const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1
+        track[j][i] = Math.min(
+          track[j][i - 1] + 1, // deletion
+          track[j - 1][i] + 1, // insertion
+          track[j - 1][i - 1] + indicator // substitution
+        )
+      }
+    }
+    const value =
+      1 - (track[str2.length][str1.length] * 2) / (str1.length + str2.length)
+    if (value > 0.5) {
+      this.levenWords.push(str1)
+      return true
+    }
+    return false
+  }
+  // check synonym with text
+  checkSynonym(text: any, synonyms: any) {
+    if (synonyms.length < 1) return false
+    if (synonyms.indexOf(text) !== -1) {
+      synonyms.forEach((element: any) => {
+        if (this.levenWords.indexOf(element) === -1)
+          this.levenWords.push(element)
+      })
+      return true
+    }
+    return false
+  }
+  // get candidate tag
+  getCandidateTag(selectedTags: Array<any>) {
+    const questionContainTag: Array<any> = []
+    // get question contains this keywords
+    // tag1=> [q1,q2,q3]
+    // tag2=> [q2,q3,q4]
+    // =>questionByKeyWord=[q2,q3]
+    if (this.scriptData.invertedIndex[selectedTags[0].text]) {
+      let questionByKeyWord =
+        this.scriptData.invertedIndex[selectedTags[0].text].scripts
+      if (selectedTags?.length > 1) {
+        for (let i = 1; i < selectedTags.length; i++) {
+          const element = selectedTags[i]
+          const invertedData = this.scriptData.invertedIndex[element]
+          if (invertedData) {
+            questionByKeyWord = questionByKeyWord.filter((x: any) =>
+              invertedData.scripts.find((y: any) => y.id === x.id)
+            )
+          }
+        }
+      }
+      questionByKeyWord.sort((a: any, b: any) => {
+        return b.weight - a.weight
+      })
+      let relatedKeywords: any = []
+      //get inverted data of questions
+      if (questionByKeyWord) {
+        Object.entries(this.scriptData.invertedIndex)
+        const relatedtags = Object.entries(
+          this.scriptData.invertedIndex
+        ).filter(([key, value]: any) => {
+          if (
+            value.scripts.find((x: any) =>
+              questionByKeyWord.find((y: any) => y.id === x.id)
+            )
+          )
+            relatedKeywords.push({ text: key })
         })
-        const a=expectResults.map((x: any) =>({id:  x.id,weight: x.weight}))
-
-        return expectResults.map((x: any) => x.id)
+      }
+      relatedKeywords = relatedKeywords.filter(
+        (x: any) =>
+          x.text.length > 1 && !selectedTags.find((y) => y.text === x.text)
+      )
+      return relatedKeywords
     }
-    //get documemt contains all text
-    getGeneralItem(items: any) {
-        if (items.length === 0) return []
-        if (items.length === 1) return items[0]
-        const results = []
-        for (let i = 0; i < items[0].length; i++) {
-            const element = items[0][i];
-            let isContain = true
-            for (let j = 1; j < items.length; j++) {
-                const item = items[j];
-                if (item.find((x: any) => x.id == element.id) === undefined) {
-                    isContain = false
-                    break;
-                }
-            }
-            if (isContain) results.push(element)
-        }
-        return results
-    }
-    //levenshteinDistance algorithm copy right 
-    levenshteinDistance(str1 = '', str2 = '') {
-        const track = Array(str2.length + 1).fill(null).map(() =>
-            Array(str1.length + 1).fill(null));
-        for (let i = 0; i <= str1.length; i += 1) {
-            track[0][i] = i;
-        }
-        for (let j = 0; j <= str2.length; j += 1) {
-            track[j][0] = j;
-        }
-        for (let j = 1; j <= str2.length; j += 1) {
-            for (let i = 1; i <= str1.length; i += 1) {
-                const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
-                track[j][i] = Math.min(
-                    track[j][i - 1] + 1, // deletion
-                    track[j - 1][i] + 1, // insertion
-                    track[j - 1][i - 1] + indicator, // substitution
-                );
-            }
-        }
-        const value = 1 - track[str2.length][str1.length] * 2 / (str1.length + str2.length);
-        if (value > 0.5) {
-            this.levenWords.push(str1)
-            return true
-        }
-        return false
-    }
-
-    // check synonym with text
-    checkSynonym(text: any, synonyms: any) {
-        if (synonyms.length < 1) return false
-        if (synonyms.indexOf(text) !== -1) {
-            synonyms.forEach((element: any) => {
-                if (this.levenWords.indexOf(element) === -1)
-                    this.levenWords.push(element)
-            });
-            return true
-        }
-        return false
-    }
+    return []
+  }
 }

@@ -3,7 +3,7 @@
     <div v-for="(item, index) in data" :key="index" class="image-tag-wrapper">
       <div class="title">{{ item.title }}</div>
       <div class="image-tag-content">
-        <div v-for="(tag, tindex) in item.tags" :key="tindex" class="image-tag">
+        <div v-for="(tag, tindex) in item.tags" :key="tindex" @click="selectedTag(tag)" class="image-tag">
           <img :src="imgSrc(tag.icon)" />
           <div class="separator"></div>
           <div class="content">{{ tag.displayText }}</div>
@@ -13,6 +13,7 @@
   </div>
 </template>
 <script lang="ts">
+import { PageModule } from '@/store/modules/page'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 @Component({})
 export default class ImageTag extends Vue {
@@ -24,6 +25,10 @@ export default class ImageTag extends Vue {
 
   imgSrc(icon: any) {
     return require(`@/assets/tag/${icon}`)
+  }
+
+  selectedTag(imageTag:any){
+    PageModule.selectedImageTag({text: imageTag.displayText.toLowerCase()})
   }
 }
 </script>
@@ -48,7 +53,7 @@ export default class ImageTag extends Vue {
         font-size: 14px;
         border: 1px solid #1d9bf0;
         //background: #138d75;
-        padding: 0.25rem 0.5rem;
+        padding: 0.5rem;
         margin: 5px;
         .separator {
           height: 16px;
@@ -57,7 +62,7 @@ export default class ImageTag extends Vue {
           margin: 2px;
         }
         img {
-          width: 32px;
+          width: 24px;
         }
       }
     }
