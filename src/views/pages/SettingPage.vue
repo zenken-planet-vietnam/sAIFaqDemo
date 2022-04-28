@@ -7,13 +7,20 @@
     </div>
     <b-row class="mt-2 flex-row-reverse">
       <b-col md="3">
-        <b-button v-b-modal="modalId" variant="primary" size="sm" style="float: right;">
+        <b-button v-b-modal.quickstart-form variant="primary" size="sm" style="float: right;">
           <feather-icon icon="PlusIcon"></feather-icon>
-          Create a query
+            Create a query
         </b-button>
-        <modal-form @formSubmited="addNewQuery" :modalTitle="modalTitle"
-                    :modalLabel="modalLabel" :modalId="modalId" :placeholder="'Type a query'"/>
+        <quickstart-form @quickstartSubmit="quickstartSubmit" :cloneLabel="cloneLabel"/>
       </b-col>
+<!--      <b-col md="3">-->
+<!--        <b-button v-b-modal="modalId" variant="primary" size="sm" style="float: right;">-->
+<!--          <feather-icon icon="PlusIcon"></feather-icon>-->
+<!--          Create a query-->
+<!--        </b-button>-->
+<!--        <modal-form @formSubmited="addNewQuery" :modalTitle="modalTitle"-->
+<!--                    :modalLabel="modalLabel" :modalId="modalId" :placeholder="'Type a query'"/>-->
+<!--      </b-col>-->
     </b-row>
     <b-row class="mt-2 row-border">
       <b-col md="12">
@@ -24,21 +31,6 @@
             params: {'pinnedQueryId': row.item.id, 'pinnedQueryLabel': row.item.label}})">
               {{ row.item.label ? row.item.label : '""' }}
             </b-link>
-<!--            <b-tooltip placement="right" :target="'label-'+row.item.id" triggers="hover">-->
-<!--              <div>-->
-<!--                <span>Promoted results:</span>-->
-<!--                <div>-->
-<!--                  <p>Where and when do I pay my fare for a train?</p>-->
-<!--                  <p>Where are Shinkansen tickets sold?</p>-->
-<!--                  <p>Are fares different for babies / children?</p>-->
-<!--                </div>-->
-<!--                Hidden results:-->
-<!--                <div>-->
-<!--                  <p>Where and when do I pay my fare for a train?</p>-->
-<!--                  <p>How is the fare handled when going to confirm?</p>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </b-tooltip>-->
           </template>
           <template #cell(modified)="row">
             <span>{{ formatDatetime(row.item.modified) }}</span>
@@ -68,6 +60,7 @@ import SettingMixin from "@/@core/mixins/settingMixin";
 import {SettingModule} from "@/store/modules/setting";
 import { mixins } from "vue-class-component";
 import ModalForm from "@/components/common/ModalForm.vue"
+import QuickstartForm from "@/components/settings/QuickstartForm.vue";
 
 @Component({
   components: {
@@ -76,7 +69,8 @@ import ModalForm from "@/components/common/ModalForm.vue"
     BTable,
     PinnedQuestionDraggable,
     ModalForm,
-    BTooltip
+    BTooltip,
+    QuickstartForm,
   },
 })
 export default class Settings extends mixins(SettingMixin) {
@@ -97,11 +91,16 @@ export default class Settings extends mixins(SettingMixin) {
   selectedLabel = ""
   edittingItem!: any
   edittingIndex!: any
+  cloneLabel: any = []
 
    created() {
-    
-    this.fetchingData()
-  }
+     this.fetchingData().then(() => {
+       this.cloneLabel = this.pinnedQueriesData.map((item: any) => {
+         return {value: item.label, text: item.label, id: item.id}
+       })
+     })
+   }
+
   //fetch data
   async fetchingData() {
    this.$store.state.config.isLoading = true;
@@ -144,8 +143,10 @@ export default class Settings extends mixins(SettingMixin) {
   addNewQuery(data: any) {
     SettingModule.addPinnedQuery({label: data})
   }
-  onHoverDisplayReview(data: any) {
-    SettingModule.getPinnedQuestionByQuery(data.id)
+
+  quickstartSubmit(data: any) {
+    // console.log(data)
+    this.submitQuickstart(data)
   }
 }
 </script>

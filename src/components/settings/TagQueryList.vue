@@ -1,4 +1,4 @@
-<template lang="">
+<template>
   <div
     class="tags-container"
     :class="[
@@ -10,36 +10,25 @@
       {{ title }}
     </span>
     <div class="tags-wrapper">
-      <tag
+      <tag-query
         @click="updateTagFilter($event)"
         v-for="(item, index) in tags"
         :isSelectedTag="isSelectedTag"
         :data="item"
         :key="index"
       />
-      <!-- <div class="tag" @click="updateTagFilter(item)" v-for="item, index in tags" :key="index">
-              <transition name="bounce">
-              <div>
-                 <span>{{isSelectedTag?`${item.text}`: `#${item.text}`}}</span>
-                <div v-if="isSelectedTag" class="remove-tag">
-                    <feather-icon size="12" icon="XIcon"/>
-                </div>
-              </div>
-              </transition>
-            </div> -->
     </div>
   </div>
 </template>
 <script lang="ts">
-import { PageModule } from '@/store/modules/page'
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import Tag from './Tag.vue'
+import TagQuery from './TagQuery.vue'
 @Component({
   components: {
-    Tag,
+    TagQuery,
   },
 })
-export default class Tags extends Vue {
+export default class TagQueryList extends Vue {
   @Prop({ default: [] })
   private tags!: Array<any>
 
@@ -53,12 +42,7 @@ export default class Tags extends Vue {
   private title!: string
 
   updateTagFilter(tag: any) {
-    let currrentTag = { text: tag.text }
-    if (this.isSelectedTag) {
-      PageModule.unselectedTag(currrentTag)
-    } else {
-      PageModule.updateTagFilter(currrentTag)
-    }
+    this.$emit("deleteQueryTag", tag)
   }
 }
 </script>

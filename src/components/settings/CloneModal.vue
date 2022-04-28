@@ -2,17 +2,18 @@
   <div>
     <b-modal id="modal-clone" title="Clone" @ok="handleOk">
       <p class="">Copy to</p>
-      <div class="mb-1">
-        <multiselect
-            id="feedback-user"
-            v-model="selectedQueries"
-            tag-placeholder="Add this as new query"
-            placeholder="Search or add a query"
-            label="value" track-by="text"
-            :options="cloneLabel" :multiple="true"
-            :taggable="true" @tag="addQuery"></multiselect>
-        <label class="typo__label form__label text-danger" v-show="!validation">Must have at least one value</label>
-      </div>
+<!--      <div class="mb-1">-->
+<!--        <multiselect-->
+<!--            id="feedback-user"-->
+<!--            v-model="selectedQueries"-->
+<!--            tag-placeholder="Add this as new query"-->
+<!--            placeholder="Search or add a query"-->
+<!--            label="value" track-by="text"-->
+<!--            :options="cloneLabel" :multiple="true"-->
+<!--            :taggable="true" @tag="addQuery"></multiselect>-->
+<!--        <label class="typo__label form__label text-danger" v-show="!validation">Must have at least one value</label>-->
+<!--      </div>-->
+      <sai-multi-select :labels.sync="selectedQueries" :cloneLabel="cloneLabel"/>
       <b-form-checkbox
         id="checkbox-1"
         name="checkbox-1"
@@ -32,12 +33,14 @@
 import {Component, Prop, Vue} from "vue-property-decorator";
 import {BModal, BForm} from 'bootstrap-vue'
 import Multiselect from "vue-multiselect";
+import SaiMultiSelect from "../common/SaiMultiSelect.vue"
 
 @Component({
   components: {
     BModal,
     BForm,
     Multiselect,
+    SaiMultiSelect
   },
 })
 export default class CloneModal extends Vue {
@@ -45,10 +48,6 @@ export default class CloneModal extends Vue {
   private cloneLabel!: []
   replace: any = false
   selectedQueries: any = []
-
-  addQuery(newQuery: any) {
-    this.selectedQueries.push({text:newQuery, value: newQuery, id: null})
-  }
 
   get validation() {
     return this.selectedQueries.length > 0
@@ -58,8 +57,7 @@ export default class CloneModal extends Vue {
     bvModalEvt.preventDefault()
     if (!this.validation)
       return
-    let queries = this.selectedQueries.map((item: any) => (item.value))
-    this.$emit("handleQuickClone", {replace: this.replace, selectedLabel: queries})
+    this.$emit("handleQuickClone", {replace: this.replace, selectedLabel: this.selectedQueries})
     this.$nextTick(() => {
       this.resetForm()
       this.$bvModal.hide("modal-clone")

@@ -29,6 +29,11 @@ export default class Setting extends VuexModule implements ISettingState {
     }
 
     @Mutation
+    private ADD_LIST_PINNED_QUERIES_DATA(payload: any) {
+        this.data = [...this.data, ...payload.data]
+    }
+
+    @Mutation
     private UPDATE_PINNED_QUERY_DATA(payload: any) {
         this.data = this.data.map((item: any, index: any) => {
             if (index === payload.index) {
@@ -144,7 +149,7 @@ export default class Setting extends VuexModule implements ISettingState {
         const arrayQuestionId = params.value.map((item: any, index: any) => {
             return item.id
         })
-        axios.put(`pinned_query/${params.queryId}/question`,
+        axios.post(`pinned_query/${params.queryId}/question/order`,
             {question_order: arrayQuestionId})
 
         this.SET_PINNED_QUESTION_DATA(params.value)
@@ -194,6 +199,16 @@ export default class Setting extends VuexModule implements ISettingState {
                 target_query_label: params.targetLabel,
                 promoted_ids: params.promotedList,
                 hidden_ids: params.hiddenList
+            })
+    }
+
+    @Action
+    public submitQuickstart(params: any) {
+        axios.post(`pinned_query/quickstart`, {...params, product_id: this.productId})
+            .then(response => {
+                this.ADD_LIST_PINNED_QUERIES_DATA(response.data)
+            })
+            .catch(err => {
             })
     }
 }

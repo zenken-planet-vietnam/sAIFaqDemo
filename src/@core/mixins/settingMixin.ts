@@ -12,6 +12,7 @@ export default class extends Vue {
     set promotedQuestions(value: any) {
         this.updateQuestionOrder(value)
     }
+    
     updateQuestionOrder(value: any) {
         SettingModule.updatePinnedQuestionOrder({
             queryId: this.$route.params.pinnedQueryId, value:value
@@ -98,6 +99,12 @@ export default class extends Vue {
             promotedList: promotedList,
             hiddenList: hiddenList,
         })
+        this.$store.state.config.isLoading = false;
+    }
+
+    async submitQuickstart(data: any) {
+        this.$store.state.config.isLoading = true;
+        await SettingModule.submitQuickstart(data)
         this.$store.state.config.isLoading = false;
     }
 }

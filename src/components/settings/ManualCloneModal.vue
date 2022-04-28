@@ -2,18 +2,19 @@
   <div>
     <b-modal id="manual-modal-clone" title="Manual Clone" 
              @ok="handleOk" @hidden="handleClose"
-    no-close-on-backdrop no-close-on-esc >
+    >
       <p class="">Copy to</p>
       <div class="mb-1">
-        <multiselect
-            id="feedback-user"
-            v-model="selectedQueries"
-            tag-placeholder="Add this as new query"
-            placeholder="Search or add a query"
-            label="value" track-by="text"
-            :options="cloneLabel" :multiple="true"
-            :taggable="true" @tag="addQuery"></multiselect>
-        <label class="typo__label form__label text-danger" v-show="!validation">Must have at least one value</label>
+<!--        <multiselect-->
+<!--            id="feedback-user"-->
+<!--            v-model="selectedQueries"-->
+<!--            tag-placeholder="Add this as new query"-->
+<!--            placeholder="Search or add a query"-->
+<!--            label="value" track-by="text"-->
+<!--            :options="cloneLabel" :multiple="true"-->
+<!--            :taggable="true" @tag="addQuery"></multiselect>-->
+<!--        <label class="typo__label form__label text-danger" v-show="!validation">Must have at least one value</label>-->
+            <sai-multi-select :labels.sync="selectedQueries" :cloneLabel="cloneLabel"/>
       </div>
       <b-form-checkbox
         id="checkbox-manual-replace"
@@ -77,12 +78,14 @@ import {BModal, BForm} from 'bootstrap-vue'
 import Multiselect from "vue-multiselect";
 import {mixins} from "vue-class-component";
 import SettingMixin from "@/@core/mixins/settingMixin";
+import SaiMultiSelect from "../common/SaiMultiSelect.vue"
 
 @Component({
   components: {
     BModal,
     BForm,
-    Multiselect
+    Multiselect,
+    SaiMultiSelect
   },
 })
 export default class ManualCloneModal extends mixins(SettingMixin) {
@@ -110,11 +113,10 @@ export default class ManualCloneModal extends mixins(SettingMixin) {
     }
     let promoted = this.selectedPromoted.filter((item: any) => item.selected).map((q: any) => (q.id))
     let hidden = this.selectedHidden.filter((item: any) => item.selected).map((q: any) => (q.id))
-    let queries = this.selectedQueries.map((item: any) => (item.value))
 
     this.$emit("handleManualClone", {
       replace: this.replace,
-      selectedLabel: queries,
+      selectedLabel: this.selectedQueries,
       promotedList: promoted,
       hiddenList: hidden
     })
